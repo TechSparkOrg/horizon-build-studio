@@ -29,7 +29,11 @@ export async function uploadFile(file: File, subdir = "projects", compress = tru
 
   if (isModel) {
     if (compress && file.name.endsWith(".glb")) {
-      buffer = Buffer.from(await compressGlb(buffer));
+      try {
+        buffer = Buffer.from(await compressGlb(buffer));
+      } catch {
+        // Draco compression unavailable on this platform (e.g. Vercel serverless), use original
+      }
     }
     const key = `${subdir}/${baseFilename}${ext}`;
     const contentType = file.type || "model/gltf-binary";

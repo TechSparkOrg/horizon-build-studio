@@ -1,6 +1,7 @@
 "use client";
 
 import { Box } from "lucide-react";
+import { toast } from "sonner";
 import type { ModelItem } from "../types";
 import { uid } from "@/lib/id";
 
@@ -33,7 +34,11 @@ export function ModelsSection({
               fd.set("file", file);
               fd.set("subdir", "models");
               const res = await fetch("/api/upload", { method: "POST", body: fd });
-              if (!res.ok) { console.error("Upload failed:", await res.json().catch(() => ({}))); continue; }
+              if (!res.ok) {
+                const err = await res.json().catch(() => ({ error: res.statusText }));
+                toast.error(err.error || "Upload failed");
+                continue;
+              }
               const { url } = await res.json();
               added.push({
                 id: uid(),

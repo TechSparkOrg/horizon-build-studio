@@ -2,6 +2,7 @@
 
 import { useCallback, useState } from "react";
 import { uid } from "@/lib/id";
+import { toast } from "sonner";
 import { Upload, X, Star, GripVertical } from "lucide-react";
 
 interface MediaItem {
@@ -47,7 +48,11 @@ export function MediaUploader({ items, onChange }: Props) {
       fd.set("file", file);
       fd.set("subdir", "images");
       const res = await fetch("/api/upload", { method: "POST", body: fd });
-      if (!res.ok) { console.error("Upload failed"); continue; }
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: res.statusText }));
+        toast.error(err.error || "Upload failed");
+        continue;
+      }
       const { url } = await res.json();
       newItems.push({
         id: uid(),

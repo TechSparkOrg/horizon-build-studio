@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { uid } from "@/lib/id";
+import { toast } from "sonner";
 import { Plus, X, BookOpen, Image, Video, Box, Copy } from "lucide-react";
 
 interface FAQItem {
@@ -383,6 +384,11 @@ export function TimelineBuilder({ phases, onChange, models3d = [], media = [], v
                                           formData.append("file", file);
                                           formData.append("subdir", m.type === "model3d" ? "models" : "images");
                                           const res = await fetch("/api/upload", { method: "POST", body: formData });
+                                          if (!res.ok) {
+                                            const err = await res.json().catch(() => ({ error: res.statusText }));
+                                            toast.error(err.error || "Upload failed");
+                                            return;
+                                          }
                                           const data = await res.json();
                                           if (data.url) updateMedia(phase.id, m.id, "url", data.url);
                                         };
@@ -423,6 +429,11 @@ export function TimelineBuilder({ phases, onChange, models3d = [], media = [], v
                                         formData.append("file", file);
                                         formData.append("subdir", m.type === "model3d" ? "models" : "images");
                                         const res = await fetch("/api/upload", { method: "POST", body: formData });
+                                        if (!res.ok) {
+                                          const err = await res.json().catch(() => ({ error: res.statusText }));
+                                          toast.error(err.error || "Upload failed");
+                                          return;
+                                        }
                                         const data = await res.json();
                                         if (data.url) updateMedia(phase.id, m.id, "url", data.url);
                                       };

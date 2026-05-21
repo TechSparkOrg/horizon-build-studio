@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
+import { toast } from "sonner";
 import { Upload, X, Link as LinkIcon } from "lucide-react";
 
 interface Props {
@@ -21,10 +22,14 @@ export function ImageUploader({ value, onChange }: Props) {
       const fd = new FormData();
       fd.append("file", file);
       const res = await fetch("/api/upload", { method: "POST", body: fd });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: res.statusText }));
+        throw new Error(err.error || "Upload failed");
+      }
       const data = await res.json();
       if (data.url) onChange(data.url);
-    } catch {
-      /* ignore */
+    } catch (e: any) {
+      toast.error(e.message || "Upload failed");
     } finally {
       setUploading(false);
       if (inputRef.current) inputRef.current.value = "";

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import React, { Suspense } from "react";
 import { Playfair_Display, Barlow, Barlow_Condensed } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 
 const playfair = Playfair_Display({
@@ -95,6 +96,11 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
+        <link rel="preconnect" href="https://pub-a19a6c84befd4048bbb715b4a6d4f307.r2.dev" />
+        <link rel="preconnect" href="https://images.unsplash.com" />
+        <link rel="preconnect" href="https://ajax.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -149,6 +155,7 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased">
         <Toaster richColors position="top-right" />
+        <SpeedInsights />
         <Suspense fallback={null}>
           <PublicSiteWrapper>{children}</PublicSiteWrapper>
         </Suspense>

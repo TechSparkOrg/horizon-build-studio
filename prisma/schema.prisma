@@ -1,0 +1,291 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String    @id @default(cuid())
+  name           String?
+  email          String    @unique
+  emailVerified  DateTime?
+  image          String?
+  hashedPassword String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  accounts       Account[]
+  sessions       Session[]
+}
+
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  id_token          String?
+  session_state     String?
+  user              User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@id([provider, providerAccountId])
+}
+
+model Session {
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+  @@id([identifier, token])
+}
+
+model Category {
+  id          String       @id @default(cuid())
+  name        String
+  slug        String       @unique
+  description String       @default("")
+  parentId    String?
+  parent      Category?    @relation("CategoryTree", fields: [parentId], references: [id], onDelete: SetNull)
+  children    Category[]   @relation("CategoryTree")
+  order       Int          @default(0)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  projects    Project[]
+  faqs        FAQ[]
+}
+
+model ProjectAttribute {
+  id        String   @id @default(cuid())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  label     String
+  value     String
+  type      String   @default("text")
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+}
+
+model Project {
+  id               String             @id @default(cuid())
+  @@index([categoryId])
+  @@index([slug])
+  title            String
+  slug             String             @unique
+  description      String             @default("")
+  shortDescription String             @default("")
+  categoryId       String?
+  category         Category?          @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  status           String             @default("planning")
+  completion       Int                @default(0)
+  location         String
+  budget           Float?
+  startDate        DateTime?
+  endDate          DateTime?
+  img              String             @default("")
+  alt              String             @default("")
+  featured         Boolean            @default(false)
+  published        Boolean            @default(true)
+  order            Int                @default(0)
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  ownerName        String             @default("")
+  ownerProfession  String             @default("")
+  ownerEarning     String             @default("")
+  media            ProjectMedia[]
+  videos           ProjectVideo[]
+  models3d         ProjectModel3D[]
+  phases           ProjectPhase[]
+  attributes       ProjectAttribute[]
+  projectFaqs      ProjectFAQ[]
+  newsArticles     NewsArticle[]
+}
+
+model ProjectMedia {
+  id        String   @id @default(cuid())
+  projectId String
+  url       String
+  alt       String   @default("")
+  type      String   @default("image")
+  isHero    Boolean  @default(false)
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  @@index([projectId])
+}
+
+model ProjectVideo {
+  id         String   @id @default(cuid())
+  projectId  String
+  platform   String   @default("youtube")
+  sourceUrl  String   @default("")
+  videoId    String   @default("")
+  title      String   @default("")
+  thumbnail  String   @default("")
+  embedUrl   String   @default("")
+  fileUrl    String   @default("")
+  fileType   String   @default("")
+  duration   String   @default("")
+  isFeatured Boolean  @default(false)
+  order      Int      @default(0)
+  createdAt  DateTime @default(now())
+  project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  @@index([projectId])
+}
+
+model ProjectModel3D {
+  id        String   @id @default(cuid())
+  projectId String
+  filename  String
+  url       String
+  type      String   @default("glb")
+  createdAt DateTime @default(now())
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  @@index([projectId])
+}
+
+model ProjectPhase {
+  id          String   @id @default(cuid())
+  projectId   String
+  title       String
+  description String   @default("")
+  completion  Int      @default(0)
+  date        DateTime?
+  images      String[] @default([])
+  youtubeUrl  String   @default("")
+  faqId       String?
+  faq       FAQ?     @relation(fields: [faqId], references: [id], onDelete: SetNull)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  medias      PhaseMedia[]
+  @@index([projectId])
+  @@index([faqId])
+}
+
+model PhaseMedia {
+  id           String       @id @default(cuid())
+  phaseId      String
+  phase        ProjectPhase @relation(fields: [phaseId], references: [id], onDelete: Cascade)
+  type         String       @default("image") // "image" | "video" | "model3d"
+  url          String
+  message      String       @default("")
+  referenceNo  String       @default("")
+  order        Int          @default(0)
+  createdAt    DateTime     @default(now())
+  @@index([phaseId])
+}
+
+model TeamMember {
+  id        String   @id @default(cuid())
+  name      String
+  role      String
+  img       String
+  alt       String   @default("")
+  linkedin  String?
+  email     String?
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Testimonial {
+  id        String   @id @default(cuid())
+  author    String
+  role      String
+  company   String   @default("")
+  quote     String
+  initials  String
+  avatar    String?
+  rating    Int      @default(5)
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model FAQ {
+  id         String         @id @default(cuid())
+  question   String
+  answer     String
+  faqTypeId  String?
+  faqType    FAQType?       @relation(fields: [faqTypeId], references: [id], onDelete: SetNull)
+  categoryId String?
+  category   Category?      @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  order      Int            @default(0)
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+  phases       ProjectPhase[]
+  projectFaqs  ProjectFAQ[]
+  @@index([faqTypeId])
+  @@index([categoryId])
+}
+
+model ProjectFAQ {
+  id        String   @id @default(cuid())
+  projectId String
+  faqId     String
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  faq       FAQ      @relation(fields: [faqId], references: [id], onDelete: Cascade)
+  @@unique([projectId, faqId])
+  @@index([projectId])
+  @@index([faqId])
+}
+
+model FAQType {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  faqs      FAQ[]
+}
+
+model NewsArticle {
+  id                 String   @id @default(cuid())
+  title              String
+  excerpt            String
+  category           String
+  image              String
+  alt                String   @default("")
+  slug               String   @unique
+  projectId          String?
+  project            Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  publishedAt        DateTime @default(now())
+  readingTimeMinutes Int?     @default(3)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  @@index([projectId])
+}
+
+model ContactSubmission {
+  id            String   @id @default(cuid())
+  name          String
+  email         String
+  phone         String
+  serviceType   String
+  description   String
+  preferredDate String
+  status        String   @default("new")
+  createdAt     DateTime @default(now())
+}
+
+model SiteSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  type      String   @default("text")
+  section   String   @default("general")
+  updatedAt DateTime @updatedAt
+}

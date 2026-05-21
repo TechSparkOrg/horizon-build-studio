@@ -1,0 +1,67 @@
+FROM node:22-alpine AS base
+
+# Install openssl for Prisma
+RUN apk add --no-cache openssl
+
+# Install dependencies only when needed
+FROM base AS deps
+# Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
+RUN apk add --no-cache libc6-compat
+WORKDIR /app
+
+# Install dependencies
+COPY package.json pnpm-lock.yaml* pnpm-workspace.yaml ./
+COPY prisma ./prisma
+RUN corepack enable pnpm && pnpm i --frozen-lockfile --ignore-scripts && \
+    pnpm rebuild sharp && pnpm prisma generate
+
+# Rebuild the source code only when needed
+FROM base AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+
+# Environment variables must be present at build time
+# https://nextjs.org/docs/messages/prerender-error
+ARG DATABASE_URL
+ENV DATABASE_URL=${DATABASE_URL}
+ENV NEXT_TELEMETRY_DISABLED=1
+
+# Generate Prisma Client & Build Next.js
+RUN corepack enable pnpm && pnpm prisma generate
+RUN corepack enable pnpm && pnpm run build
+
+# Production image, copy all the files and run next
+FROM base AS runner
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
+# Set the correct permission for prerender cache
+RUN mkdir .next
+RUN chown nextjs:nodejs .next
+
+# Automatically leverage output traces to reduce image size
+# https://nextjs.org/docs/advanced-features/output-file-tracing
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+# Copy Prisma schema (needed at runtime for prisma db push/seed)
+COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
+
+# Install Prisma CLI for db push at runtime
+RUN npm install -g prisma@6.19.3
+
+USER nextjs
+
+EXPOSE 3000
+
+ENV PORT=3000
+# set hostname to localhost
+ENV HOSTNAME="0.0.0.0"
+
+CMD ["node", "server.js"]

@@ -297,8 +297,12 @@ export function TimelineBuilder({ phases, onChange, models3d = [], media = [], v
                     <label className="block text-xs text-mid-gray mb-1">Completion %</label>
                     <input
                       type="number" min={0} max={100}
-                      value={phase.completion}
-                      onChange={(e) => update(phase.id, "completion", Number(e.target.value))}
+                      value={phase.completion || ""}
+                      placeholder="0"
+                      onChange={(e) => {
+                        const v = e.target.value;
+                        update(phase.id, "completion", v === "" ? 0 : Number(v));
+                      }}
                       className={input}
                     />
                   </div>
@@ -340,8 +344,9 @@ export function TimelineBuilder({ phases, onChange, models3d = [], media = [], v
                               const dropdownItems = m.type === "model3d" ? models3d : m.type === "image" ? media : m.type === "video" ? videos : [];
                               const getItemUrl = (item: Model3DItem | MediaItem | VideoItem): string =>
                                 "filename" in item ? item.url : "alt" in item ? item.url : (item as VideoItem).fileUrl || (item as VideoItem).sourceUrl || "";
+                              const urlName = (u: string) => { try { return new URL(u).pathname.split("/").filter(Boolean).pop() || u; } catch { return u; } };
                               const dropdownLabel = (item: Model3DItem | MediaItem | VideoItem): string =>
-                                "filename" in item ? (item as Model3DItem).filename : "alt" in item ? (item as MediaItem).alt || getItemUrl(item) : (item as VideoItem).title || getItemUrl(item);
+                                "filename" in item ? (item as Model3DItem).filename : "alt" in item ? (item as MediaItem).alt || urlName(getItemUrl(item)) : (item as VideoItem).title || urlName(getItemUrl(item));
                               const acceptType = m.type === "image" ? "image/*" : m.type === "video" ? "video/*" : ".glb,.gltf";
                               return dropdownItems.length > 0 ? (
                                 <div className="flex-1 w-full space-y-1">

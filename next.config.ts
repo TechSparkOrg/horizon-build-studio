@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 
 const config: NextConfig = {
   // output: "standalone",
+
   reactStrictMode: true,
   cacheComponents: true,
 
@@ -14,6 +15,17 @@ const config: NextConfig = {
       },
         { protocol: "https", hostname: "pub-a19a6c84befd4048bbb715b4a6d4f307.r2.dev" },
     ],
+  },
+
+    reactCompiler: true,
+
+
+
+  experimental: {
+    optimizePackageImports: ["lucide-react"]
+  },
+  compiler: {
+    removeConsole: process.env.NODE_ENV === "production",
   },
 
   async headers() {

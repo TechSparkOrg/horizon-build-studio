@@ -59,8 +59,26 @@ function extractYoutubeId(url: string): string | null {
 }
 
 function extractFacebookVideoId(url: string): string | null {
-  if (url.includes("facebook.com") || url.includes("fb.watch")) return url;
-  return null;
+  if (!url.includes("facebook.com") && !url.includes("fb.watch")) return null;
+  try {
+    const u = new URL(url);
+    if (u.hostname === "fb.watch") return url;
+    const paths = u.pathname.replace(/\/+$/, "").split("/").filter(Boolean);
+    if (paths[0] === "share" && (paths[1] === "v" || paths[1] === "r")) {
+      return `https://www.facebook.com/${paths.slice(0, 3).join("/")}/`;
+    }
+    if (paths[0] === "watch") {
+      const v = u.searchParams.get("v");
+      if (v) return `https://www.facebook.com/watch/?v=${v}`;
+    }
+    if (paths[0] === "reel" || paths[0] === "video") {
+      return `https://www.facebook.com/${paths.join("/")}/`;
+    }
+    u.search = "";
+    return u.href;
+  } catch {
+    return null;
+  }
 }
 
 function extractInstagramReelId(url: string): string | null {

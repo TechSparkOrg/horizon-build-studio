@@ -10,7 +10,7 @@ export function QuoteBannerSecondary() {
         className="absolute inset-0 opacity-10"
         style={{
           backgroundImage:
-            "radial-gradient(circle at 20% 20%, oklch(1 0 0 / 0.4) 0, transparent 30%), radial-gradient(circle at 80% 70%, oklch(0.62 0.21 35 / 0.5) 0, transparent 35%)",
+            "radial-gradient(circle at 20% 20%, oklch(1 0 0 / 0.4) 0, transparent 30%), radial-gradient(circle at 80% 70%, oklch(0.26 0.07 265 / 0.3) 0, transparent 35%)",
         }}
         aria-hidden="true"
       />

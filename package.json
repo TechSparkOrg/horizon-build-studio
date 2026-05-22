@@ -72,12 +72,14 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@babel/core": "^7.29.0",
     "@gltf-transform/cli": "^4.3.0",
     "@tailwindcss/postcss": "^4.2.1",
     "@types/bcryptjs": "^3.0.0",
     "@types/node": "^22.16.5",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
+    "babel-plugin-react-compiler": "^1.0.0",
     "eslint": "^9.32.0",
     "eslint-config-next": "^16.2.0",
     "prettier": "^3.7.3",

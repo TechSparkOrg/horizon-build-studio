@@ -15,7 +15,7 @@ export function PublicSiteWrapper({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="bg-white text-dark-text min-h-screen flex flex-col justify-between">
+    <div className="bg-white text-dark-text min-h-screen flex flex-col">
       <Navbar />
       <main id="main-content" className="flex-grow">
         {children}

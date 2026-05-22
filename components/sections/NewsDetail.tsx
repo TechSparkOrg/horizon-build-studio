@@ -84,11 +84,7 @@ function ProjectSidebar({ project, visible }: { project: ProjectRef; visible: bo
               platform={firstVideo.platform}
               embedUrl={firstVideo.embedUrl}
               fileUrl={firstVideo.fileUrl}
-              fileType={firstVideo.fileType}
               title={firstVideo.title}
-              thumbnail=""
-              sourceUrl=""
-              className="rounded-t-xl rounded-b-none"
             />
           ) : (
             <div className="h-32 bg-gradient-to-br from-brand-primary/5 to-brand-secondary/5 flex items-center justify-center">

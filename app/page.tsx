@@ -16,7 +16,7 @@ import { TeamSection } from "@/components/sections/TeamSection";
 import { QuoteBannerSecondary } from "@/components/sections/QuoteBannerSecondary";
 import { StreamingFallback } from "@/components/ui/StreamingFallback";
 
-// ── Portfolio Suspense Wrapper ──
+// ── Portfolio Wrapper ──
 async function PortfolioWrapper() {
   const [dbProjects, dbCategories] = await Promise.all([
     prisma.project.findMany({
@@ -45,7 +45,7 @@ async function PortfolioWrapper() {
   return <PortfolioSection projects={projects} filters={filters} />;
 }
 
-// ── News Suspense Wrapper ──
+// ── News Wrapper ──
 async function NewsWrapper() {
   const dbNews = await prisma.newsArticle.findMany({
     orderBy: { publishedAt: "desc" },
@@ -64,7 +64,7 @@ async function NewsWrapper() {
   return <NewsSection news={newsList} />;
 }
 
-// ── FAQ Suspense Wrapper ──
+// ── FAQ Wrapper ──
 async function FAQWrapper() {
   const dbFaqs = await prisma.fAQ.findMany({
     orderBy: { order: "asc" },
@@ -91,10 +91,10 @@ export default function HomePage() {
       <ServicesSection />
 
       <ProcessSection />
-      <Suspense fallback={<StreamingFallback label="Streaming Portfolio Works..." minH={600} />}>
+      <Suspense fallback={<StreamingFallback label="Streaming Portfolio Works..." minH={800} />}>
         <PortfolioWrapper />
       </Suspense>
-      <Suspense fallback={<StreamingFallback label="Streaming News Updates..." />}>
+      <Suspense fallback={<StreamingFallback label="Streaming News Updates..." minH={700} />}>
         <NewsWrapper />
       </Suspense>
       <QuoteBanner />
@@ -107,7 +107,7 @@ export default function HomePage() {
       <LocationSection />
       <TeamSection />
 
-      <Suspense fallback={<StreamingFallback label="Streaming FAQ Details..." minH={400} />}>
+      <Suspense fallback={<StreamingFallback label="Streaming FAQ Details..." minH={800} />}>
         <FAQWrapper />
       </Suspense>
       <QuoteBannerSecondary />

@@ -57,10 +57,7 @@ export function HowWeWorkDesignViews() {
                     platform="youtube"
                     embedUrl=""
                     fileUrl=""
-                    fileType=""
                     title=""
-                    thumbnail=""
-                    sourceUrl=""
                   />
                 </div>
               </div>

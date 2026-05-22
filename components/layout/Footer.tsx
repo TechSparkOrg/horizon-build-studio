@@ -1,4 +1,13 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import { Facebook, Instagram, Linkedin, Youtube } from "lucide-react";
+
+function Year() {
+  const [year, setYear] = useState(2025);
+  useEffect(() => { setYear(new Date().getFullYear()); }, []);
+  return <>{year}</>;
+}
 
 const quickLinks = ["Home", "About", "Services", "Portfolio", "News", "Contact"];
 const services = ["Building", "Road Works", "Interiors", "Renovation", "Consultation"];
@@ -107,7 +116,7 @@ export function Footer() {
 
       <div className="border-t border-white/10">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-white/50">
-          <p>&copy; {new Date().getFullYear()} Horizon Nepal. All rights reserved.</p>
+          <p>&copy; <Year /> Horizon Nepal. All rights reserved.</p>
           <div className="flex gap-6">
             <a href="#" className="hover:text-brand-primary">
               Privacy Policy

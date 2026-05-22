@@ -147,14 +147,14 @@
   --sidebar-border: oklch(0.929 0.013 255.508);
   --sidebar-ring: oklch(0.704 0.04 256.788);
 
-  --brand-primary: oklch(0.62 0.21 35);
+  --brand-primary: oklch(0.26 0.07 265);
   --brand-secondary: oklch(0.26 0.07 265);
   --brand-dark: oklch(0.19 0.05 260);
-  --off-white: oklch(0.97 0.008 75);
+  --off-white: oklch(0.99 0.003 260);
   --light-gray: oklch(0.925 0.008 70);
   --mid-gray: oklch(0.55 0.01 75);
   --dark-text: oklch(0.18 0.005 90);
-  --gold-quote: oklch(0.72 0.13 75);
+  --gold-quote: oklch(0.26 0.07 265);
 
   --font-display-family: "Playfair Display", Georgia, serif;
   --font-body-family: "Barlow", system-ui, sans-serif;

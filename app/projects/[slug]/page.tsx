@@ -1,6 +1,8 @@
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
+import { unstable_noStore } from "next/cache";
 import { prisma } from "@/lib/db";
-import { ProjectDetail } from "@/components/sections/ProjectDetail";
+import { ProjectDetail, ProjectFAQSection, ProjectRelatedSection, ProjectAdjacentSection } from "@/components/sections/ProjectDetail";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -15,14 +17,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   };
 }
 
-async function getFaqs(
-  phases: { faqId: string | null }[],
-  projectFaqs: { faqId: string }[],
-) {
-  const phaseIds = phases
-    .map((p) => p.faqId)
-    .filter((id): id is string => id !== null);
-  const directIds = projectFaqs.map((pf) => pf.faqId);
+async function getFaqData(phaseFaqIds: (string | null)[], projectFaqIds: { faqId: string }[]) {
+  const phaseIds = phaseFaqIds.filter((id): id is string => id !== null);
+  const directIds = projectFaqIds.map((pf) => pf.faqId);
   const allIds = [...new Set([...phaseIds, ...directIds])];
   if (allIds.length === 0) return { faqs: [], faqTypes: [] };
   const faqs = await prisma.fAQ.findMany({
@@ -73,7 +70,26 @@ async function getAdjacentProjects(order: number) {
   return { prev, next };
 }
 
+// ── Streaming slot wrappers ──
+
+async function FAQSlot({ phaseFaqIds, projectFaqIds }: { phaseFaqIds: (string | null)[]; projectFaqIds: { faqId: string }[] }) {
+  const { faqs, faqTypes } = await getFaqData(phaseFaqIds, projectFaqIds);
+  return <ProjectFAQSection faqs={faqs} faqTypes={faqTypes} />;
+}
+
+async function RelatedSlot({ categoryId, slug: excludeSlug }: { categoryId: string | null; slug: string }) {
+  const related = await getRelatedProjects(categoryId, excludeSlug);
+  if (related.length === 0) return null;
+  return <ProjectRelatedSection related={related} />;
+}
+
+async function AdjacentSlot({ order, slug }: { order: number; slug: string }) {
+  const adjacent = await getAdjacentProjects(order);
+  return <ProjectAdjacentSection adjacent={adjacent} />;
+}
+
 export default async function ProjectPage({ params }: { params: Promise<{ slug: string }> }) {
+  unstable_noStore();
   const { slug } = await params;
   const project = await prisma.project.findUnique({
     where: { slug, published: true },
@@ -95,10 +111,6 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
   });
 
   if (!project) notFound();
-
-  const { faqs, faqTypes } = await getFaqs(project.phases, project.projectFaqs);
-  const related = await getRelatedProjects(project.category?.id ?? null, slug);
-  const adjacent = await getAdjacentProjects(project.order);
 
   return (
     <ProjectDetail
@@ -124,11 +136,22 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
         media: project.media,
         videos: project.videos,
         models3d: project.models3d,
-        faqs,
-        faqTypes,
       }}
-      related={related}
-      adjacent={adjacent}
+      faqSlot={
+        <Suspense fallback={<div className="h-32 bg-gray-50 rounded border border-gray-200 animate-pulse" />}>
+          <FAQSlot phaseFaqIds={project.phases.map(p => p.faqId)} projectFaqIds={project.projectFaqs} />
+        </Suspense>
+      }
+      relatedSlot={
+        <Suspense fallback={null}>
+          <RelatedSlot categoryId={project.category?.id ?? null} slug={slug} />
+        </Suspense>
+      }
+      adjacentSlot={
+        <Suspense fallback={null}>
+          <AdjacentSlot order={project.order} slug={slug} />
+        </Suspense>
+      }
     />
   );
 }

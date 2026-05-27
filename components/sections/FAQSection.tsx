@@ -6,30 +6,40 @@ import Link from "next/link";
 import { AnimateOnView } from "@/components/AnimateOnView";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { ModelViewer3D } from "@/components/ui/DynamicModelViewer3D";
-import { useText } from "@/lib/lang-client";
+import { useText, useLang } from "@/lib/lang-client";
+import type { SectionContentMap } from "@/lib/section-content";
 import type { FAQSectionItem } from "@/lib/schemas";
 
-export function FAQSection({ faqs = [] }: { faqs: FAQSectionItem[] }) {
+export function FAQSection({ faqs = [], content }: { faqs: FAQSectionItem[]; content?: SectionContentMap }) {
   const [open, setOpen] = useState<number | null>(0);
   const t = useText();
+  const lang = useLang();
+  function val(key: string, fb: string) {
+    const c = content?.[key];
+    if (!c) return fb;
+    return lang === "np" && c.valueNp ? c.valueNp : c.valueEn || fb;
+  }
+  function media(key: string, fb: string) {
+    return content?.[key]?.mediaUrl || fb;
+  }
 
   return (
     <section className="bg-off-white py-16 sm:py-28">
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 grid lg:grid-cols-2 gap-12">
         <AnimateOnView>
-          <SectionLabel>{t.faq.label}</SectionLabel>
+          <SectionLabel>{val("label", t.faq.label)}</SectionLabel>
           <h2 className="mt-3 font-display font-bold text-brand-secondary text-3xl sm:text-4xl lg:text-5xl">
-            {t.faq.h2}
+            {val("h2", t.faq.h2)}
           </h2>
           <p className="mt-4 text-mid-gray text-lg max-w-md">
-            {t.faq.subtitle}
+            {val("subtitle", t.faq.subtitle)}
           </p>
           <Link
             href="/#contact"
             prefetch={false}
             className="mt-6 inline-flex items-center gap-2 h-11 px-6 rounded bg-brand-primary text-white font-semibold hover:brightness-110 transition"
           >
-            {t.faq.ask} <ArrowRight className="size-4" />
+            {val("ask", t.faq.ask)} <ArrowRight className="size-4" />
           </Link>
           <div className="mt-4">
             <Link
@@ -37,12 +47,12 @@ export function FAQSection({ faqs = [] }: { faqs: FAQSectionItem[] }) {
               prefetch={false}
               className="inline-flex items-center gap-2 text-sm text-brand-primary font-semibold hover:underline"
             >
-              {t.faq.viewAll} <ArrowRight className="size-3" />
+              {val("viewAll", t.faq.viewAll)} <ArrowRight className="size-3" />
             </Link>
           </div>
           <div className="mt-4 rounded-lg overflow-hidden h-40">
             <ModelViewer3D
-              src="/glb/stop.glb"
+              src={media("stopModelPath", "/glb/stop.glb")}
               className="w-full h-full bg-transparent"
               hideBadge
               disableControls

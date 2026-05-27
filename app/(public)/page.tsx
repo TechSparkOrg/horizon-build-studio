@@ -1,5 +1,6 @@
 import { api } from "@/lib/api";
 import type { HomeProject, FAQSectionItem } from "@/lib/schemas";
+import type { SectionContentItem, SectionContentMap } from "@/lib/section-content";
 import { HeroSection } from "@/components/sections/HeroSection";
 import { ServicesSection } from "@/components/sections/ServicesSection";
 import { PortfolioSection } from "@/components/sections/PortfolioSection";
@@ -15,11 +16,23 @@ export default async function HomePage() {
   const cookie = (await cookies()).get("lang")?.value;
   const t = getText(cookie);
 
-  const [rawProjects, rawNews, rawFaqs] = await Promise.all([
+  const [rawProjects, rawNews, rawFaqs, rawSections] = await Promise.all([
     api("/api/projects").tag("projects").revalidate(60).get<{ published: boolean; title: string; slug: string; location: string; img: string; alt: string; status: string; completion: number; budget: number | null; shortDescription: string | null; category?: { name: string } | null }[]>(),
     api("/api/news").tag("news").revalidate(60).get<{ title: string; excerpt: string | null; category: string; publishedAt: string; image: string | null; slug: string }[]>(),
     api("/api/faqs").tag("faqs").revalidate(60).get<{ question: string; answer: string; faqType?: { name: string } | null; category?: { name: string } | null }[]>(),
+    api("/api/section-contents").noCache().get<SectionContentItem[]>(),
   ]);
+
+  const sections: Record<string, SectionContentMap> = {};
+  for (const item of rawSections) {
+    if (!sections[item.section]) sections[item.section] = {};
+    sections[item.section][item.key] = {
+      valueEn: item.valueEn,
+      valueNp: item.valueNp,
+      mediaUrl: item.mediaUrl,
+      mediaType: item.mediaType,
+    };
+  }
 
   const published = rawProjects.filter((p) => p.published);
   const projects: HomeProject[] = published.map((p) => ({
@@ -43,14 +56,14 @@ export default async function HomePage() {
 
   return (
     <>
-      <HeroSection />
-      <ServicesSection />
-      <ProcessSection />
-      <PortfolioSection projects={projects} filters={filters} activeCategory="All" t={t} />
-      <NewsSection news={news} />
-      <QuoteBanner />
-      <TestimonialsSection />
-      <FAQSection faqs={faqs} />
+      <HeroSection content={sections.hero} />
+      <ServicesSection content={sections.services} />
+      <ProcessSection content={sections.process} />
+      <PortfolioSection projects={projects} filters={filters} activeCategory="All" t={t} content={sections.portfolio} />
+      <NewsSection news={news} content={sections.news} />
+      <QuoteBanner content={sections.quotes} />
+      <TestimonialsSection content={sections.testimonials} />
+      <FAQSection faqs={faqs} content={sections.faq} />
     </>
   );
 }

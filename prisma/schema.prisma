@@ -262,12 +262,18 @@ model NewsArticle {
   id                 String   @id @default(cuid())
   title              String
   excerpt            String
+  content            String   @default("")
+  contentNp          String   @default("")
   category           String
   image              String
   alt                String   @default("")
   slug               String   @unique
   projectId          String?
   project            Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  metaTitle          String   @default("")
+  metaDescription    String   @default("")
+  metaKeywords       String   @default("")
+  customScript       String   @default("")
   publishedAt        DateTime @default(now())
   readingTimeMinutes Int?     @default(3)
   createdAt          DateTime @default(now())
@@ -294,4 +300,107 @@ model SiteSetting {
   type      String   @default("text")
   section   String   @default("general")
   updatedAt DateTime @updatedAt
+}
+
+model SectionContent {
+  id        String   @id @default(cuid())
+  section   String
+  key       String
+  valueEn   String   @default("")
+  valueNp   String   @default("")
+  mediaUrl  String?
+  mediaType String?
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@unique([section, key])
+}
+
+model PageBanner {
+  id              String   @id @default(cuid())
+  slug            String   @unique
+  title           String   @default("")
+  metaTitle       String   @default("")
+  metaDescription String   @default("")
+  metaKeywords    String   @default("")
+  customScript    String   @default("")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  images          PageBannerImage[]
+}
+
+model PageBannerImage {
+  id        String   @id @default(cuid())
+  bannerId  String
+  banner    PageBanner @relation(fields: [bannerId], references: [id], onDelete: Cascade)
+  image     String
+  alt       String   @default("")
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  @@index([bannerId])
+}
+
+model PageModel {
+  id              String   @id @default(cuid())
+  slug            String   @unique
+  title           String   @default("")
+  metaTitle       String   @default("")
+  metaDescription String   @default("")
+  metaKeywords    String   @default("")
+  customScript    String   @default("")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  models3d        PageModel3D[]
+}
+
+model PageModel3D {
+  id       String    @id @default(cuid())
+  modelId  String
+  model    PageModel @relation(fields: [modelId], references: [id], onDelete: Cascade)
+  url      String
+  filename String    @default("")
+  type     String    @default("glb")
+  label    String    @default("")
+  order    Int       @default(0)
+  createdAt DateTime @default(now())
+  @@index([modelId])
+}
+
+model StaticPage {
+  id              String   @id @default(cuid())
+  slug            String   @unique
+  title           String   @default("")
+  contentEn       String   @default("")
+  contentNp       String   @default("")
+  metaTitle       String   @default("")
+  metaDescription String   @default("")
+  metaKeywords    String   @default("")
+  customScript    String   @default("")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model PageSEO {
+  id              String   @id @default(cuid())
+  slug            String   @unique
+  title           String   @default("")
+  text1En         String   @default("")
+  text1Np         String   @default("")
+  text2En         String   @default("")
+  text2Np         String   @default("")
+  metaTitle        String   @default("")
+  metaDescription  String   @default("")
+  metaKeywords     String   @default("")
+  ogImage         String   @default("")
+  customScript    String   @default("")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model SectionDef {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  label     String
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
 }

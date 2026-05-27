@@ -6,6 +6,7 @@ import { SectionLabel } from "@/components/ui/SectionLabel";
 import { STATUS_STYLES, STATUS_LABELS } from "@/lib/status";
 import type { HomeProject } from "@/lib/schemas";
 import type { TextDict } from "@/lib/lang";
+import type { SectionContentMap } from "@/lib/section-content";
 
 function formatBudget(n: number | null): string {
   if (n == null) return "";
@@ -19,11 +20,13 @@ export function PortfolioSection({
   filters,
   activeCategory,
   t,
+  content,
 }: {
   projects: HomeProject[];
   filters: string[];
   activeCategory: string;
   t: TextDict;
+  content?: SectionContentMap;
 }) {
   const filtered =
     activeCategory === "All" ? projects : projects.filter((p) => p.category === activeCategory);
@@ -33,9 +36,9 @@ export function PortfolioSection({
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
         <AnimateOnView className="flex flex-wrap items-end justify-between gap-6">
           <div>
-            <SectionLabel>{t.portfolio.label}</SectionLabel>
+            <SectionLabel>{content?.label?.valueEn || t.portfolio.label}</SectionLabel>
               <h2 className="mt-3 font-display font-bold text-brand-secondary text-3xl sm:text-4xl lg:text-5xl">
-              {t.portfolio.h2}
+              {content?.h2?.valueEn || t.portfolio.h2}
             </h2>
           </div>
           <Link
@@ -43,7 +46,7 @@ export function PortfolioSection({
             prefetch={false}
             className="text-brand-primary font-semibold inline-flex items-center gap-2 hover:gap-3 transition-all"
           >
-            {t.portfolio.viewAll} <ArrowRight className="size-4" />
+            {content?.viewAll?.valueEn || t.portfolio.viewAll} <ArrowRight className="size-4" />
           </Link>
         </AnimateOnView>
 
@@ -120,7 +123,7 @@ export function PortfolioSection({
                   )}
                 </div>
                 <span className="text-brand-primary text-sm font-semibold mt-2 inline-flex items-center gap-1">
-                  {t.portfolio.viewProject} <ArrowRight className="size-3" />
+                  {content?.viewProject?.valueEn || t.portfolio.viewProject} <ArrowRight className="size-3" />
                 </span>
               </div>
             </Link>

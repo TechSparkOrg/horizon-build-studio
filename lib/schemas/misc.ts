@@ -2,9 +2,11 @@ import { z } from "zod";
 
 export const TestimonialSchema = z.object({
   id: z.string(),
-  name: z.string(),
+  author: z.string(),
   role: z.string(),
-  content: z.string(),
+  company: z.string(),
+  quote: z.string(),
+  initials: z.string(),
   avatar: z.string().nullable(),
   rating: z.number(),
   order: z.number(),
@@ -16,8 +18,10 @@ export const TeamMemberSchema = z.object({
   id: z.string(),
   name: z.string(),
   role: z.string(),
-  bio: z.string().nullable(),
-  image: z.string().nullable(),
+  img: z.string(),
+  alt: z.string(),
+  linkedin: z.string().nullable(),
+  email: z.string().nullable(),
   order: z.number(),
 });
 

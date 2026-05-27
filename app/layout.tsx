@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Playfair_Display, Barlow, Barlow_Condensed } from "next/font/google";
 import { cookies } from "next/headers";
 import { Toaster } from "@/components/ui/sonner";
@@ -85,18 +86,27 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+async function LanguageWrapper({ children }: { children: React.ReactNode }) {
   const cookieStore = await cookies();
   const langCookie = cookieStore.get("lang")?.value;
   const initialLang: Lang = langCookie === "np" ? "np" : "en";
 
   return (
+    <LanguageProvider initialLang={initialLang}>
+      <Toaster richColors position="top-right" />
+      {children}
+    </LanguageProvider>
+  );
+}
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
     <html
-      lang={initialLang}
+      lang="en"
       className={`${playfair.variable} ${barlow.variable} ${barlowCondensed.variable}`}
       suppressHydrationWarning
       data-scroll-behavior="smooth"
@@ -160,11 +170,10 @@ export default async function RootLayout({
         />
       </head>
       <body className="font-body antialiased">
-        <LanguageProvider initialLang={initialLang}>
-          <Toaster richColors position="top-right" />
-
-          {children}
-        </LanguageProvider>
+        <Suspense fallback={<main>{children}</main>}>
+          <LanguageWrapper>{children}</LanguageWrapper>
+        </Suspense>
+        <SpeedInsights />
       </body>
     </html>
   );

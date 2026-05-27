@@ -6,18 +6,28 @@ import Link from "next/link";
 import { AnimateOnView } from "@/components/AnimateOnView";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { ModelViewer3D } from "@/components/ui/DynamicModelViewer3D";
-import { useText } from "@/lib/lang-client";
+import { useText, useLang } from "@/lib/lang-client";
+import type { SectionContentMap } from "@/lib/section-content";
 interface NewsItem { title: string; excerpt: string; cat: string; date: string; img: string; slug: string; }
 
-export function NewsSection({ news = [] }: { news: NewsItem[] }) {
+export function NewsSection({ news = [], content }: { news: NewsItem[]; content?: SectionContentMap }) {
   const t = useText();
+  const lang = useLang();
+  function val(key: string, fb: string) {
+    const c = content?.[key];
+    if (!c) return fb;
+    return lang === "np" && c.valueNp ? c.valueNp : c.valueEn || fb;
+  }
+  function media(key: string, fb: string) {
+    return content?.[key]?.mediaUrl || fb;
+  }
   return (
     <section id="news" className="bg-off-white py-16 sm:py-28">
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
         <AnimateOnView className="max-w-2xl">
-          <SectionLabel>{t.news.label}</SectionLabel>
+          <SectionLabel>{val("label", t.news.label)}</SectionLabel>
           <h2 className="mt-3 font-display font-bold text-brand-secondary text-3xl sm:text-4xl lg:text-5xl">
-            {t.news.h2}
+            {val("h2", t.news.h2)}
           </h2>
         </AnimateOnView>
 
@@ -50,7 +60,7 @@ export function NewsSection({ news = [] }: { news: NewsItem[] }) {
                   </h3>
                   <p className="mt-2 text-mid-gray line-clamp-2">{n.excerpt}</p>
                   <span className="mt-4 inline-flex items-center gap-1 text-brand-primary font-semibold text-sm group-hover:underline">
-                    {t.news.readMore} <ArrowRight className="size-3" />
+                    {val("readMore", t.news.readMore)} <ArrowRight className="size-3" />
                   </span>
                 </div>
               </Link>
@@ -59,7 +69,7 @@ export function NewsSection({ news = [] }: { news: NewsItem[] }) {
 
           <div className="rounded-lg overflow-hidden bg-transparent min-h-[360px]">
             <ModelViewer3D
-              src="/glb/brigfe.glb"
+              src={media("bridgeModelPath", "/glb/brigfe.glb")}
               className="w-full h-full rounded-lg bg-transparent"
               hideBadge
               loading="lazy"
@@ -73,7 +83,7 @@ export function NewsSection({ news = [] }: { news: NewsItem[] }) {
             prefetch={false}
             className="inline-flex items-center gap-2 h-11 px-6 rounded border-2 border-brand-primary text-brand-primary font-semibold hover:bg-brand-primary hover:text-white transition"
           >
-            {t.news.viewAll} <ArrowRight className="size-4" />
+            {val("viewAll", t.news.viewAll)} <ArrowRight className="size-4" />
           </Link>
         </div>
       </div>

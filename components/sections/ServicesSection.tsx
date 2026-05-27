@@ -5,7 +5,8 @@ import { ArrowRight, Home, Compass, PenTool, Users } from "lucide-react";
 import { AnimateOnView } from "@/components/AnimateOnView";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { ModelViewer3D } from "@/components/ui/DynamicModelViewer3D";
-import { useText } from "@/lib/lang-client";
+import { useText, useLang } from "@/lib/lang-client";
+import type { SectionContentMap } from "@/lib/section-content";
 
 const ICON_MAP = { Home, Compass, PenTool, Users } as const;
 
@@ -39,33 +40,45 @@ function ServiceCard({
   );
 }
 
-export function ServicesSection() {
+export function ServicesSection({ content }: { content?: SectionContentMap }) {
   const t = useText();
+  const lang = useLang();
+  function val(key: string, fb: string) {
+    const c = content?.[key];
+    if (!c) return fb;
+    return lang === "np" && c.valueNp ? c.valueNp : c.valueEn || fb;
+  }
+  function media(key: string, fb: string) {
+    return content?.[key]?.mediaUrl || fb;
+  }
+
+  let cards: { icon: string; title: string; body: string }[] = [];
+  try { cards = content?.cards ? JSON.parse(content.cards.valueEn) : t.services.cards; } catch { cards = t.services.cards; }
 
   return (
     <section id="services" className="bg-off-white py-20 sm:py-32">
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
         <AnimateOnView className="max-w-2xl">
-          <SectionLabel>{t.services.label}</SectionLabel>
+          <SectionLabel>{val("label", t.services.label)}</SectionLabel>
           <h2 className="mt-3 font-display font-bold text-brand-secondary text-3xl sm:text-4xl lg:text-[2.75rem] leading-tight">
-            {t.services.h2}
+            {val("h2", t.services.h2)}
           </h2>
           <p className="mt-4 text-mid-gray text-lg leading-relaxed">
-            {t.services.subtitle}
+            {val("subtitle", t.services.subtitle)}
           </p>
         </AnimateOnView>
 
         <div className="mt-14 grid grid-cols-1 md:grid-cols-3 gap-5 animate-stagger">
-          {t.services.cards.slice(0, 3).map((s) => (
+          {cards.slice(0, 3).map((s) => (
             <AnimateOnView key={s.title}>
-              <ServiceCard icon={s.icon as keyof typeof ICON_MAP} title={s.title} body={s.body} exploreLabel={t.services.explore} />
+              <ServiceCard icon={s.icon as keyof typeof ICON_MAP} title={s.title} body={s.body} exploreLabel={val("explore", t.services.explore)} />
             </AnimateOnView>
           ))}
 
           <AnimateOnView className="md:col-span-3">
             <div className="relative rounded-2xl overflow-hidden border border-light-gray/50 shadow-[0_2px_16px_rgba(0,0,0,0.04)] bg-white">
               <ModelViewer3D
-                src="/glb/sand.glb"
+                src={media("sandModelPath", "/glb/sand.glb")}
                 className="w-full h-56 md:h-72 bg-transparent"
                 hideBadge
               />
@@ -76,9 +89,9 @@ export function ServicesSection() {
             </div>
           </AnimateOnView>
 
-          {t.services.cards.slice(3).map((s) => (
+          {cards.slice(3).map((s) => (
             <AnimateOnView key={s.title}>
-              <ServiceCard icon={s.icon as keyof typeof ICON_MAP} title={s.title} body={s.body} exploreLabel={t.services.explore} />
+              <ServiceCard icon={s.icon as keyof typeof ICON_MAP} title={s.title} body={s.body} exploreLabel={val("explore", t.services.explore)} />
             </AnimateOnView>
           ))}
         </div>
@@ -89,7 +102,7 @@ export function ServicesSection() {
             prefetch={false}
             className="inline-flex items-center gap-2 h-11 px-7 rounded-full border-2 border-brand-primary text-brand-primary font-semibold hover:bg-brand-primary hover:text-white active:scale-[0.97] transition-all duration-200"
           >
-            {t.services.explore}
+            {val("explore", t.services.explore)}
             <ArrowRight className="size-4" />
           </Link>
         </AnimateOnView>

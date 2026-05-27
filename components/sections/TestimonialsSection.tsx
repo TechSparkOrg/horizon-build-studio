@@ -4,17 +4,29 @@ import { useState } from "react";
 import { ChevronLeft, ChevronRight, Star } from "lucide-react";
 import { AnimateOnView } from "@/components/AnimateOnView";
 import { SectionLabel } from "@/components/ui/SectionLabel";
-import { useText } from "@/lib/lang-client";
-const testimonials = [
+import { useText, useLang } from "@/lib/lang-client";
+import type { SectionContentMap } from "@/lib/section-content";
+
+const fallbackTestimonials = [
   { name: "Rajesh Maharjan", role: "Homeowner · Lalitpur", quote: "Horizon Nepal delivered our family home on time and 4% under budget. The weekly updates made everything feel under control.", initials: "RM" },
   { name: "Sita Gurung", role: "MD · Annapurna Retail", quote: "We've now done three commercial fit-outs with this team. The attention to structural detail is genuinely unmatched in the valley.", initials: "SG" },
   { name: "Bibek Karki", role: "Director · Public Works", quote: "Their road maintenance crew is the rare contractor that finishes ahead of schedule and still passes every inspection.", initials: "BK" },
   { name: "Anita Sharma", role: "Hotelier · Thamel", quote: "The interior renovation was handled with respect for our heritage building. Craftsmanship at a level we hadn't seen before.", initials: "AS" },
 ];
 
-export function TestimonialsSection() {
+export function TestimonialsSection({ content }: { content?: SectionContentMap }) {
   const [i, setI] = useState(0);
   const t = useText();
+  const lang = useLang();
+  function val(key: string, fb: string) {
+    const c = content?.[key];
+    if (!c) return fb;
+    return lang === "np" && c.valueNp ? c.valueNp : c.valueEn || fb;
+  }
+
+  let testimonials: { name: string; role: string; quote: string; initials: string }[] = [];
+  try { testimonials = content?.testimonials ? JSON.parse(content.testimonials.valueEn) : fallbackTestimonials; } catch { testimonials = fallbackTestimonials; }
+
   const perView = 3;
   const max = Math.max(0, testimonials.length - perView);
   const prev = () => setI((v) => Math.max(0, v - 1));
@@ -28,22 +40,22 @@ export function TestimonialsSection() {
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
         <AnimateOnView className="flex flex-wrap items-end justify-between gap-6">
           <div>
-            <SectionLabel>{t.testimonials.label}</SectionLabel>
+            <SectionLabel>{val("label", t.testimonials.label)}</SectionLabel>
             <h2 className="mt-3 font-display font-bold text-brand-secondary text-3xl sm:text-4xl lg:text-5xl">
-              {t.testimonials.h2}
+              {val("h2", t.testimonials.h2)}
             </h2>
           </div>
           <div className="flex gap-2">
             <button
               onClick={prev}
-              aria-label={t.testimonials.prev}
+              aria-label={val("prev", t.testimonials.prev)}
               className="size-11 rounded-full border border-light-gray bg-white grid place-items-center hover:border-brand-primary hover:text-brand-primary transition"
             >
               <ChevronLeft className="size-5" />
             </button>
             <button
               onClick={next}
-              aria-label={t.testimonials.next}
+              aria-label={val("next", t.testimonials.next)}
               className="size-11 rounded-full border border-light-gray bg-white grid place-items-center hover:border-brand-primary hover:text-brand-primary transition"
             >
               <ChevronRight className="size-5" />

@@ -43,7 +43,7 @@ export default async function TeamPage() {
                     <Link href={`/admin/team/${m.id}`} className="p-1.5 text-mid-gray hover:text-brand-primary" aria-label="Edit">
                       <Pencil className="size-3.5" />
                     </Link>
-                    <ConfirmDelete id={m.id} label={m.name} action={deleteTeamMember} />
+                    <ConfirmDelete id={m.id} label={m.name} action={deleteTeamMember} tag="team" />
                   </div>
                 </td>
               </tr>

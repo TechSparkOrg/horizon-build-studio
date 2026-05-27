@@ -104,6 +104,10 @@ model Project {
   order            Int                @default(0)
   createdAt        DateTime           @default(now())
   updatedAt        DateTime           @updatedAt
+  metaTitle        String             @default("")
+  metaDescription  String             @default("")
+  metaKeywords     String             @default("")
+  customScript     String             @default("")
   ownerName        String             @default("")
   ownerProfession  String             @default("")
   ownerEarning     String             @default("")

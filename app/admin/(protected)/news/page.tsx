@@ -48,7 +48,7 @@ export default async function NewsPage() {
                     <Link href={`/admin/news/${item.id}`} className="p-1.5 text-mid-gray hover:text-brand-primary" aria-label="Edit">
                       <Pencil className="size-3.5" />
                     </Link>
-                    <ConfirmDelete id={item.id} label={item.title} action={deleteNews} />
+                    <ConfirmDelete id={item.id} label={item.title} action={deleteNews} tag="news" />
                   </div>
                 </td>
               </tr>

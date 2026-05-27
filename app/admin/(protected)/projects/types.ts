@@ -18,6 +18,10 @@ export interface FormFields {
   ownerName: string;
   ownerProfession: string;
   ownerEarning: string;
+  metaTitle: string;
+  metaDescription: string;
+  metaKeywords: string;
+  customScript: string;
 }
 
 export interface AttrItem {
@@ -115,6 +119,10 @@ export interface ProjectData {
   ownerName: string;
   ownerProfession: string;
   ownerEarning: string;
+  metaTitle: string;
+  metaDescription: string;
+  metaKeywords: string;
+  customScript: string;
   media: MediaItem[];
   videos: VideoItem[];
   models3d: ModelItem[];

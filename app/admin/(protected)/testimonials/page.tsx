@@ -36,7 +36,7 @@ export default async function TestimonialsPage() {
                     <Link href={`/admin/testimonials/${item.id}`} className="p-1.5 text-mid-gray hover:text-brand-primary" aria-label="Edit">
                       <Pencil className="size-3.5" />
                     </Link>
-                    <ConfirmDelete id={item.id} label={item.author} action={deleteTestimonial} />
+                    <ConfirmDelete id={item.id} label={item.author} action={deleteTestimonial} tag="testimonials" />
                   </div>
                 </td>
               </tr>

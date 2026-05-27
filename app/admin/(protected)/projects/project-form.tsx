@@ -4,8 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { toast } from "sonner";
-import { ArrowLeft, Save, Image, Youtube, Box, Clock, Info, ListChecks, HelpCircle } from "lucide-react";
-import { ProjectPreview } from "./components/ProjectPreview";
+import { ArrowLeft, Save, Image, Youtube, Box, Clock, Info, ListChecks, HelpCircle, Search } from "lucide-react";
 import { BasicInfoSection } from "./sections/BasicInfoSection";
 import { MediaSection } from "./sections/MediaSection";
 import { VideosSection } from "./sections/VideosSection";
@@ -13,6 +12,7 @@ import { ModelsSection } from "./sections/ModelsSection";
 import { TimelineSection } from "./sections/TimelineSection";
 import { AttributesSection } from "./sections/AttributesSection";
 import { FaqSection } from "./sections/FaqSection";
+import { SeoSection } from "./sections/SeoSection";
 import type { FormFields, MediaItem, VideoItem, ModelItem, PhaseItem, AttrItem, ProjectData, ProjectFaqItem } from "./types";
 
 interface FlatCat { id: string; name: string; parentId: string | null; }
@@ -26,6 +26,7 @@ const TABS = [
   { id: "timeline" as const, label: "Timeline", icon: Clock },
   { id: "faq" as const, label: "FAQ", icon: HelpCircle },
   { id: "attributes" as const, label: "Attributes", icon: ListChecks },
+  { id: "seo" as const, label: "SEO", icon: Search },
 ];
 
 type TabId = (typeof TABS)[number]["id"];
@@ -51,6 +52,10 @@ function emptyForm(data?: ProjectData): FormFields {
     ownerName: data?.ownerName ?? "",
     ownerProfession: data?.ownerProfession ?? "",
     ownerEarning: data?.ownerEarning ?? "",
+    metaTitle: data?.metaTitle ?? "",
+    metaDescription: data?.metaDescription ?? "",
+    metaKeywords: data?.metaKeywords ?? "",
+    customScript: data?.customScript ?? "",
   };
 }
 
@@ -127,9 +132,6 @@ export function ProjectForm({ initialData }: { initialData?: ProjectData }) {
       })
       .catch(() => {});
   }, []);
-
-  const categoryName =
-    allCategories.find((c) => c.id === form.categoryId)?.name ?? initialData?.category?.name ?? "";
 
   const updateField = (key: keyof FormFields, value: unknown) => {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -223,6 +225,7 @@ export function ProjectForm({ initialData }: { initialData?: ProjectData }) {
               {tab === "timeline" && <TimelineSection items={phases} onChange={setPhases} models3d={models3d} media={media} videos={videos} allFaqs={allFaqs} />}
               {tab === "faq" && <FaqSection items={projectFaqs} onChange={setProjectFaqs} allFaqs={allFaqs} />}
               {tab === "attributes" && <AttributesSection items={attributes} onChange={setAttributes} />}
+              {tab === "seo" && <SeoSection form={form} onChange={updateField} />}
             </div>
 
             <div className="flex items-center gap-3 mt-6">
@@ -240,20 +243,6 @@ export function ProjectForm({ initialData }: { initialData?: ProjectData }) {
               >
                 Cancel
               </Link>
-            </div>
-          </div>
-
-          <div className="w-full lg:w-[400px] xl:w-[480px] flex-shrink-0">
-            <p className="text-xs text-mid-gray mb-3 font-medium uppercase tracking-wider">
-              Live Preview
-            </p>
-            <div className="sticky top-8">
-              <ProjectPreview
-                form={form}
-                media={media}
-                phases={phases}
-                categoryName={initialData?.category?.name ?? ""}
-              />
             </div>
           </div>
         </div>

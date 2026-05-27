@@ -1,7 +1,6 @@
 import { api } from "@/lib/api";
 import { ProjectsClient } from "./client";
 
-
 export default async function ProjectsPage({
   searchParams,
 }: {
@@ -9,15 +8,13 @@ export default async function ProjectsPage({
 }) {
   const sp = await searchParams;
   const q = sp.q ?? "";
-  const status = sp.status ?? "";
-  const category = sp.category ?? "";
   const page = Math.max(1, Number(sp.page ?? 1));
   const limit = 12;
 
   const params = new URLSearchParams();
   if (q) params.set("q", q);
-  if (status) params.set("status", status);
-  if (category) params.set("category", category);
+  if (sp.status) params.set("status", sp.status);
+  if (sp.category) params.set("category", sp.category);
   params.set("page", String(page));
   params.set("limit", String(limit));
 
@@ -31,8 +28,6 @@ export default async function ProjectsPage({
       page={page}
       limit={limit}
       q={q}
-      status={status}
-      category={category}
       categories={JSON.parse(JSON.stringify(categories))}
     />
   );

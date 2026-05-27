@@ -15,23 +15,36 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { useGlobalControl } from "@/app/admin/cache-context";
 
 export function ConfirmDelete({
   id,
   label,
   action,
+  tag,
+  tags,
 }: {
   id: string;
   label: string;
   action: (id: string) => Promise<void>;
+  tag?: string;
+  tags?: string[];
 }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
+  const cacheControl = useGlobalControl();
 
   async function handleDelete() {
     try {
       await action(id);
       toast.success(`"${label}" deleted`);
+      
+      // Update cache tags for real-time reactivity in the client cache context
+      const tagsToUpdate = [...(tags || [])];
+      if (tag) tagsToUpdate.push(tag);
+      tagsToUpdate.push("stats"); // Always update stats since counts changed
+      
+      await cacheControl.cacheUpdate(tagsToUpdate);
       router.refresh();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Delete failed");
@@ -43,18 +56,18 @@ export function ConfirmDelete({
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger asChild>
-        <button className="p-2 text-mid-gray hover:text-destructive" aria-label="Delete">
+        <button className="p-2 text-mid-gray hover:text-destructive cursor-pointer" aria-label="Delete">
           <Trash2 className="size-4" />
         </button>
       </AlertDialogTrigger>
-      <AlertDialogContent>
+      <AlertDialogContent className="rounded-xl border-light-gray">
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete "{label}"?</AlertDialogTitle>
-          <AlertDialogDescription>This action cannot be undone.</AlertDialogDescription>
+          <AlertDialogTitle className="font-display font-bold text-brand-secondary">Delete "{label}"?</AlertDialogTitle>
+          <AlertDialogDescription className="text-xs text-mid-gray">This action cannot be undone.</AlertDialogDescription>
         </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:brightness-110">
+        <AlertDialogFooter className="mt-4">
+          <AlertDialogCancel className="rounded-lg text-xs font-semibold cursor-pointer">Cancel</AlertDialogCancel>
+          <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:brightness-110 rounded-lg text-xs font-semibold cursor-pointer">
             Delete
           </AlertDialogAction>
         </AlertDialogFooter>

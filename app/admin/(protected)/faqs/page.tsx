@@ -38,7 +38,7 @@ export default async function FAQsPage() {
                     <Link href={`/admin/faqs/${item.id}`} className="p-1.5 text-mid-gray hover:text-brand-primary" aria-label="Edit">
                       <Pencil className="size-3.5" />
                     </Link>
-                    <ConfirmDelete id={item.id} label={item.question} action={deleteFaq} />
+                    <ConfirmDelete id={item.id} label={item.question} action={deleteFaq} tag="faqs" />
                   </div>
                 </td>
               </tr>

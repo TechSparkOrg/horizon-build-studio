@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
-import React, { Suspense } from "react";
 import { Playfair_Display, Barlow, Barlow_Condensed } from "next/font/google";
+import { cookies } from "next/headers";
 import { Toaster } from "@/components/ui/sonner";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { LanguageProvider } from "@/lib/lang-client";
+import type { Lang } from "@/lib/lang";
 import "./globals.css";
 
 const playfair = Playfair_Display({
@@ -29,22 +31,23 @@ const barlowCondensed = Barlow_Condensed({
 export const metadata: Metadata = {
   title: {
     default:
-      "Horizon Nepal — Engineering, Research & Construction in Kathmandu",
+      "Horizon Nepal — Home Construction, Interior Design & Material Consultation in Kathmandu",
     template: "%s | Horizon Nepal",
   },
   description:
-    "Horizon Nepal is a premium engineering, research and construction company in Kathmandu delivering homes, infrastructure and interiors across Nepal.",
+    "Horizon Nepal is a trusted home construction, interior design, and material cost consultation company in Kathmandu, serving residential projects across Nepal.",
   icons: {
     icon: "/favicon.png",
     shortcut: "/favicon.png",
     apple: "/favicon.png",
   },
   keywords: [
-    "construction company Nepal",
-    "building contractor Kathmandu",
-    "civil engineering Nepal",
-    "road construction Nepal",
-    "interior design Kathmandu",
+    "home construction Nepal",
+    "house building Kathmandu",
+    "interior design Nepal",
+    "construction material cost consultation",
+    "site visit Nepal",
+    "house construction company",
     "Horizon Nepal",
   ],
   metadataBase: new URL(
@@ -52,9 +55,9 @@ export const metadata: Metadata = {
   ),
   alternates: { canonical: "/" },
   openGraph: {
-    title: "Horizon Nepal | Premium Construction & Engineering",
+    title: "Horizon Nepal | Home Construction & Interior Design",
     description:
-      "From concept to completion — precision engineering and innovative construction across residential, commercial and infrastructure projects in Nepal.",
+      "From concept to completion — quality home construction, bespoke interior design, and transparent material cost consultation across Nepal.",
     url: "/",
     siteName: "Horizon Nepal",
     locale: "en_NP",
@@ -64,15 +67,15 @@ export const metadata: Metadata = {
         url: "/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: "Horizon Nepal construction projects in Kathmandu Nepal",
+        alt: "Horizon Nepal home construction projects in Kathmandu Nepal",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Horizon Nepal | Construction & Engineering, Kathmandu",
+    title: "Horizon Nepal | Home Construction & Interior Design",
     description:
-      "Building Nepal's future with precision engineering since 2009.",
+      "Quality home construction, interior design, and material cost consultation across Nepal.",
     images: ["/og-image.jpg"],
   },
   robots: {
@@ -82,18 +85,21 @@ export const metadata: Metadata = {
   },
 };
 
-import { PublicSiteWrapper } from "@/components/layout/PublicSiteWrapper";
-
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const cookieStore = await cookies();
+  const langCookie = cookieStore.get("lang")?.value;
+  const initialLang: Lang = langCookie === "np" ? "np" : "en";
+
   return (
     <html
-      lang="en"
+      lang={initialLang}
       className={`${playfair.variable} ${barlow.variable} ${barlowCondensed.variable}`}
       suppressHydrationWarning
+      data-scroll-behavior="smooth"
     >
       <head>
         <link rel="preconnect" href="https://pub-a19a6c84befd4048bbb715b4a6d4f307.r2.dev" />
@@ -154,11 +160,11 @@ export default function RootLayout({
         />
       </head>
       <body className="font-body antialiased">
-        <Toaster richColors position="top-right" />
-        <SpeedInsights />
-        <Suspense fallback={null}>
-          <PublicSiteWrapper>{children}</PublicSiteWrapper>
-        </Suspense>
+        <LanguageProvider initialLang={initialLang}>
+          <Toaster richColors position="top-right" />
+
+          {children}
+        </LanguageProvider>
       </body>
     </html>
   );

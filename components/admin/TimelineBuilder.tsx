@@ -79,17 +79,9 @@ function MediaIcon({ type }: { type: string }) {
   }
 }
 
-export function TimelineBuilder({ phases, onChange, models3d = [], media = [], videos = [] }: Props) {
-  const [faqs, setFaqs] = useState<FAQItem[]>([]);
+export function TimelineBuilder({ phases, onChange, models3d = [], media = [], videos = [], faqs = [] }: Props & { faqs?: FAQItem[] }) {
   const [faqOpen, setFaqOpen] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    fetch("/api/faqs")
-      .then((r) => r.json())
-      .then((data: FAQItem[]) => setFaqs(data))
-      .catch(() => {});
-  }, []);
 
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {

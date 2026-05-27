@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 export async function GET() {
   const items = await prisma.fAQ.findMany({
     orderBy: { order: "asc" },
-    include: { faqType: { select: { id: true, name: true, slug: true } } },
+    include: { faqType: { select: { id: true, name: true, slug: true } }, category: { select: { name: true } } },
   });
   return NextResponse.json(items);
 }

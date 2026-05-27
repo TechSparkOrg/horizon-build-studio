@@ -29,6 +29,7 @@ async function main() {
     create: {
       email: "admin@horizonnepal.com.np",
       name: "Admin",
+      role: "admin",
       hashedPassword,
     },
   });

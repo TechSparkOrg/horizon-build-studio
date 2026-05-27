@@ -1,9 +1,10 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { scaleUp } from "@/lib/motion-variants";
+import { AnimateOnView } from "@/components/AnimateOnView";
+import { useText } from "@/lib/lang-client";
 
 export function QuoteBannerSecondary() {
+  const t = useText();
   return (
     <section className="relative bg-brand-secondary overflow-hidden py-16 sm:py-28">
       <div
@@ -14,13 +15,7 @@ export function QuoteBannerSecondary() {
         }}
         aria-hidden="true"
       />
-      <motion.div
-        variants={scaleUp}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: "-80px" }}
-        className="relative max-w-3xl mx-auto px-6 text-center"
-      >
+      <AnimateOnView animation="scale-in" className="relative max-w-3xl mx-auto px-6 text-center">
         <div
           className="font-display text-gold-quote leading-none"
           style={{ fontSize: "7rem" }}
@@ -28,14 +23,15 @@ export function QuoteBannerSecondary() {
         >
           &ldquo;
         </div>
-        <blockquote className="-mt-8 font-display italic text-white text-2xl sm:text-3xl leading-relaxed">
-          We don&apos;t just build structures &mdash; we build the streets,
-          schools and homes that our grandchildren will live in.
-        </blockquote>
-        <p className="mt-6 text-white/60 text-sm">
-          &mdash; Horizon Nepal Leadership
-        </p>
-      </motion.div>
+        <div className="-mt-8 min-h-[160px] flex items-start">
+          <blockquote className="font-display italic text-white text-2xl sm:text-3xl leading-relaxed">
+            {t.quoteBannerSecondary.text}
+          </blockquote>
+        </div>
+        <div className="mt-6 min-h-[24px] flex items-start">
+          <p className="text-white/60 text-sm">&mdash; {t.quoteBannerSecondary.attr}</p>
+        </div>
+      </AnimateOnView>
     </section>
   );
 }

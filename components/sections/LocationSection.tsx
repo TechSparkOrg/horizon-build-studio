@@ -1,6 +1,10 @@
+"use client";
+
 import { ArrowRight } from "lucide-react";
+import { useText } from "@/lib/lang-client";
 
 export function LocationSection() {
+  const t = useText();
   return (
     <section className="relative bg-white">
       <div className="relative w-full h-[450px]">
@@ -13,12 +17,12 @@ export function LocationSection() {
         />
         <div className="absolute bottom-6 left-6 sm:left-12 bg-white rounded-xl shadow-2xl p-6 max-w-xs animate-slide-in-left">
           <h3 className="font-display font-bold text-brand-secondary text-lg">
-            Horizon Nepal HQ
+            {t.location.heading}
           </h3>
           <address className="not-italic mt-2 text-sm text-mid-gray space-y-1">
-            <p>Tinkune, Kathmandu 44600</p>
-            <p>+977 1 441 1222</p>
-            <p>Mon&ndash;Sat &middot; 9 AM &ndash; 6 PM</p>
+            <p>{t.location.address}</p>
+            <p>{t.location.phone}</p>
+            <p>{t.location.hours}</p>
           </address>
           <a
             href="https://www.google.com/maps?q=Kathmandu,Nepal"
@@ -26,7 +30,7 @@ export function LocationSection() {
             rel="noopener noreferrer"
             className="mt-3 inline-flex items-center gap-1 text-brand-primary text-sm font-semibold"
           >
-            Get Directions <ArrowRight className="size-3" />
+            {t.location.directions} <ArrowRight className="size-3" />
           </a>
         </div>
       </div>

@@ -1,13 +1,36 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
 import { revalidatePath } from "next/cache";
+import { prisma } from "@/lib/db";
 import { makeUniqueProjectSlug } from "@/lib/slug";
 
-export async function GET() {
-  const projects = await prisma.project.findMany({
-    orderBy: { order: "asc" },
-    include: { media: true },
-  });
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const q = searchParams.get("q") ?? "";
+  const status = searchParams.get("status") ?? "";
+  const categoryId = searchParams.get("category") ?? "";
+  const page = Math.max(1, Number(searchParams.get("page") ?? 1));
+  const limit = Math.min(100, Math.max(1, Number(searchParams.get("limit") ?? 100)));
+
+  const where: Record<string, unknown> = {};
+  if (q) where.OR = [{ title: { contains: q, mode: "insensitive" } }, { location: { contains: q, mode: "insensitive" } }];
+  if (status) where.status = status;
+  if (categoryId) where.categoryId = categoryId;
+
+  const [projects, total, categories] = await Promise.all([
+    prisma.project.findMany({
+      where: where as any,
+      orderBy: { order: "asc" },
+      skip: page > 1 ? (page - 1) * limit : 0,
+      take: limit,
+      include: { category: { select: { id: true, name: true } } },
+    }),
+    prisma.project.count({ where: where as any }),
+    prisma.category.findMany({ orderBy: { order: "asc" } }),
+  ]);
+
+  const hasParams = q || status || categoryId || searchParams.has("page") || searchParams.has("limit");
+  if (hasParams) return NextResponse.json({ items: projects, total, page, limit, categories });
+
   return NextResponse.json(projects);
 }
 

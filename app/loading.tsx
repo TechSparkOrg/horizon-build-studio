@@ -1,5 +1,3 @@
-import React from "react";
-
 export default function LoadingPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-brand-dark/95 backdrop-blur-md">

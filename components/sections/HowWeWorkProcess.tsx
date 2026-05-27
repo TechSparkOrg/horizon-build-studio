@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import {
   Handshake,
   MessageCircle,
@@ -12,80 +11,39 @@ import {
 } from "lucide-react";
 import { AnimateOnView } from "@/components/AnimateOnView";
 import { SectionLabel } from "@/components/ui/SectionLabel";
-import { slideLeft, fadeUp, stagger, revealUp } from "@/lib/motion-variants";
+import { useText } from "@/lib/lang-client";
 
-const steps = [
-  {
-    icon: Handshake,
-    title: "Welcome & Discovery",
-    body: "We start with a warm welcome. Tell us about your project, your vision, and your goals. We listen carefully to understand what matters most to you.",
-  },
-  {
-    icon: MessageCircle,
-    title: "Share Your Vision",
-    body: "Share your ideas, references, sketches, or any inspiration. Our team reviews your requirements and outlines the best approach for your project.",
-  },
-  {
-    icon: MapPin,
-    title: "Site Visit & Assessment",
-    body: "We visit your site to assess the land, surroundings, and feasibility. Our engineers take measurements, note challenges, and identify opportunities.",
-  },
-  {
-    icon: PenTool,
-    title: "Design & Planning",
-    body: "Our architects create detailed designs, 3D renderings, and structural plans. You receive blueprints, BoQ, and permit-ready documents for review.",
-  },
-  {
-    icon: CheckCircle2,
-    title: "Review & Approve",
-    body: "You review every detail of the design. We make revisions until you are 100% satisfied. Once approved, we move to construction with your signed go-ahead.",
-  },
-  {
-    icon: Construction,
-    title: "Build & Watch",
-    body: "Our expert teams execute on-site with precision. You get weekly progress updates, photos, and milestone reports. Watch your project come to life.",
-  },
-  {
-    icon: Home,
-    title: "Handover & Celebrate",
-    body: "We conduct a final walkthrough, address any punch-list items, and hand over the keys. Your dream is now reality &mdash; built to last for generations.",
-  },
+const STEP_ICONS = [
+  Handshake,
+  MessageCircle,
+  MapPin,
+  PenTool,
+  CheckCircle2,
+  Construction,
+  Home,
 ];
 
 export function HowWeWorkProcess() {
+  const t = useText();
   return (
     <section id="process" className="bg-off-white py-16 sm:py-28">
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
         <AnimateOnView className="max-w-2xl">
-          <SectionLabel>Our Process</SectionLabel>
+          <SectionLabel>{t.howWeWork.process.label}</SectionLabel>
           <h2 className="mt-3 font-display font-bold text-brand-secondary text-3xl sm:text-4xl lg:text-5xl">
-            From First Hello to Final Handover
+            {t.howWeWork.process.h2}
           </h2>
           <p className="mt-4 text-mid-gray text-lg">
-            Seven steps designed to make your construction journey smooth,
-            transparent, and stress-free.
+            {t.howWeWork.process.subtitle}
           </p>
         </AnimateOnView>
 
-        <motion.div
-          variants={revealUp}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-80px" }}
-        >
-        <motion.div
-          variants={stagger}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-80px" }}
-          className="mt-12 relative pl-10 sm:pl-14 before:absolute before:left-[21px] sm:before:left-[25px] before:top-2 before:bottom-2 before:w-[2px] before:bg-light-gray"
-        >
-          {steps.map((s, idx) => {
-            const Icon = s.icon;
+        <div className="mt-12 relative pl-10 sm:pl-14 before:absolute before:left-[21px] sm:before:left-[25px] before:top-2 before:bottom-2 before:w-[2px] before:bg-light-gray animate-stagger">
+          {t.howWeWork.process.steps.map((s, idx) => {
+            const Icon = STEP_ICONS[idx] ?? STEP_ICONS[0];
             return (
-              <motion.div
+              <div
                 key={s.title}
-                variants={fadeUp}
                 className="relative pb-10 sm:pb-12 last:pb-0"
               >
                 <div className="absolute -left-[29px] sm:-left-[37px] top-1 size-10 sm:size-11 rounded-full bg-white border-2 border-brand-primary/20 flex items-center justify-center shadow-sm">
@@ -105,11 +63,10 @@ export function HowWeWorkProcess() {
                     {s.body}
                   </p>
                 </div>
-              </motion.div>
+            </div>
             );
           })}
-        </motion.div>
-        </motion.div>
+        </div>
       </div>
     </section>
   );

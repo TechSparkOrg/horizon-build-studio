@@ -1,18 +1,25 @@
-"use client";
-
-import { useState, useEffect } from "react";
+import Link from "next/link";
 import { Facebook, Instagram, Linkedin, Youtube } from "lucide-react";
+import { text } from "@/lib/text";
 
-function Year() {
-  const [year, setYear] = useState(2025);
-  useEffect(() => { setYear(new Date().getFullYear()); }, []);
-  return <>{year}</>;
-}
-
-const quickLinks = ["Home", "About", "Services", "Portfolio", "News", "Contact"];
-const services = ["Building", "Road Works", "Interiors", "Renovation", "Consultation"];
+const year = new Date().getFullYear();
 
 export function Footer() {
+  const quickLinks = [
+    { label: text.footer.home, href: "/#home" },
+    { label: text.footer.about, href: "/about" },
+    { label: text.footer.services, href: "/#services" },
+    { label: text.footer.portfolio, href: "/projects" },
+    { label: text.nav.news, href: "/news" },
+    { label: text.footer.contact, href: "/contact" },
+  ];
+  const services = [
+    { label: text.footer.houseConstruction, href: "/#services" },
+    { label: text.footer.interiorDesign, href: "/#services" },
+    { label: text.footer.materialConsultation, href: "/#services" },
+    { label: text.footer.siteVisit, href: "/#services" },
+  ];
+
   return (
     <footer className="bg-brand-dark text-white/70">
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
@@ -29,8 +36,7 @@ export function Footer() {
             </span>
           </div>
           <p className="text-sm leading-relaxed mb-6">
-            Engineering, research and construction excellence serving Nepal with
-            precision and care since 2009.
+            {text.footer.description}
           </p>
           <div className="flex gap-3">
               {[
@@ -55,14 +61,14 @@ export function Footer() {
 
         <div>
           <h3 className="font-body font-semibold text-white text-lg mb-4">
-            Quick Links
+            {text.footer.quickLinks}
           </h3>
           <ul className="space-y-2 text-sm">
             {quickLinks.map((l) => (
-              <li key={l}>
-                <a href="#" className="hover:text-brand-primary transition">
-                  {l}
-                </a>
+              <li key={l.label}>
+                <Link href={l.href} prefetch={false} className="hover:text-brand-primary transition">
+                  {l.label}
+                </Link>
               </li>
             ))}
           </ul>
@@ -70,14 +76,14 @@ export function Footer() {
 
         <div>
           <h3 className="font-body font-semibold text-white text-lg mb-4">
-            Services
+            {text.footer.services}
           </h3>
           <ul className="space-y-2 text-sm">
             {services.map((l) => (
-              <li key={l}>
-                <a href="#" className="hover:text-brand-primary transition">
-                  {l}
-                </a>
+              <li key={l.label}>
+                <Link href={l.href} prefetch={false} className="hover:text-brand-primary transition">
+                  {l.label}
+                </Link>
               </li>
             ))}
           </ul>
@@ -85,7 +91,7 @@ export function Footer() {
 
         <div>
           <h3 className="font-body font-semibold text-white text-lg mb-4">
-            Contact
+            {text.footer.contact}
           </h3>
           <address className="not-italic text-sm space-y-2 leading-relaxed">
             <p>
@@ -109,21 +115,21 @@ export function Footer() {
                 hello@horizonnepal.com.np
               </a>
             </p>
-            <p className="text-white/50">Mon&ndash;Sat &middot; 9 AM &ndash; 6 PM NPT</p>
+            <p className="text-white/50">{text.location.hours}</p>
           </address>
         </div>
       </div>
 
       <div className="border-t border-white/10">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-white/50">
-          <p>&copy; <Year /> Horizon Nepal. All rights reserved.</p>
+          <p>&copy; {year} Horizon Nepal. {text.footer.copyright}</p>
           <div className="flex gap-6">
-            <a href="#" className="hover:text-brand-primary">
-              Privacy Policy
-            </a>
-            <a href="#" className="hover:text-brand-primary">
-              Terms of Service
-            </a>
+            <Link href="/privacy" prefetch={false} className="hover:text-brand-primary">
+              {text.footer.privacy}
+            </Link>
+            <Link href="/terms" prefetch={false} className="hover:text-brand-primary">
+              {text.footer.terms}
+            </Link>
           </div>
         </div>
       </div>

@@ -1,137 +1,20 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { ArrowLeft, ArrowRight, MapPin, User, Briefcase, Wallet, Box, Minus, Plus } from "lucide-react";
+import { ArrowLeft, ArrowRight, MapPin, User, Box, Minus, Plus } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
-import { ModelViewer3D } from "@/components/ui/ModelViewer3D";
+import { ModelViewer3D } from "@/components/ui/DynamicModelViewer3D";
 import { VideoEmbed } from "@/components/ui/VideoEmbed";
 import { MediaCarousel } from "@/components/ui/MediaCarousel";
-
-const STATUS_STYLES: Record<string, string> = {
-  planning: "bg-blue-100 text-blue-800 border border-blue-200",
-  in_progress: "bg-blue-100 text-blue-800 border border-blue-200",
-  completed: "bg-emerald-100 text-emerald-800 border border-emerald-200",
-  on_hold: "bg-amber-100 text-amber-800 border border-amber-200",
-};
-
-const STATUS_LABELS: Record<string, string> = {
-  planning: "Planning",
-  in_progress: "In Progress",
-  completed: "Completed",
-  on_hold: "On Hold",
-};
-
-interface Phase {
-  id: string;
-  title: string;
-  description: string;
-  completion: number;
-  date: Date | null;
-  order: number;
-  faqId: string | null;
-  youtubeUrl?: string;
-  images?: string[];
-  medias?: PhaseMedia[];
-}
-
-interface PhaseMedia {
-  id: string;
-  type: string;
-  url: string;
-  message: string;
-  referenceNo: string;
-  order: number;
-}
-
-interface Attribute {
-  id: string;
-  label: string;
-  value: string;
-  order: number;
-}
-
-interface MediaItem {
-  id: string;
-  url: string;
-  alt: string;
-  isHero: boolean;
-  order: number;
-}
-
-interface VideoItem {
-  id: string;
-  platform: string;
-  sourceUrl: string;
-  videoId: string;
-  title: string;
-  thumbnail: string;
-  embedUrl: string;
-  fileUrl: string;
-  fileType: string;
-  duration: string;
-  isFeatured: boolean;
-  order: number;
-}
-
-interface Model3DItem {
-  id: string;
-  filename: string;
-  url: string;
-  type: string;
-}
-
-export interface FAQTypeItem {
-  id: string;
-  name: string;
-  slug: string;
-}
-
-export interface FAQItem {
-  id: string;
-  question: string;
-  answer: string;
-  faqType?: FAQTypeItem | null;
-}
-
-interface ProjectDetailData {
-  title: string;
-  slug: string;
-  description: string;
-  shortDescription: string;
-  category: string | null;
-  status: string;
-  completion: number;
-  location: string;
-  budget: number | null;
-  startDate: Date | null;
-  endDate: Date | null;
-  img: string;
-  alt: string;
-  ownerName: string;
-  ownerProfession: string;
-  ownerEarning: string;
-  phases?: Phase[];
-  attributes?: Attribute[];
-  media?: MediaItem[];
-  videos?: VideoItem[];
-  models3d?: Model3DItem[];
-}
-
-interface RelatedProject {
-  title: string;
-  slug: string;
-  img: string;
-  alt: string;
-  category: string | null;
-  location: string;
-}
-
-interface AdjacentProject {
-  title: string;
-  slug: string;
-}
+import { DETAIL_STATUS_STYLES, STATUS_LABELS } from "@/lib/status";
+import { useText } from "@/lib/lang-client";
+import type {
+  ProjectDisplay, ProjectMedia, ProjectVideo, ProjectModel,
+  ProjectPhase, ProjectAttribute,
+  FAQ, FAQType, RelatedProject, AdjacentProject,
+} from "@/lib/schemas";
 
 // ── URL guard ──
 
@@ -141,7 +24,9 @@ function mediaUrl(str: string) {
 
 // ── Phase Media Item ──
 
-function PhaseMediaItem({ m }: { m: PhaseMedia }) {
+type PhaseMediaItemType = ProjectPhase["medias"][number];
+
+function PhaseMediaItem({ m }: { m: PhaseMediaItemType }) {
   const [show3d, setShow3d] = useState(false);
   const url = mediaUrl(m.url);
 
@@ -208,7 +93,7 @@ function PhaseMediaItem({ m }: { m: PhaseMedia }) {
 
 // ── Featured Video ──
 
-function FeaturedVideo({ video }: { video: VideoItem }) {
+function FeaturedVideo({ video }: { video: ProjectVideo }) {
   return (
     <VideoEmbed
       platform={video.platform}
@@ -221,13 +106,14 @@ function FeaturedVideo({ video }: { video: VideoItem }) {
 
 // ── FAQ Section Sub-component ──
 
-function FAQSectionComponent({ faqs, faqTypes }: { faqs: FAQItem[]; faqTypes: FAQTypeItem[] }) {
+function FAQSectionComponent({ faqs, faqTypes }: { faqs: FAQ[]; faqTypes: FAQType[] }) {
   const [open, setOpen] = useState<string | null>(null);
   const [typeFilter, setTypeFilter] = useState<string | null>(null);
+  const t = useText();
 
   return (
     <section>
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">FAQ</h2>
+      <h2 className="text-2xl font-bold text-gray-900 mb-6">{t.projectDetail.faq}</h2>
       {faqTypes.length > 1 && (
         <div className="flex flex-wrap gap-2 mb-6">
           <button
@@ -237,7 +123,7 @@ function FAQSectionComponent({ faqs, faqTypes }: { faqs: FAQItem[]; faqTypes: FA
               !typeFilter ? "bg-blue-600 text-white border-blue-600" : "bg-white text-gray-600 border-gray-200 hover:border-blue-300"
             }`}
           >
-            All
+            {t.projectDetail.filterAll}
           </button>
           {faqTypes.map((t) => (
             <button
@@ -284,21 +170,23 @@ function FAQSectionComponent({ faqs, faqTypes }: { faqs: FAQItem[]; faqTypes: FA
 // ── Related Section Sub-component ──
 
 function RelatedSection({ related }: { related: RelatedProject[] }) {
+  const t = useText();
+
   return (
     <section>
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">Related Projects</h2>
+      <h2 className="text-2xl font-bold text-gray-900 mb-6">{t.projectDetail.related}</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
         {related.map((r) => (
-          <a key={r.slug} href={`/projects/${r.slug}`} className="group block relative overflow-hidden rounded aspect-[4/3] border border-gray-200 bg-gray-50 hover:shadow-md transition-shadow">
+          <Link key={r.slug} href={`/projects/${r.slug}`} prefetch={false} className="group block relative overflow-hidden rounded aspect-[4/3] border border-gray-200 bg-gray-50 hover:shadow-md transition-shadow">
             <Image src={r.img} alt={r.alt || r.title} fill sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw" loading="lazy" className="object-cover group-hover:scale-105 transition-transform duration-300" />
             <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 to-transparent flex flex-col justify-end p-5">
               {r.category && <span className="self-start bg-blue-600 text-white text-xs font-semibold px-2.5 py-0.5 rounded-sm mb-2">{r.category}</span>}
               <h3 className="text-white font-semibold">{r.title}</h3>
               {r.location && <p className="text-white/70 text-xs flex items-center gap-1 mt-1"><MapPin className="size-3" /> {r.location}</p>}
             </div>
-          </a>
-        ))}
-      </div>
+            </Link>
+          ))}
+        </div>
     </section>
   );
 }
@@ -306,22 +194,24 @@ function RelatedSection({ related }: { related: RelatedProject[] }) {
 // ── Adjacent Section Sub-component ──
 
 function AdjacentSection({ adjacent }: { adjacent: { prev: AdjacentProject | null; next: AdjacentProject | null } }) {
+  const t = useText();
+
   if (!adjacent.prev && !adjacent.next) return null;
   return (
     <div className="grid grid-cols-2 gap-4 pt-8 border-t border-gray-200">
       {adjacent.prev ? (
-        <Link href={`/projects/${adjacent.prev.slug}`} className="flex items-center gap-3 px-5 py-4 rounded bg-gray-50 border border-gray-200 hover:border-blue-300 hover:shadow-sm transition-all">
+        <Link href={`/projects/${adjacent.prev.slug}`} prefetch={false} className="flex items-center gap-3 px-5 py-4 rounded bg-gray-50 border border-gray-200 hover:border-blue-300 hover:shadow-sm transition-all">
           <ArrowLeft className="size-4 text-gray-400 shrink-0" />
           <div className="text-left">
-            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Previous</span>
+            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">{t.projectDetail.previous}</span>
             <p className="text-sm font-medium text-gray-900 truncate">{adjacent.prev.title}</p>
           </div>
         </Link>
       ) : <div />}
       {adjacent.next ? (
-        <Link href={`/projects/${adjacent.next.slug}`} className="flex items-center justify-end gap-3 px-5 py-4 rounded bg-gray-50 border border-gray-200 hover:border-blue-300 hover:shadow-sm transition-all">
+        <Link href={`/projects/${adjacent.next.slug}`} prefetch={false} className="flex items-center justify-end gap-3 px-5 py-4 rounded bg-gray-50 border border-gray-200 hover:border-blue-300 hover:shadow-sm transition-all">
           <div className="text-right">
-            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Next</span>
+            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">{t.projectDetail.next}</span>
             <p className="text-sm font-medium text-gray-900 truncate">{adjacent.next.title}</p>
           </div>
           <ArrowRight className="size-4 text-gray-400 shrink-0" />
@@ -339,7 +229,7 @@ export function ProjectDetail({
   relatedSlot,
   adjacentSlot,
 }: {
-  project: ProjectDetailData;
+  project: ProjectDisplay;
   faqSlot?: React.ReactNode;
   relatedSlot?: React.ReactNode;
   adjacentSlot?: React.ReactNode;
@@ -350,6 +240,7 @@ export function ProjectDetail({
   const remainingVideos = videos.filter((v) => v !== featuredVideo);
   const featuredModel = models3d[0];
   const remainingModels = models3d.slice(1);
+  const t = useText();
 
   return (
     <article className="font-serif bg-white text-gray-900 min-h-screen">
@@ -377,7 +268,7 @@ export function ProjectDetail({
               {project.title}
             </h1>
             <div className="flex flex-wrap items-center gap-3">
-              <span className={`text-xs font-semibold px-3 py-1 rounded-sm ${STATUS_STYLES[project.status] || "bg-gray-100 text-gray-700 border border-gray-200"}`}>
+              <span className={`text-xs font-semibold px-3 py-1 rounded-sm ${DETAIL_STATUS_STYLES[project.status] || "bg-gray-100 text-gray-700 border border-gray-200"}`}>
                 {STATUS_LABELS[project.status] || project.status}
               </span>
               {project.location && (
@@ -399,7 +290,7 @@ export function ProjectDetail({
       <div className="max-w-5xl mx-auto px-6 py-16 space-y-20">
         {/* ── Overview ── */}
         <section>
-          <h2 className="text-2xl font-bold text-gray-900 mb-5">Overview</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-5">{t.projectDetail.overview}</h2>
           <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 space-y-5">
             {project.shortDescription && (
               <p className="text-xl font-medium text-gray-900 leading-relaxed">
@@ -417,7 +308,7 @@ export function ProjectDetail({
         {/* ── Featured Video ── */}
         {featuredVideo && (
           <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-5">Project Video</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-5">{t.projectDetail.video}</h2>
             {featuredVideo.title && (
               <p className="text-sm text-gray-500 mb-3">{featuredVideo.title}</p>
             )}
@@ -428,7 +319,7 @@ export function ProjectDetail({
         {/* ── Featured 3D ── */}
         {featuredModel && (
           <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-5">3D Tour</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-5">{t.projectDetail.tour}</h2>
             <div className="bg-gray-50 border border-gray-200 rounded-lg overflow-hidden">
               <div className="h-[500px]">
                 <ModelViewer3D src={featuredModel.url} loading="lazy" className="w-full h-full bg-transparent" />
@@ -443,7 +334,7 @@ export function ProjectDetail({
         {/* ── Owner ── */}
         {project.ownerName && (
           <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-5">Client</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-5">{t.projectDetail.client}</h2>
             <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
               <div className="flex flex-wrap items-center gap-6">
                 <div className="size-14 rounded-full bg-blue-100 grid place-items-center shrink-0">
@@ -451,18 +342,18 @@ export function ProjectDetail({
                 </div>
                 <div className="flex-1 min-w-0 grid sm:grid-cols-3 gap-5">
                   <div>
-                    <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Name</span>
+                    <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">{t.projectDetail.name}</span>
                     <p className="text-gray-900 font-medium mt-0.5">{project.ownerName}</p>
                   </div>
                   {project.ownerProfession && (
                     <div>
-                      <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Profession</span>
+                      <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">{t.projectDetail.profession}</span>
                       <p className="text-gray-900 font-medium mt-0.5">{project.ownerProfession}</p>
                     </div>
                   )}
                   {project.ownerEarning && (
                     <div>
-                      <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Earning</span>
+                      <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">{t.projectDetail.earning}</span>
                       <p className="text-gray-900 font-medium mt-0.5">{project.ownerEarning}</p>
                     </div>
                   )}
@@ -475,7 +366,7 @@ export function ProjectDetail({
         {/* ── Specifications ── */}
         {(project.attributes ?? []).length > 0 && (
           <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-5">Specifications</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-5">{t.projectDetail.specifications}</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {(project.attributes ?? []).map((attr) => (
                 <div key={attr.id} className="bg-gray-50 border border-gray-200 rounded-lg p-5">
@@ -490,7 +381,7 @@ export function ProjectDetail({
         {/* ── Timeline ── */}
         {(project.phases ?? []).length > 0 && (
           <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-5">Timeline</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-5">{t.projectDetail.timeline}</h2>
             <div className="space-y-6">
               {(project.phases ?? [])
                 .sort((a, b) => a.order - b.order)
@@ -548,7 +439,7 @@ export function ProjectDetail({
         {/* ── Remaining 3D Models ── */}
         {remainingModels.length > 0 && (
           <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-5">Additional 3D Views</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-5">{t.projectDetail.additional3d}</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {remainingModels.map((model) => (
                 <div key={model.id} className="bg-gray-50 border border-gray-200 rounded-lg overflow-hidden">
@@ -565,7 +456,7 @@ export function ProjectDetail({
         {/* ── Remaining Videos ── */}
         {remainingVideos.length > 0 && (
           <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-5">More Videos</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-5">{t.projectDetail.moreVideos}</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {remainingVideos.map((video) => (
                 <div key={video.id}>
@@ -585,7 +476,7 @@ export function ProjectDetail({
         {/* ── Media Showcase ── */}
         {(project.media ?? []).length > 0 && (
           <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-5">Media</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-5">{t.projectDetail.media}</h2>
             <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
               <MediaCarousel media={(project.media ?? []).sort((a, b) => a.order - b.order)} />
             </div>
@@ -603,25 +494,25 @@ export function ProjectDetail({
 
         {/* ── CTA ── */}
         <section className="bg-gray-900 rounded-lg p-10 sm:p-14 text-center">
-          <h2 className="text-3xl font-bold text-white mb-3">Build Something Similar</h2>
+          <h2 className="text-3xl font-bold text-white mb-3">{t.projectDetail.ctaHeading}</h2>
           <p className="text-gray-400 max-w-md mx-auto mb-8 leading-relaxed">
-            Have a project in mind? Let&apos;s discuss how we can bring your vision to life.
+            {t.projectDetail.ctaSubtitle}
           </p>
           <div className="flex flex-wrap justify-center gap-4">
-            <Link href="/#contact" className="inline-flex items-center gap-2 h-12 px-7 rounded bg-blue-600 text-white font-medium hover:bg-blue-700 transition shadow-sm">
-              Start Your Project <ArrowRight className="size-4" />
+            <Link href="/#contact" prefetch={false} className="inline-flex items-center gap-2 h-12 px-7 rounded bg-blue-600 text-white font-medium hover:bg-blue-700 transition shadow-sm">
+              {t.projectDetail.ctaPrimary} <ArrowRight className="size-4" />
             </Link>
-            <Link href="/#works" className="inline-flex items-center gap-2 h-12 px-7 rounded border border-white/25 text-white font-medium hover:bg-white hover:text-gray-900 transition">
-              View All Projects
+            <Link href="/projects" prefetch={false} className="inline-flex items-center gap-2 h-12 px-7 rounded border border-white/25 text-white font-medium hover:bg-white hover:text-gray-900 transition">
+              {t.projectDetail.ctaSecondary}
             </Link>
           </div>
         </section>
 
         {/* ── Back Link ── */}
         <div className="flex justify-center">
-          <Link href="/#works" className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-blue-600 font-medium transition-colors">
+          <Link href="/projects" prefetch={false} className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-blue-600 font-medium transition-colors">
             <ArrowLeft className="size-4" />
-            Back to Portfolio
+            {t.projectDetail.backToPortfolio}
           </Link>
         </div>
       </div>

@@ -1,6 +1,16 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 
+export async function GET(
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const { id } = await params;
+  const contact = await prisma.contactSubmission.findUnique({ where: { id } });
+  if (!contact) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  return NextResponse.json(contact);
+}
+
 export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> },

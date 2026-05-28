@@ -54,7 +54,7 @@ COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
 
 # Install Prisma CLI for db push at runtime
-RUN npm install -g prisma@6.19.3
+RUN npm install -g prisma@6
 
 USER nextjs
 

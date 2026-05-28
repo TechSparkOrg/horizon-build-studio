@@ -1,6 +1,5 @@
 import sharp from "sharp";
 import { getStorageProvider } from "./storage";
-import { compressGlb } from "./compress-glb";
 
 const IMAGE_MAX_SIZE = 10 * 1024 * 1024;
 const MODEL_MAX_SIZE = 100 * 1024 * 1024;
@@ -30,6 +29,7 @@ export async function uploadFile(file: File, subdir = "projects", compress = tru
   if (isModel) {
     if (compress && file.name.endsWith(".glb")) {
       try {
+        const { compressGlb } = await import("./compress-glb");
         buffer = Buffer.from(await compressGlb(buffer));
       } catch {
         // Draco compression unavailable on this platform (e.g. Vercel serverless), use original

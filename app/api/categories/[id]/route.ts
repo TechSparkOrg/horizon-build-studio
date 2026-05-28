@@ -1,43 +1,49 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { revalidatePath } from "next/cache";
+import { requireAuth } from "@/lib/auth";
+import { revalidateTag } from "next/cache";
+
+function toSlug(text: string): string {
+  return text.toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]+/g, "");
+}
 
 export async function PUT(
-  _request: Request,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
+    await requireAuth();
     const { id } = await params;
-    const body = await _request.json();
+    const body = await request.json();
+    const slug = body.slug || (body.name ? toSlug(body.name) : undefined);
     const category = await prisma.category.update({
       where: { id },
-      data: {
-        name: body.name,
-        slug: body.slug || body.name.toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]+/g, ""),
-        description: body.description,
-        parentId: body.parentId || null,
-        order: body.order ?? 0,
-      },
+      data: { name: body.name, slug, parentId: body.parentId || null },
     });
-    revalidatePath("/");
+    revalidateTag("categories", "max");
     return NextResponse.json(category);
   } catch (error) {
-    console.error("Update category error:", error);
-    return NextResponse.json({ error: "Failed to update category" }, { status: 500 });
+    return NextResponse.json(
+      { error: String(error) },
+      { status: 500 },
+    );
   }
 }
 
 export async function DELETE(
-  _request: Request,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
+    await requireAuth();
     const { id } = await params;
     await prisma.category.delete({ where: { id } });
-    revalidatePath("/");
-    return NextResponse.json({ success: true });
+    revalidateTag("categories", "max");
+    return NextResponse.json({ ok: true });
   } catch (error) {
-    console.error("Delete category error:", error);
-    return NextResponse.json({ error: "Failed to delete category" }, { status: 500 });
+    return NextResponse.json(
+      { error: String(error) },
+      { status: 500 },
+    );
   }
 }

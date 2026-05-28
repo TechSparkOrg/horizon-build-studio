@@ -1,28 +1,26 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { revalidatePath } from "next/cache";
+import { requireAuth } from "@/lib/auth";
+import { revalidateTag } from "next/cache";
 
-export async function GET() {
-  try {
-    const all = await prisma.category.findMany({ orderBy: { order: "asc" } });
-    return NextResponse.json(JSON.parse(JSON.stringify(all)));
-  } catch (error) {
-    console.error("GET categories error:", error);
-    return NextResponse.json({ error: "Failed to fetch categories" }, { status: 500 });
-  }
+function toSlug(text: string): string {
+  return text.toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]+/g, "");
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
+    await requireAuth();
     const body = await request.json();
-    const slug = body.slug || body.name.toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]+/g, "");
+    const slug = body.slug || toSlug(body.name);
     const category = await prisma.category.create({
-      data: { ...body, slug },
+      data: { name: body.name, slug, parentId: body.parentId || null },
     });
-    revalidatePath("/");
-    return NextResponse.json(category, { status: 201 });
+    revalidateTag("categories", "max");
+    return NextResponse.json(category);
   } catch (error) {
-    console.error("Create category error:", error);
-    return NextResponse.json({ error: "Failed to create category" }, { status: 500 });
+    return NextResponse.json(
+      { error: String(error) },
+      { status: 500 },
+    );
   }
 }

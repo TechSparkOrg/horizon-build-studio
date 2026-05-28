@@ -1,47 +1,35 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
 import Image from "next/image";
+import { useText, useLang } from "@/lib/lang-client";
+import type { SectionContentMap } from "@/lib/section-content";
 
-const quotes = [
-  {
-    text: "At the core of our practice is the idea that cities are the incubators of our greatest achievements, and the best hope for a sustainable future.",
-    attr: "Horizon Nepal · Core Philosophy",
-  },
-  {
-    text: "Every structure we build is a quiet promise to the generation that will inherit it.",
-    attr: "Arun Thapa · Lead Architect",
-  },
-  {
-    text: "We measure success not by what we deliver, but by how it endures.",
-    attr: "Priya Shrestha · Project Director",
-  },
-];
+export function QuoteBanner({ content }: { content?: SectionContentMap }) {
+  const t = useText();
+  const lang = useLang();
+  function media(key: string, fb: string) {
+    return content?.[key]?.mediaUrl || fb;
+  }
 
-export function QuoteBanner({
-  image = "https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?auto=format&fit=crop&w=2000&q=80",
-}: {
-  image?: string;
-}) {
+  let quotes: { text: string; attr: string }[] = [];
+  try { quotes = content?.quotes ? JSON.parse(content.quotes.valueEn) : t.quotes; } catch { quotes = t.quotes; }
+
   const [i, setI] = useState(0);
   const ref = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
-  const bgY = useTransform(scrollYProgress, [0, 1], ["-15%", "15%"]);
-  const bgScale = useTransform(scrollYProgress, [0, 1], [1, 1.1]);
 
   useEffect(() => {
-    const t = setInterval(() => setI((v) => (v + 1) % quotes.length), 6000);
-    return () => clearInterval(t);
-  }, []);
+    const interval = setInterval(() => setI((v) => (v + 1) % quotes.length), 6000);
+    return () => clearInterval(interval);
+  }, [quotes.length]);
 
   const q = quotes[i];
 
   return (
     <section ref={ref} className="relative py-16 sm:py-28 overflow-hidden">
-      <motion.div className="absolute inset-0" style={{ y: bgY, scale: bgScale }}>
-        <Image src={image} alt="" fill sizes="100vw" loading="lazy" className="object-cover" />
-      </motion.div>
+      <div className="absolute inset-0">
+        <Image src={media("bgImage", "https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?auto=format&fit=crop&w=2000&q=80")} alt="" fill sizes="100vw" loading="lazy" className="object-cover" />
+      </div>
       <div
         className="absolute inset-0 bg-brand-dark/75"
         aria-hidden="true"
@@ -54,16 +42,17 @@ export function QuoteBanner({
         >
           &ldquo;
         </div>
-        <motion.blockquote
-          key={i}
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="-mt-10 font-display italic text-white text-2xl sm:text-3xl leading-relaxed"
-        >
-          {q.text}
-        </motion.blockquote>
-        <p className="mt-6 text-white/60 text-sm">&mdash; {q.attr}</p>
+        <div className="-mt-10 min-h-[160px] flex items-start">
+          <blockquote
+            key={i}
+            className="font-display italic text-white text-2xl sm:text-3xl leading-relaxed animate-fade-in-up"
+          >
+            {q.text}
+          </blockquote>
+        </div>
+        <div className="mt-6 min-h-[24px] flex items-start">
+          <p className="text-white/60 text-sm">&mdash; {q.attr}</p>
+        </div>
         <div className="mt-8 flex justify-center gap-2">
           {quotes.map((_, idx) => (
             <button

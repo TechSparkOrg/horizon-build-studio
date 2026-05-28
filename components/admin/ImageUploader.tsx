@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import { toast } from "sonner";
 import { Upload, X, Link as LinkIcon } from "lucide-react";
+import { uploadFileAction } from "@/lib/services/actions/upload.actions";
 
 interface Props {
   value: string;
@@ -21,13 +22,8 @@ export function ImageUploader({ value, onChange }: Props) {
     try {
       const fd = new FormData();
       fd.append("file", file);
-      const res = await fetch("/api/upload", { method: "POST", body: fd });
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({ error: res.statusText }));
-        throw new Error(err.error || "Upload failed");
-      }
-      const data = await res.json();
-      if (data.url) onChange(data.url);
+      const { url } = await uploadFileAction(fd);
+      if (url) onChange(url);
     } catch (e: any) {
       toast.error(e.message || "Upload failed");
     } finally {

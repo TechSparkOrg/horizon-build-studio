@@ -1,40 +1,43 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { AnimateOnView } from "@/components/AnimateOnView";
 import { SectionLabel } from "@/components/ui/SectionLabel";
-import { ModelViewer3D } from "@/components/ui/ModelViewer3D";
-import { fadeUp, stagger } from "@/lib/motion-variants";
-import type { NewsItem } from "@/types";
+import { ModelViewer3D } from "@/components/ui/DynamicModelViewer3D";
+import { useText, useLang } from "@/lib/lang-client";
+import type { SectionContentMap } from "@/lib/section-content";
+interface NewsItem { title: string; excerpt: string; cat: string; date: string; img: string; slug: string; }
 
-export function NewsSection({ news = [] }: { news: NewsItem[] }) {
+export function NewsSection({ news = [], content }: { news: NewsItem[]; content?: SectionContentMap }) {
+  const t = useText();
+  const lang = useLang();
+  function val(key: string, fb: string) {
+    const c = content?.[key];
+    if (!c) return fb;
+    return lang === "np" && c.valueNp ? c.valueNp : c.valueEn || fb;
+  }
+  function media(key: string, fb: string) {
+    return content?.[key]?.mediaUrl || fb;
+  }
   return (
     <section id="news" className="bg-off-white py-16 sm:py-28">
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
         <AnimateOnView className="max-w-2xl">
-          <SectionLabel>Latest Updates</SectionLabel>
+          <SectionLabel>{val("label", t.news.label)}</SectionLabel>
           <h2 className="mt-3 font-display font-bold text-brand-secondary text-3xl sm:text-4xl lg:text-5xl">
-            Read Some Latest News Articles
+            {val("h2", t.news.h2)}
           </h2>
         </AnimateOnView>
 
-        <motion.div
-          variants={stagger}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-80px" }}
-          className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6"
-        >
+        <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6 animate-stagger">
           {news.map((n) => (
-            <motion.article
-              variants={fadeUp}
+            <article
               key={n.slug}
               className="bg-white rounded-2xl overflow-hidden border border-light-gray/40 shadow-[0_4px_24px_rgba(0,0,0,0.04)] hover:shadow-[0_12px_32px_rgba(0,0,0,0.08)] transition-shadow duration-300 group"
             >
-              <Link href={`/news/${n.slug}`} className="block">
+              <Link href={`/news/${n.slug}`} prefetch={false} className="block">
                 <div className="relative aspect-[16/9] overflow-hidden">
                   <Image
                     src={n.img}
@@ -57,25 +60,32 @@ export function NewsSection({ news = [] }: { news: NewsItem[] }) {
                   </h3>
                   <p className="mt-2 text-mid-gray line-clamp-2">{n.excerpt}</p>
                   <span className="mt-4 inline-flex items-center gap-1 text-brand-primary font-semibold text-sm group-hover:underline">
-                    Read More <ArrowRight className="size-3" />
+                    {val("readMore", t.news.readMore)} <ArrowRight className="size-3" />
                   </span>
                 </div>
               </Link>
-            </motion.article>
+            </article>
           ))}
 
-          <motion.div
-            variants={fadeUp}
-            className="rounded-lg overflow-hidden bg-transparent min-h-[360px]"
-          >
+          <div className="rounded-lg overflow-hidden bg-transparent min-h-[360px]">
             <ModelViewer3D
-              src="/glb/brigfe.glb"
+              src={media("bridgeModelPath", "/glb/brigfe.glb")}
               className="w-full h-full rounded-lg bg-transparent"
               hideBadge
               loading="lazy"
             />
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
+
+        <div className="mt-12 text-center">
+          <Link
+            href="/news"
+            prefetch={false}
+            className="inline-flex items-center gap-2 h-11 px-6 rounded border-2 border-brand-primary text-brand-primary font-semibold hover:bg-brand-primary hover:text-white transition"
+          >
+            {val("viewAll", t.news.viewAll)} <ArrowRight className="size-4" />
+          </Link>
+        </div>
       </div>
     </section>
   );

@@ -3,7 +3,6 @@
 import { useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
-
 function ToastOnLoadInner() {
   const sp = useSearchParams();
   const router = useRouter();
@@ -11,7 +10,9 @@ function ToastOnLoadInner() {
   useEffect(() => {
     const message = sp.get("success");
     if (!message) return;
+    
     toast.success(decodeURIComponent(message));
+    
     const params = new URLSearchParams(sp.toString());
     params.delete("success");
     router.replace(`?${params.toString()}`, { scroll: false });

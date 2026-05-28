@@ -12,6 +12,7 @@ services:
     environment:
       # We override the host in docker compose to connect to the db service
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?schema=public
+      - REDIS_URL=redis://redis:6379
       - STORAGE_PROVIDER=${STORAGE_PROVIDER}
       - R2_BUCKET=${R2_BUCKET}
       - R2_ENDPOINT=${R2_ENDPOINT}
@@ -41,5 +42,19 @@ services:
       retries: 5
     restart: unless-stopped
 
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "127.0.0.1:6379:6379"
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
 volumes:
   pgdata:
+  redisdata:

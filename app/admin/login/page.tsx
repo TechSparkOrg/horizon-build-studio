@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { signIn } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import { LogIn } from "lucide-react";
+import { login } from "@/lib/auth/auth.service";
 
 export default function LoginPage() {
   const searchParams = useSearchParams();
@@ -19,17 +19,12 @@ export default function LoginPage() {
     setLoading(true);
     setError("");
 
-    const result = await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
-    });
-
-    if (result?.error) {
-      setError("Invalid email or password");
-      setLoading(false);
-    } else {
+    try {
+      await login(email, password);
       window.location.href = callbackUrl;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Invalid email or password");
+      setLoading(false);
     }
   };
 

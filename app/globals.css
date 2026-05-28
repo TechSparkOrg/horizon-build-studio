@@ -163,7 +163,10 @@
 
 @layer base {
   * {
-    border-color: var(--color-border);
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
   }
 
   html {
@@ -185,6 +188,9 @@
 }
 
 @layer utilities {
+  .text-brand-primary {
+    color: lab(46 66.38 44.25);
+  }
   .label-eyebrow {
     font-family: var(--font-label);
     text-transform: uppercase;

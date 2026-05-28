@@ -13,9 +13,10 @@ export async function makeUniqueProjectSlug(
 
   let candidate = slug;
   let n = 1;
-  for (;;) {
+  for (let i = 0; i < 100; i++) {
     const existing = await prisma.project.findUnique({ where: { slug: candidate } });
     if (!existing || existing.id === excludeId) return candidate;
     candidate = `${slug}-${n++}`;
   }
+  return `${slug}-${Date.now()}`;
 }

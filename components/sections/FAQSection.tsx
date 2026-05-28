@@ -1,38 +1,58 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
 import { ArrowRight, Minus, Plus } from "lucide-react";
+import Link from "next/link";
 import { AnimateOnView } from "@/components/AnimateOnView";
 import { SectionLabel } from "@/components/ui/SectionLabel";
-import { ModelViewer3D } from "@/components/ui/ModelViewer3D";
-import { blurIn, stagger } from "@/lib/motion-variants";
-import type { FAQItem } from "@/types";
+import { ModelViewer3D } from "@/components/ui/DynamicModelViewer3D";
+import { useText, useLang } from "@/lib/lang-client";
+import type { SectionContentMap } from "@/lib/section-content";
+import type { FAQSectionItem } from "@/lib/schemas";
 
-export function FAQSection({ faqs = [] }: { faqs: FAQItem[] }) {
+export function FAQSection({ faqs = [], content }: { faqs: FAQSectionItem[]; content?: SectionContentMap }) {
   const [open, setOpen] = useState<number | null>(0);
+  const t = useText();
+  const lang = useLang();
+  function val(key: string, fb: string) {
+    const c = content?.[key];
+    if (!c) return fb;
+    return lang === "np" && c.valueNp ? c.valueNp : c.valueEn || fb;
+  }
+  function media(key: string, fb: string) {
+    return content?.[key]?.mediaUrl || fb;
+  }
 
   return (
     <section className="bg-off-white py-16 sm:py-28">
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 grid lg:grid-cols-2 gap-12">
         <AnimateOnView>
-          <SectionLabel>FAQ</SectionLabel>
+          <SectionLabel>{val("label", t.faq.label)}</SectionLabel>
           <h2 className="mt-3 font-display font-bold text-brand-secondary text-3xl sm:text-4xl lg:text-5xl">
-            Answers to Your Construction Questions
+            {val("h2", t.faq.h2)}
           </h2>
           <p className="mt-4 text-mid-gray text-lg max-w-md">
-            Everything you need to know about working with Horizon Nepal &mdash;
-            from first call to final inspection.
+            {val("subtitle", t.faq.subtitle)}
           </p>
-          <a
-            href="#contact"
+          <Link
+            href="/#contact"
+            prefetch={false}
             className="mt-6 inline-flex items-center gap-2 h-11 px-6 rounded bg-brand-primary text-white font-semibold hover:brightness-110 transition"
           >
-            Ask Us Anything <ArrowRight className="size-4" />
-          </a>
-          <div className="mt-8 rounded-lg overflow-hidden h-40">
+            {val("ask", t.faq.ask)} <ArrowRight className="size-4" />
+          </Link>
+          <div className="mt-4">
+            <Link
+              href="/faq"
+              prefetch={false}
+              className="inline-flex items-center gap-2 text-sm text-brand-primary font-semibold hover:underline"
+            >
+              {val("viewAll", t.faq.viewAll)} <ArrowRight className="size-3" />
+            </Link>
+          </div>
+          <div className="mt-4 rounded-lg overflow-hidden h-40">
             <ModelViewer3D
-              src="/glb/stop.glb"
+              src={media("stopModelPath", "/glb/stop.glb")}
               className="w-full h-full bg-transparent"
               hideBadge
               disableControls
@@ -40,19 +60,12 @@ export function FAQSection({ faqs = [] }: { faqs: FAQItem[] }) {
           </div>
         </AnimateOnView>
 
-        <motion.div
-          variants={stagger}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-80px" }}
-          className="space-y-3"
-        >
+        <div className="space-y-3 animate-stagger">
           {faqs.map((f, i) => {
             const isOpen = open === i;
             return (
-              <motion.div
+              <div
                 key={f.q}
-                variants={blurIn}
                 className={`rounded-2xl border border-light-gray/40 bg-white shadow-[0_4px_24px_rgba(0,0,0,0.04)] transition-shadow duration-300 ${
                   isOpen
                     ? "border-l-4 border-l-brand-primary shadow-[0_12px_32px_rgba(0,0,0,0.08)]"
@@ -84,10 +97,10 @@ export function FAQSection({ faqs = [] }: { faqs: FAQItem[] }) {
                     </p>
                   </div>
                 </div>
-              </motion.div>
+              </div>
             );
           })}
-        </motion.div>
+        </div>
       </div>
     </section>
   );

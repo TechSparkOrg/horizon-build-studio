@@ -7,6 +7,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  admin
+  editor
+}
+
 model User {
   id             String    @id @default(cuid())
   name           String?
@@ -14,39 +19,22 @@ model User {
   emailVerified  DateTime?
   image          String?
   hashedPassword String?
+  role           Role      @default(editor)
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
-  accounts       Account[]
-  sessions       Session[]
+  refreshTokens  RefreshToken[]
 }
 
-model Account {
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String?
-  access_token      String?
-  expires_at        Int?
-  token_type        String?
-  id_token          String?
-  session_state     String?
-  user              User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  @@id([provider, providerAccountId])
-}
+model RefreshToken {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  revokedAt DateTime?
 
-model Session {
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
-model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
-  @@id([identifier, token])
+  @@index([userId])
 }
 
 model Category {
@@ -98,6 +86,10 @@ model Project {
   order            Int                @default(0)
   createdAt        DateTime           @default(now())
   updatedAt        DateTime           @updatedAt
+  metaTitle        String             @default("")
+  metaDescription  String             @default("")
+  metaKeywords     String             @default("")
+  customScript     String             @default("")
   ownerName        String             @default("")
   ownerProfession  String             @default("")
   ownerEarning     String             @default("")
@@ -256,12 +248,18 @@ model NewsArticle {
   id                 String   @id @default(cuid())
   title              String
   excerpt            String
+  content            String   @default("")
+  contentNp          String   @default("")
   category           String
   image              String
   alt                String   @default("")
   slug               String   @unique
   projectId          String?
   project            Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  metaTitle          String   @default("")
+  metaDescription    String   @default("")
+  metaKeywords       String   @default("")
+  customScript       String   @default("")
   publishedAt        DateTime @default(now())
   readingTimeMinutes Int?     @default(3)
   createdAt          DateTime @default(now())
@@ -288,4 +286,107 @@ model SiteSetting {
   type      String   @default("text")
   section   String   @default("general")
   updatedAt DateTime @updatedAt
+}
+
+model SectionContent {
+  id        String   @id @default(cuid())
+  section   String
+  key       String
+  valueEn   String   @default("")
+  valueNp   String   @default("")
+  mediaUrl  String?
+  mediaType String?
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@unique([section, key])
+}
+
+model PageBanner {
+  id              String   @id @default(cuid())
+  slug            String   @unique
+  title           String   @default("")
+  metaTitle       String   @default("")
+  metaDescription String   @default("")
+  metaKeywords    String   @default("")
+  customScript    String   @default("")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  images          PageBannerImage[]
+}
+
+model PageBannerImage {
+  id        String   @id @default(cuid())
+  bannerId  String
+  banner    PageBanner @relation(fields: [bannerId], references: [id], onDelete: Cascade)
+  image     String
+  alt       String   @default("")
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  @@index([bannerId])
+}
+
+model PageModel {
+  id              String   @id @default(cuid())
+  slug            String   @unique
+  title           String   @default("")
+  metaTitle       String   @default("")
+  metaDescription String   @default("")
+  metaKeywords    String   @default("")
+  customScript    String   @default("")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  models3d        PageModel3D[]
+}
+
+model PageModel3D {
+  id       String    @id @default(cuid())
+  modelId  String
+  model    PageModel @relation(fields: [modelId], references: [id], onDelete: Cascade)
+  url      String
+  filename String    @default("")
+  type     String    @default("glb")
+  label    String    @default("")
+  order    Int       @default(0)
+  createdAt DateTime @default(now())
+  @@index([modelId])
+}
+
+model StaticPage {
+  id              String   @id @default(cuid())
+  slug            String   @unique
+  title           String   @default("")
+  contentEn       String   @default("")
+  contentNp       String   @default("")
+  metaTitle       String   @default("")
+  metaDescription String   @default("")
+  metaKeywords    String   @default("")
+  customScript    String   @default("")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model PageSEO {
+  id              String   @id @default(cuid())
+  slug            String   @unique
+  title           String   @default("")
+  text1En         String   @default("")
+  text1Np         String   @default("")
+  text2En         String   @default("")
+  text2Np         String   @default("")
+  metaTitle        String   @default("")
+  metaDescription  String   @default("")
+  metaKeywords     String   @default("")
+  ogImage         String   @default("")
+  customScript    String   @default("")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model SectionDef {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  label     String
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
 }

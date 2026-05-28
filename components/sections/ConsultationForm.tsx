@@ -1,14 +1,14 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { ArrowRight, MapPin, Mail, Phone } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
 import { SectionLabel } from "@/components/ui/SectionLabel";
-import { ModelViewer3D } from "@/components/ui/ModelViewer3D";
-import { slideLeft, slideRight } from "@/lib/motion-variants";
+import { ModelViewer3D } from "@/components/ui/DynamicModelViewer3D";
+import { useText } from "@/lib/lang-client";
+import { submitContact } from "@/lib/services/actions/contact.actions";
 
 const formSchema = z.object({
   name: z.string().trim().min(2, "Please enter your name").max(80),
@@ -43,24 +43,25 @@ export function ConsultationForm() {
     },
   });
 
+  const t = useText();
+
+  const errMap: Record<string, string> = {
+    name: t.consultation.errors.name,
+    email: t.consultation.errors.email,
+    phone: t.consultation.errors.phone,
+    service: t.consultation.errors.service,
+    description: t.consultation.errors.desc,
+    date: t.consultation.errors.date,
+  };
+
   const onSubmit = async (data: FormValues): Promise<void> => {
-    try {
-      const res = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
+    const result = await submitContact(data);
 
-      const result = await res.json();
-
-      if (result.success) {
-        toast.success(result.message);
-        reset();
-      } else {
-        toast.error(result.message ?? "Something went wrong. Please try again.");
-      }
-    } catch {
-      toast.error("Network error. Please check your connection and try again.");
+    if (result.success) {
+      toast.success(result.message);
+      reset();
+    } else {
+      toast.error(result.message ?? t.consultation.apiError);
     }
   };
 
@@ -69,27 +70,30 @@ export function ConsultationForm() {
   const inputBase =
     "w-full h-11 px-3 rounded-md border bg-white text-dark-text text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary";
 
+  const getErrMsg = (field: keyof typeof errors) => {
+    if (errors[field]) {
+      const path = field;
+      return errMap[path] ?? errors[field]?.message;
+    }
+    return undefined;
+  };
+
   return (
-    <section id="contact" className="bg-white">
+    <section id="consultation-form" className="bg-white">
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-28 grid lg:grid-cols-2 gap-0 lg:gap-10 items-stretch">
-        <motion.div
-          variants={slideLeft}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-80px" }}
-          className="relative rounded-l-2xl lg:rounded-l-2xl rounded-t-2xl lg:rounded-tr-none bg-brand-dark text-white p-8 sm:p-12 overflow-hidden"
+        <div
+          className="relative rounded-l-2xl lg:rounded-l-2xl rounded-t-2xl lg:rounded-tr-none bg-brand-dark text-white p-8 sm:p-12 overflow-hidden animate-slide-in-left"
           style={{
             backgroundImage:
               "repeating-linear-gradient(45deg, oklch(1 0 0 / 0.03) 0 2px, transparent 2px 14px)",
           }}
         >
-          <SectionLabel>Book A Consultation</SectionLabel>
+          <SectionLabel>{t.consultation.label}</SectionLabel>
           <h2 className="mt-3 font-display font-bold text-white text-3xl sm:text-4xl leading-tight">
-            Schedule a Smooth and Stress-Free Consultation
+            {t.consultation.h2}
           </h2>
           <p className="mt-5 text-white/75 leading-relaxed max-w-md">
-            Our experts are available Monday&ndash;Saturday, 9 AM&ndash;6 PM NPT. No pitch
-            decks &mdash; just a real conversation about your project.
+            {t.consultation.subtitle}
           </p>
           <div className="mt-8 rounded-xl overflow-hidden h-32 sm:h-36">
             <ModelViewer3D
@@ -123,19 +127,15 @@ export function ConsultationForm() {
               <span>Tinkune, Kathmandu</span>
             </li>
           </ul>
-        </motion.div>
+        </div>
 
-        <motion.form
-          variants={slideRight}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-80px" }}
+        <form
           onSubmit={handleSubmit(onSubmit)}
           noValidate
-          className="bg-off-white rounded-r-2xl rounded-b-2xl lg:rounded-b-2xl lg:rounded-bl-none p-8 sm:p-10"
+          className="bg-off-white rounded-r-2xl rounded-b-2xl lg:rounded-b-2xl lg:rounded-bl-none p-8 sm:p-10 animate-slide-in-right"
         >
           <h3 className="font-display text-2xl font-bold text-brand-secondary">
-            Book Your Free Consultation
+            {t.consultation.formTitle}
           </h3>
           <div className="mt-6 grid sm:grid-cols-2 gap-4">
             <div>
@@ -143,7 +143,7 @@ export function ConsultationForm() {
                 className="block text-sm font-medium text-brand-secondary mb-1"
                 htmlFor="name"
               >
-                Full Name <span className="text-brand-primary">*</span>
+                {t.consultation.nameLabel}
               </label>
               <input
                 id="name"
@@ -154,7 +154,7 @@ export function ConsultationForm() {
               />
               {errors.name && (
                 <p role="alert" className={errBase}>
-                  {errors.name.message}
+                  {getErrMsg("name")}
                 </p>
               )}
             </div>
@@ -163,7 +163,7 @@ export function ConsultationForm() {
                 className="block text-sm font-medium text-brand-secondary mb-1"
                 htmlFor="email"
               >
-                Email Address <span className="text-brand-primary">*</span>
+                {t.consultation.emailLabel}
               </label>
               <input
                 id="email"
@@ -175,7 +175,7 @@ export function ConsultationForm() {
               />
               {errors.email && (
                 <p role="alert" className={errBase}>
-                  {errors.email.message}
+                  {getErrMsg("email")}
                 </p>
               )}
             </div>
@@ -184,12 +184,12 @@ export function ConsultationForm() {
                 className="block text-sm font-medium text-brand-secondary mb-1"
                 htmlFor="phone"
               >
-                Phone Number <span className="text-brand-primary">*</span>
+                {t.consultation.phoneLabel}
               </label>
               <input
                 id="phone"
                 type="tel"
-                placeholder="+977 ..."
+                placeholder={t.consultation.phonePlaceholder}
                 aria-required="true"
                 aria-invalid={!!errors.phone}
                 {...register("phone")}
@@ -197,7 +197,7 @@ export function ConsultationForm() {
               />
               {errors.phone && (
                 <p role="alert" className={errBase}>
-                  {errors.phone.message}
+                  {getErrMsg("phone")}
                 </p>
               )}
             </div>
@@ -206,7 +206,7 @@ export function ConsultationForm() {
                 className="block text-sm font-medium text-brand-secondary mb-1"
                 htmlFor="service"
               >
-                Service Type <span className="text-brand-primary">*</span>
+                {t.consultation.serviceLabel}
               </label>
               <select
                 id="service"
@@ -215,16 +215,14 @@ export function ConsultationForm() {
                 {...register("service")}
                 className={`${inputBase} ${errors.service ? "border-destructive" : "border-light-gray"}`}
               >
-                <option value="">Choose a service&hellip;</option>
-                <option>Building</option>
-                <option>Road</option>
-                <option>Interior</option>
-                <option>Maintenance</option>
-                <option>Other</option>
+                <option value="">{t.consultation.serviceDefault}</option>
+                {t.consultation.serviceOptions.map((opt) => (
+                  <option key={opt}>{opt}</option>
+                ))}
               </select>
               {errors.service && (
                 <p role="alert" className={errBase}>
-                  {errors.service.message}
+                  {getErrMsg("service")}
                 </p>
               )}
             </div>
@@ -233,7 +231,7 @@ export function ConsultationForm() {
                 className="block text-sm font-medium text-brand-secondary mb-1"
                 htmlFor="description"
               >
-                Project Description <span className="text-brand-primary">*</span>
+                {t.consultation.descLabel}
               </label>
               <textarea
                 id="description"
@@ -245,7 +243,7 @@ export function ConsultationForm() {
               />
               {errors.description && (
                 <p role="alert" className={errBase}>
-                  {errors.description.message}
+                  {getErrMsg("description")}
                 </p>
               )}
             </div>
@@ -254,7 +252,7 @@ export function ConsultationForm() {
                 className="block text-sm font-medium text-brand-secondary mb-1"
                 htmlFor="date"
               >
-                Preferred Date <span className="text-brand-primary">*</span>
+                {t.consultation.dateLabel}
               </label>
               <input
                 id="date"
@@ -266,7 +264,7 @@ export function ConsultationForm() {
               />
               {errors.date && (
                 <p role="alert" className={errBase}>
-                  {errors.date.message}
+                  {getErrMsg("date")}
                 </p>
               )}
             </div>
@@ -278,17 +276,17 @@ export function ConsultationForm() {
             className="mt-6 w-full h-[52px] rounded-md bg-brand-primary text-white font-semibold inline-flex items-center justify-center gap-2 hover:brightness-110 transition disabled:opacity-60"
           >
             {isSubmitting ? (
-              "Sending\u2026"
+              t.consultation.submitting
             ) : (
               <>
-                Schedule My Consultation <ArrowRight className="size-4" />
+                {t.consultation.submit} <ArrowRight className="size-4" />
               </>
             )}
           </button>
           <p className="mt-3 text-xs text-mid-gray">
-            We respect your privacy. Your details are never shared.
+            {t.consultation.privacy}
           </p>
-        </motion.form>
+        </form>
       </div>
     </section>
   );

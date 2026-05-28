@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { uid } from "@/lib/id";
 import { toast } from "sonner";
 import { Plus, X, BookOpen, Image, Video, Box, Copy } from "lucide-react";
+import { uploadFileAction } from "@/lib/services/actions/upload.actions";
 
 interface FAQItem {
   id: string;
@@ -79,17 +80,9 @@ function MediaIcon({ type }: { type: string }) {
   }
 }
 
-export function TimelineBuilder({ phases, onChange, models3d = [], media = [], videos = [] }: Props) {
-  const [faqs, setFaqs] = useState<FAQItem[]>([]);
+export function TimelineBuilder({ phases, onChange, models3d = [], media = [], videos = [], faqs = [] }: Props & { faqs?: FAQItem[] }) {
   const [faqOpen, setFaqOpen] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    fetch("/api/faqs")
-      .then((r) => r.json())
-      .then((data: FAQItem[]) => setFaqs(data))
-      .catch(() => {});
-  }, []);
 
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
@@ -388,14 +381,12 @@ export function TimelineBuilder({ phases, onChange, models3d = [], media = [], v
                                           const formData = new FormData();
                                           formData.append("file", file);
                                           formData.append("subdir", m.type === "model3d" ? "models" : "images");
-                                          const res = await fetch("/api/upload", { method: "POST", body: formData });
-                                          if (!res.ok) {
-                                            const err = await res.json().catch(() => ({ error: res.statusText }));
-                                            toast.error(err.error || "Upload failed");
-                                            return;
+                                          try {
+                                            const { url } = await uploadFileAction(formData);
+                                            if (url) updateMedia(phase.id, m.id, "url", url);
+                                          } catch {
+                                            toast.error("Upload failed");
                                           }
-                                          const data = await res.json();
-                                          if (data.url) updateMedia(phase.id, m.id, "url", data.url);
                                         };
                                         input.click();
                                       }}
@@ -433,14 +424,12 @@ export function TimelineBuilder({ phases, onChange, models3d = [], media = [], v
                                         const formData = new FormData();
                                         formData.append("file", file);
                                         formData.append("subdir", m.type === "model3d" ? "models" : "images");
-                                        const res = await fetch("/api/upload", { method: "POST", body: formData });
-                                        if (!res.ok) {
-                                          const err = await res.json().catch(() => ({ error: res.statusText }));
-                                          toast.error(err.error || "Upload failed");
-                                          return;
+                                        try {
+                                          const { url } = await uploadFileAction(formData);
+                                          if (url) updateMedia(phase.id, m.id, "url", url);
+                                        } catch {
+                                          toast.error("Upload failed");
                                         }
-                                        const data = await res.json();
-                                        if (data.url) updateMedia(phase.id, m.id, "url", data.url);
                                       };
                                       input.click();
                                     }}

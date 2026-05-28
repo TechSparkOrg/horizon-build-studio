@@ -15,7 +15,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-
 export function ConfirmDelete({
   id,
   label,
@@ -43,18 +42,18 @@ export function ConfirmDelete({
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger asChild>
-        <button className="p-2 text-mid-gray hover:text-destructive" aria-label="Delete">
+        <button className="p-2 text-mid-gray hover:text-destructive cursor-pointer" aria-label="Delete">
           <Trash2 className="size-4" />
         </button>
       </AlertDialogTrigger>
-      <AlertDialogContent>
+      <AlertDialogContent className="rounded-xl border-light-gray">
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete "{label}"?</AlertDialogTitle>
-          <AlertDialogDescription>This action cannot be undone.</AlertDialogDescription>
+          <AlertDialogTitle className="font-display font-bold text-brand-secondary">Delete "{label}"?</AlertDialogTitle>
+          <AlertDialogDescription className="text-xs text-mid-gray">This action cannot be undone.</AlertDialogDescription>
         </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:brightness-110">
+        <AlertDialogFooter className="mt-4">
+          <AlertDialogCancel className="rounded-lg text-xs font-semibold cursor-pointer">Cancel</AlertDialogCancel>
+          <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:brightness-110 rounded-lg text-xs font-semibold cursor-pointer">
             Delete
           </AlertDialogAction>
         </AlertDialogFooter>

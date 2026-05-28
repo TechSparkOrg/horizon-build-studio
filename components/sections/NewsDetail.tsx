@@ -1,50 +1,13 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { motion } from "framer-motion";
 import { ArrowLeft, Calendar, Clock, MapPin, ExternalLink, Building2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { ModelViewer3D } from "@/components/ui/ModelViewer3D";
+import { ModelViewer3D } from "@/components/ui/DynamicModelViewer3D";
 import { VideoEmbed } from "@/components/ui/VideoEmbed";
-
-interface Model3D {
-  id: string;
-  url: string;
-  filename: string;
-}
-
-interface VideoItem {
-  id: string;
-  platform: string;
-  embedUrl: string;
-  fileUrl: string;
-  fileType: string;
-  title: string;
-}
-
-interface ProjectRef {
-  id: string;
-  title: string;
-  slug: string;
-  status: string;
-  location: string;
-  completion: number;
-  models3d: Model3D[];
-  videos: VideoItem[];
-}
-
-interface NewsDetailData {
-  title: string;
-  excerpt: string;
-  category: string;
-  image: string;
-  alt: string;
-  slug: string;
-  publishedAt: Date;
-  readingTimeMinutes: number | null;
-  project: ProjectRef | null;
-}
+import { useText } from "@/lib/lang-client";
+import type { NewsDisplay, ProjectRef, VideoRef } from "@/lib/schemas";
 
 const STATUS_STYLES: Record<string, string> = {
   planning: "bg-amber-500/10 text-amber-500 border-amber-500/20",
@@ -61,8 +24,10 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 function ProjectSidebar({ project, visible }: { project: ProjectRef; visible: boolean }) {
+
   const firstModel = project.models3d?.[0];
   const firstVideo = project.videos?.find((v) => v.embedUrl || v.fileUrl);
+  const t = useText();
 
   return (
     <aside
@@ -95,6 +60,7 @@ function ProjectSidebar({ project, visible }: { project: ProjectRef; visible: bo
           <div className="p-4 space-y-3">
             <Link
               href={`/projects/${project.slug}`}
+              prefetch={false}
               className="group inline-flex items-center gap-1.5 font-display font-bold text-brand-secondary hover:text-brand-primary transition-colors text-base"
             >
               {project.title}
@@ -122,9 +88,10 @@ function ProjectSidebar({ project, visible }: { project: ProjectRef; visible: bo
             {!firstModel && (
               <Link
                 href={`/projects/${project.slug}`}
+                prefetch={false}
                 className="block w-full text-center h-8 text-xs font-semibold rounded-lg border border-brand-primary bg-brand-primary text-white hover:opacity-85 transition"
               >
-                View Project Details
+                {t.projectDetail.viewProject}
               </Link>
             )}
           </div>
@@ -133,9 +100,10 @@ function ProjectSidebar({ project, visible }: { project: ProjectRef; visible: bo
         {firstModel && (
           <Link
             href={`/projects/${project.slug}`}
+            prefetch={false}
             className="block w-full text-center h-9 text-xs font-semibold rounded-lg border border-brand-primary bg-brand-primary text-white hover:opacity-85 transition leading-9"
           >
-            View Full Project Details
+            {t.projectDetail.viewFullProject}
           </Link>
         )}
       </div>
@@ -143,9 +111,10 @@ function ProjectSidebar({ project, visible }: { project: ProjectRef; visible: bo
   );
 }
 
-export function NewsDetail({ article }: { article: NewsDetailData }) {
+export function NewsDetail({ article }: { article: NewsDisplay }) {
   const heroRef = useRef<HTMLDivElement>(null);
   const [heroDone, setHeroDone] = useState(false);
+  const t = useText();
 
   useEffect(() => {
     const el = heroRef.current;
@@ -186,9 +155,10 @@ export function NewsDetail({ article }: { article: NewsDetailData }) {
                 {article.project && (
                   <Link
                     href={`/projects/${article.project.slug}`}
+                    prefetch={false}
                     className="font-label uppercase tracking-wider text-[11px] px-2.5 py-1 bg-white/20 text-white border border-white/30 hover:bg-white/30 transition-colors"
                   >
-                    Project: {article.project.title}
+                    {t.news.readMore}: {article.project.title}
                   </Link>
                 )}
                 {article.readingTimeMinutes && (
@@ -208,11 +178,12 @@ export function NewsDetail({ article }: { article: NewsDetailData }) {
       <div className="bg-white/70 backdrop-blur-md border-b border-light-gray/60 py-2.5">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
           <Link
-            href="/#news"
+            href="/news"
+            prefetch={false}
             className="group inline-flex items-center gap-2 text-xs text-mid-gray hover:text-brand-primary font-semibold tracking-wide uppercase transition-colors"
           >
             <ArrowLeft className="size-4 transition-transform group-hover:-translate-x-1" />
-            Back to News
+            {t.news.back}
           </Link>
         </div>
       </div>
@@ -220,11 +191,7 @@ export function NewsDetail({ article }: { article: NewsDetailData }) {
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16">
         <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
           <div className="flex-1 min-w-0 max-w-[740px]">
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="flex items-center gap-1.5 text-sm text-mid-gray mb-6 pb-5 border-b border-light-gray"
-            >
+            <div className="flex items-center gap-1.5 text-sm text-mid-gray mb-6 pb-5 border-b border-light-gray">
               <Calendar className="size-3.5" />
               <time dateTime={article.publishedAt.toISOString()}>
                 {article.publishedAt.toLocaleDateString("en-US", {
@@ -234,7 +201,7 @@ export function NewsDetail({ article }: { article: NewsDetailData }) {
                   year: "numeric",
                 })}
               </time>
-            </motion.div>
+            </div>
 
             <div className="text-sm sm:text-base text-dark-text/80 leading-relaxed whitespace-pre-line">
               {article.excerpt}
@@ -242,11 +209,12 @@ export function NewsDetail({ article }: { article: NewsDetailData }) {
 
             <div className="mt-10 sm:mt-14 pt-4 border-t border-light-gray">
               <Link
-                href="/#news"
+                href="/news"
+                prefetch={false}
                 className="inline-flex items-center gap-1.5 text-sm text-mid-gray hover:text-brand-primary font-medium transition-colors"
               >
                 <ArrowLeft className="size-3.5" />
-                Back to News
+                {t.news.back}
               </Link>
             </div>
           </div>
@@ -260,7 +228,7 @@ export function NewsDetail({ article }: { article: NewsDetailData }) {
               <div className="lg:hidden mt-6 pt-6 border-t border-light-gray">
                 <div className="space-y-3">
                   <h3 className="font-display font-bold text-brand-secondary text-sm uppercase tracking-wider">
-                    Related Project
+                    {t.projectDetail.related}
                   </h3>
                   <ProjectSidebar project={article.project} visible />
                 </div>

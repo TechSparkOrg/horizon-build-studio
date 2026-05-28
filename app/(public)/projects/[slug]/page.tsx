@@ -1,72 +1,39 @@
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
+import dynamic from "next/dynamic";
 import { cacheLife, cacheTag } from "next/cache";
-import { api } from "@/lib/api";
+import { CACHE_TAGS, CACHE_TTL } from "@/lib/cache-config";
+import { projectService } from "@/lib/services/services/project.service";
 import { ProjectPageSchema, type ProjectPage } from "@/lib/schemas";
-import { ProjectDetail, ProjectFAQSection, ProjectRelatedSection, ProjectAdjacentSection } from "@/components/sections/ProjectDetail";
+
+const ProjectDetail = dynamic(() => import("@/components/sections/ProjectDetail").then(m => m.ProjectDetail));
+const ProjectFAQSection = dynamic(() => import("@/components/sections/ProjectDetail").then(m => m.ProjectFAQSection));
+const ProjectRelatedSection = dynamic(() => import("@/components/sections/ProjectDetail").then(m => m.ProjectRelatedSection));
+const ProjectAdjacentSection = dynamic(() => import("@/components/sections/ProjectDetail").then(m => m.ProjectAdjacentSection));
 
 export async function generateStaticParams() {
   try {
-    const all = await api("/api/projects").get<any[]>();
+    const all = await projectService.getAll() as any[];
     if (all.length > 0) return all.map((p: any) => ({ slug: p.slug }));
-  } catch {}
-  const { getText } = await import("@/lib/lang");
-  const t = getText("en");
-  return (t.listing.projects.items as any[]).map((p: any) => ({ slug: p.slug }));
+  } catch {
+    /* empty */
+  }
+  return [{ slug: "__placeholder__" }];
 }
 
 async function getRawData(slug: string) {
   try {
-    const raw = await api(`/api/projects/${slug}/page`).get<unknown>();
+    const raw = await projectService.getBySlug(slug) as unknown;
     return ProjectPageSchema.safeParse(raw);
   } catch {
-    const { getText } = await import("@/lib/lang");
-    const t = getText("en");
-    const item = (t.listing.projects.items as any[]).find((p) => p.slug === slug);
-    if (!item) return { success: false as const };
-    const mock = {
-      project: {
-        id: item.id || slug,
-        title: item.title,
-        slug: item.slug,
-        description: item.shortDescription || "",
-        shortDescription: item.shortDescription || null,
-        location: item.location || "",
-        budget: item.budget || null,
-        img: item.img || "",
-        alt: item.alt || "",
-        status: item.status || "planning",
-        completion: item.completion || 0,
-        featured: false,
-        published: false,
-        order: 0,
-        ownerName: "",
-        ownerProfession: null,
-        ownerEarning: null,
-        startDate: null,
-        endDate: null,
-        category: item.category || null,
-        categoryId: null,
-        media: [],
-        videos: [],
-        models3d: [],
-        phases: [],
-        attributes: [],
-        projectFaqs: [],
-      },
-      faqs: [],
-      faqTypes: [],
-      related: [],
-      adjacent: { prev: null, next: null },
-    };
-    return ProjectPageSchema.safeParse(mock);
+    return { success: false as const };
   }
 }
 
 async function getData(slug: string) {
   "use cache";
-  cacheLife("days");
-  cacheTag("projects");
+  cacheLife(CACHE_TTL[CACHE_TAGS.PROJECTS]);
+  cacheTag(CACHE_TAGS.PROJECTS);
   return getRawData(slug);
 }
 

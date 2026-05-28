@@ -338,14 +338,7 @@ export const text = {
       empty: "No articles yet. Check back soon!",
       page: "Page",
       of: "of",
-      items: [
-        { id: "n1", title: "How Earthquake-Resilient Design Is Reshaping Kathmandu Housing", slug: "earthquake-resilient-design-kathmandu", excerpt: "New building codes and innovative engineering techniques are transforming how homes are built in Nepal's most earthquake-prone regions.", category: "Engineering", image: "https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=900&q=80", publishedAt: "2025-11-15" },
-        { id: "n2", title: "Inside Our Net-Zero Office Tower Pilot in New Baneshwor", slug: "net-zero-office-tower-baneshwor", excerpt: "A behind-the-scenes look at Kathmandu's first net-zero commercial building and the technology powering its energy independence.", category: "Sustainability", image: "https://images.unsplash.com/photo-1473445730015-841f29a9490b?auto=format&fit=crop&w=900&q=80", publishedAt: "2025-10-28" },
-        { id: "n3", title: "Why Local Materials Matter: A Field Report from Pokhara", slug: "local-materials-pokhara-field-report", excerpt: "Our team explores the benefits of sourcing stone, timber and clay from local suppliers for a villa project in Pokhara.", category: "Field Notes", image: "https://images.unsplash.com/photo-1581094271901-8022df4466f9?auto=format&fit=crop&w=900&q=80", publishedAt: "2025-10-10" },
-        { id: "n4", title: "5 Interior Design Trends Shaping Nepali Homes in 2025", slug: "interior-design-trends-nepal-2025", excerpt: "From biophilic design to modular kitchens — discover the trends that are redefining how Nepali families live and entertain.", category: "Design", image: "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=900&q=80", publishedAt: "2025-09-22" },
-        { id: "n5", title: "A Complete Guide to Construction Permits in Kathmandu Valley", slug: "construction-permits-kathmandu-guide", excerpt: "Navigating the permit process can be daunting. We break down every step from application to approval.", category: "Guide", image: "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?auto=format&fit=crop&w=900&q=80", publishedAt: "2025-09-05" },
-        { id: "n6", title: "Building on a Slope: Engineering Challenges and Solutions", slug: "building-on-slope-engineering", excerpt: "Steep terrain doesn't mean you can't build your dream home. Learn about the engineering techniques that make hillside construction possible.", category: "Engineering", image: "https://images.unsplash.com/photo-1541888946425-d81bb9f3e9b3?auto=format&fit=crop&w=900&q=80", publishedAt: "2025-08-18" },
-      ],
+
     },
     projects: {
       title: "Our Portfolio — Horizon Nepal",
@@ -357,16 +350,7 @@ export const text = {
       empty: "No projects found.",
       page: "Page",
       of: "of",
-      items: [
-        { id: "p1", title: "Sunrise Residential Complex", slug: "sunrise-residential-complex", location: "Lalitpur, Nepal", img: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=900&q=80", alt: "Modern residential complex", status: "completed", completion: 100, budget: 2500000, shortDescription: "A 24-unit modern residential complex with green spaces, rooftop gardens, and earthquake-resistant design.", category: { name: "Residential" } },
-        { id: "p2", title: "Araniko Highway Maintenance", slug: "araniko-highway-maintenance", location: "Bhaktapur, Nepal", img: "https://images.unsplash.com/photo-1545972154-9bb223aac798?auto=format&fit=crop&w=900&q=80", alt: "Highway construction", status: "in_progress", completion: 65, budget: 5500000, shortDescription: "Ongoing maintenance and widening of a major highway corridor connecting Bhaktapur to the eastern region.", category: { name: "Road Works" } },
-        { id: "p3", title: "New Baneshwor Office Tower", slug: "new-baneshwor-office-tower", location: "Kathmandu, Nepal", img: "https://images.unsplash.com/photo-1486325212027-8081e485255e?auto=format&fit=crop&w=900&q=80", alt: "Modern office tower", status: "in_progress", completion: 40, budget: 8000000, shortDescription: "A 12-storey commercial office tower with net-zero energy features and smart building technology.", category: { name: "Commercial" } },
-        { id: "p4", title: "Boutique Hotel Interiors", slug: "boutique-hotel-interiors", location: "Thamel, Kathmandu", img: "https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=900&q=80", alt: "Luxury hotel interior", status: "completed", completion: 100, budget: 1800000, shortDescription: "Complete interior design and fit-out for a 20-room boutique hotel blending Nepali craftsmanship with modern luxury.", category: { name: "Interiors" } },
-        { id: "p5", title: "Patan Heritage Renovation", slug: "patan-heritage-renovation", location: "Patan, Nepal", img: "https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=900&q=80", alt: "Heritage building restoration", status: "planning", completion: 0, budget: 3200000, shortDescription: "Sensitive restoration of a historic Patan courtyard palace into a cultural centre and museum.", category: { name: "Renovation" } },
-        { id: "p6", title: "Bagmati Bridge Upgrade", slug: "bagmati-bridge-upgrade", location: "Kathmandu, Nepal", img: "https://images.unsplash.com/photo-1517089596392-fb9a9033e05b?auto=format&fit=crop&w=900&q=80", alt: "Bridge construction", status: "on_hold", completion: 30, budget: 4200000, shortDescription: "Structural upgrade and seismic retrofitting of a key bridge over the Bagmati river.", category: { name: "Road Works" } },
-        { id: "p7", title: "Pokhara Lakeside Villa", slug: "pokhara-lakeside-villa", location: "Pokhara, Nepal", img: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=900&q=80", alt: "Lake view villa", status: "completed", completion: 100, budget: 950000, shortDescription: "A custom-designed lakeside villa with panoramic Himalayan views, outdoor terraces, and sustainable materials.", category: { name: "Residential" } },
-        { id: "p8", title: "Chitwan Eco Resort", slug: "chitwan-eco-resort", location: "Chitwan, Nepal", img: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=900&q=80", alt: "Eco resort design", status: "planning", completion: 15, budget: 2800000, shortDescription: "Eco-friendly resort development using local materials, solar energy, and rainwater harvesting systems.", category: { name: "Commercial" } },
-      ],
+
     },
     faq: {
       title: "Frequently Asked Questions — Horizon Nepal",
@@ -375,24 +359,7 @@ export const text = {
       heading: "Frequently Asked Questions",
       subtitle: "Everything you need to know about working with Horizon Nepal — from first consultation to final handover and beyond.",
       empty: "No FAQs yet.",
-      types: [
-        { id: "ft1", name: "General", slug: "general" },
-        { id: "ft2", name: "Technical", slug: "technical" },
-        { id: "ft3", name: "Pricing", slug: "pricing" },
-        { id: "ft4", name: "Process", slug: "process" },
-      ],
-      items: [
-        { id: "f1", question: "What types of projects does Horizon Nepal handle?", answer: "We specialise in residential house construction, interior design, material cost consultation, and site feasibility assessments. From single-family homes to multi-unit complexes, our team has the expertise to deliver quality results across a wide range of project sizes and scopes.", faqType: { id: "ft1", name: "General", slug: "general" } },
-        { id: "f2", question: "How long does a typical construction project take?", answer: "Timelines vary depending on the size and complexity of the project. A standard single-family home typically takes 8–14 months from ground-breaking to handover. We provide a detailed milestone schedule during the planning phase and keep you updated throughout the build.", faqType: { id: "ft4", name: "Process", slug: "process" } },
-        { id: "f3", question: "Do you handle all permits and government approvals?", answer: "Yes. We manage the entire permit and approval process on your behalf, including building permits, environmental clearances, and municipal approvals. Our team is well-versed in Kathmandu Valley's regulatory requirements and ensures all documentation is in order.", faqType: { id: "ft4", name: "Process", slug: "process" } },
-        { id: "f4", question: "What makes Horizon Nepal different from other construction companies?", answer: "We combine engineering excellence with design sensitivity and transparent business practices. Every project includes a detailed Bill of Quantities (BoQ), fixed-price contracts, regular progress updates, and third-party quality inspections. We don't just build structures — we build trust.", faqType: { id: "ft1", name: "General", slug: "general" } },
-        { id: "f5", question: "How do I get started with a project consultation?", answer: "Simply book a free consultation through our website or call us directly. We'll visit your site, discuss your vision, assess feasibility, and provide a clear outline of next steps — all without any obligation. If we're a good fit, we'll prepare a detailed proposal.", faqType: { id: "ft4", name: "Process", slug: "process" } },
-        { id: "f6", question: "What materials do you recommend for construction in Nepal?", answer: "We recommend a combination of locally sourced materials (stone, brick, timber) and modern alternatives (reinforced concrete, structural steel) based on your project's requirements, budget, and location. Our material cost consultation service provides transparent pricing from trusted suppliers.", faqType: { id: "ft2", name: "Technical", slug: "technical" } },
-        { id: "f7", question: "How do you ensure quality control during construction?", answer: "Quality is embedded in every phase. We use third-party material testing, regular structural inspections, milestone-based sign-offs, and a dedicated project supervisor on-site. Our teams follow strict safety protocols and maintain detailed progress documentation.", faqType: { id: "ft2", name: "Technical", slug: "technical" } },
-        { id: "f8", question: "Can I make changes to the design after construction starts?", answer: "Yes, but changes may affect the timeline and budget. We recommend finalising all design decisions before breaking ground. If changes are needed mid-build, we assess the impact, provide a revised cost estimate, and proceed only with your written approval.", faqType: { id: "ft3", name: "Pricing", slug: "pricing" } },
-        { id: "f9", question: "What is included in your interior design service?", answer: "Our interior design service covers space planning, material and finish selection, furniture design, lighting layout, kitchen and bathroom design, and project management. We work closely with you to create spaces that reflect your personality and lifestyle.", faqType: { id: "ft1", name: "General", slug: "general" } },
-        { id: "f10", question: "Do you offer post-construction support or maintenance?", answer: "Yes. We provide a structural warranty and offer post- handover support for any issues that arise. Our maintenance services include plumbing, electrical, waterproofing, and general repairs to keep your home in excellent condition for years to come.", faqType: { id: "ft1", name: "General", slug: "general" } },
-      ],
+
     },
   },
   quoteBannerSecondary: {

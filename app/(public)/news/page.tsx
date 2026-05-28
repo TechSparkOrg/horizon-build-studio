@@ -1,10 +1,19 @@
 import { Suspense } from "react";
 import { cookies } from "next/headers";
+import { cacheLife, cacheTag } from "next/cache";
+import { CACHE_TAGS, CACHE_TTL } from "@/lib/cache-config";
 import { getText } from "@/lib/lang";
-import { api } from "@/lib/api";
+import { newsService } from "@/lib/services/services/news.service";
 import Link from "next/link";
 import Image from "next/image";
 import { SectionLabel } from "@/components/ui/SectionLabel";
+
+async function getAllNews() {
+  "use cache";
+  cacheLife(CACHE_TTL[CACHE_TAGS.NEWS]);
+  cacheTag(CACHE_TAGS.NEWS);
+  return newsService.getAll().catch(() => []);
+}
 
 export async function generateMetadata() {
   const t = getText((await cookies()).get("lang")?.value);
@@ -39,13 +48,7 @@ async function NewsList({
   const limit = 12;
   const t = getText((await cookies()).get("lang")?.value);
 
-  const apiData = (await api("/api/news")
-    .tag("news")
-    .revalidate(60)
-    .get()
-    .catch(() => [])) as any[];
-
-  const all = apiData.length > 0 ? apiData : t.listing.news.items;
+  const all = (await getAllNews()) as any[];
   const total = all.length;
   const totalPages = Math.ceil(total / limit);
   const items = all.slice((page - 1) * limit, page * limit);

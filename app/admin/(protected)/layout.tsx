@@ -1,10 +1,12 @@
-import { auth } from "@/lib/auth";
-import { redirect } from "next/navigation";
+import { requireAuthOrRedirect } from "@/lib/auth";
 import { Sidebar } from "@/components/admin/Sidebar";
 
-export default async function ProtectedLayout({ children }: { children: React.ReactNode }) {
-  const session = await auth();
-  if (!session?.user) redirect("/admin/login");
+export default async function ProtectedLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  await requireAuthOrRedirect();
 
   return (
     <div className="flex min-h-screen bg-off-white">

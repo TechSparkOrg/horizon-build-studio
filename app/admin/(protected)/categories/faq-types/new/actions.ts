@@ -1,23 +1,20 @@
 "use server";
 
-import { api } from "@/lib/api";
-import { auth } from "@/lib/auth";
-import { revalidatePath } from "next/cache";
+import { revalidateTag } from "next/cache";
+import { faqTypeService } from "@/lib/services/services/faq-type.service";
 import { redirect } from "next/navigation";
 
 export async function saveFaqType(formData: FormData) {
-  const session = await auth();
-  if (!session?.user) throw new Error("Unauthorized");
   const name = formData.get("name") as string;
   const order = Number(formData.get("order") ?? 0);
   const id = formData.get("id") as string;
 
   if (id) {
-    await fetch(`/api/faq-types/${id}`, { method: "PUT", body: JSON.stringify({ name, order }), headers: { "Content-Type": "application/json" } });
+    await faqTypeService.update(id, { name, order });
   } else {
-    await api("/api/faq-types").post({ name, order });
+    await faqTypeService.create({ name, order });
   }
 
-  revalidatePath("/admin/categories/faq-types");
+  revalidateTag("faq-types", "max");
   redirect("/admin/categories/faq-types?success=FAQ+type+saved");
 }

@@ -15,22 +15,15 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { useGlobalControl } from "@/app/admin/cache-context";
-
 export function DeleteCategoryButton({ id, name }: { id: string; name: string }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
-  const cacheControl = useGlobalControl();
 
   async function handleDelete() {
     try {
       const res = await fetch(`/api/categories/${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Failed to delete category");
       toast.success(`"${name}" deleted`);
-      
-      // Update cache tags
-      await cacheControl.cacheUpdate(["categories", "projects", "stats"]);
-      
       router.refresh();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Delete failed");

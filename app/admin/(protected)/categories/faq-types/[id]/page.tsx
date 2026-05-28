@@ -1,4 +1,4 @@
-import { api } from "@/lib/api";
+import { faqTypeService } from "@/lib/services/services/faq-type.service";
 import { saveFaqType } from "../new/actions";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
@@ -12,7 +12,7 @@ export default async function EditFaqTypePage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const type = await api(`/api/faq-types/${id}`).get() as any;
+  const type = await faqTypeService.getById(id) as any;
   if (!type || typeof type !== "object" || "error" in (type as any)) notFound();
 
   return (

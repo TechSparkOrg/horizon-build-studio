@@ -1,4 +1,5 @@
-import { api } from "@/lib/api";
+import { cacheTag } from "next/cache";
+import { projectService } from "@/lib/services/services/project.service";
 import { saveNews } from "../actions";
 import { ImageField } from "@/components/admin/ImageField";
 import ContentEditor from "@/components/ContentEditor";
@@ -9,7 +10,9 @@ const input = "w-full h-10 px-3 rounded-lg border border-light-gray text-sm focu
 const select = "w-full h-10 px-3 rounded-lg border border-light-gray text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary bg-white";
 
 export default async function NewNewsPage() {
-  const projectsRaw = await api("/api/projects?limit=100").get();
+  'use cache'
+  cacheTag("projects")
+  const projectsRaw = await projectService.search({ limit: 100 });
   const projects = (projectsRaw as any).items || [];
   return (
     <div>

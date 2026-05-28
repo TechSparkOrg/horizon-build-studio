@@ -1,17 +1,17 @@
-import { api } from "@/lib/api";
+import { cacheTag } from "next/cache";
+import { seoService } from "@/lib/services/services/seo.service";
 import Link from "next/link";
 import { Plus, Pencil } from "lucide-react";
 import { ConfirmDelete } from "@/components/admin/ConfirmDelete";
-import { ToastOnLoad } from "@/components/admin/ToastOnLoad";
 import { deleteSeo } from "./actions";
-import type { PageSEO } from "@/lib/page-seo";
 
 export default async function SeoPage() {
-  const items = await api("/api/page-seo").get<PageSEO[]>();
+  'use cache'
+  cacheTag("seo")
+  const items = await seoService.getAll();
 
   return (
     <div>
-      <ToastOnLoad />
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-xl font-bold">Page SEO</h1>
         <Link href="/admin/seo/new" className="cursor-pointer bg-black text-white text-sm px-4 py-2 rounded hover:opacity-85 flex items-center gap-2">
@@ -41,7 +41,7 @@ export default async function SeoPage() {
                     <Link href={`/admin/seo/${item.slug}`} className="p-2 text-mid-gray hover:text-black" aria-label="Edit">
                       <Pencil className="size-4" />
                     </Link>
-                    <ConfirmDelete id={item.id} label={item.title || item.slug} action={deleteSeo} tag="seo" />
+                    <ConfirmDelete id={item.id} label={item.title || item.slug} action={deleteSeo} />
                   </td>
                 </tr>
               ))}

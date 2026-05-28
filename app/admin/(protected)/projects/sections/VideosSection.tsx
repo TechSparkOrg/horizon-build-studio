@@ -1,5 +1,7 @@
-import { MultiPlatformVideoEmbed } from "@/components/admin/MultiPlatformVideoEmbed";
+import dynamic from "next/dynamic";
 import type { VideoItem } from "../types";
+
+const MultiPlatformVideoEmbed = dynamic(() => import("@/components/admin/MultiPlatformVideoEmbed").then(m => m.MultiPlatformVideoEmbed), { ssr: false });
 
 export function VideosSection({
   items,

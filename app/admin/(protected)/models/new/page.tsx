@@ -1,7 +1,9 @@
+import dynamic from "next/dynamic";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { saveModel } from "../actions";
-import ModelFilesEditor from "@/components/admin/ModelFilesEditor";
+
+const ModelFilesEditor = dynamic(() => import("@/components/admin/ModelFilesEditor"));
 
 const input = "w-full h-10 px-3 rounded border border-gray-300 text-sm";
 

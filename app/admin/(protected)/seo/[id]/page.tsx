@@ -1,16 +1,15 @@
-import { api } from "@/lib/api";
+import { seoService } from "@/lib/services/services/seo.service";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { saveSeo } from "../actions";
-import type { PageSEO } from "@/lib/page-seo";
 
 const input = "w-full h-10 px-3 rounded border border-gray-300 text-sm";
 const textarea = "w-full px-3 py-2 rounded border border-gray-300 text-sm resize-y";
 
 export default async function EditSeoPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const item = await api(`/api/page-seo?slug=${id}`).get<PageSEO | null>();
+  const item = await seoService.getBySlug(id);
   if (!item) notFound();
 
   return (

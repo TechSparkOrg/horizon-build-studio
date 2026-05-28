@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { ModelViewer3D } from "@/components/ui/DynamicModelViewer3D";
 import { useText } from "@/lib/lang-client";
+import { submitContact } from "@/lib/services/actions/contact.actions";
 
 const formSchema = z.object({
   name: z.string().trim().min(2, "Please enter your name").max(80),
@@ -54,23 +55,13 @@ export function ConsultationForm() {
   };
 
   const onSubmit = async (data: FormValues): Promise<void> => {
-    try {
-      const res = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
+    const result = await submitContact(data);
 
-      const result = await res.json();
-
-      if (result.success) {
-        toast.success(result.message);
-        reset();
-      } else {
-        toast.error(result.message ?? t.consultation.apiError);
-      }
-    } catch {
-      toast.error(t.consultation.networkError);
+    if (result.success) {
+      toast.success(result.message);
+      reset();
+    } else {
+      toast.error(result.message ?? t.consultation.apiError);
     }
   };
 

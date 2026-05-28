@@ -19,7 +19,7 @@ const FORMATS = [
   "header",
   "bold", "italic", "underline", "strike",
   "color", "background",
-  "list", "bullet",
+  "list",
   "align",
   "blockquote", "code-block",
   "link", "image", "video",

@@ -1,16 +1,17 @@
-import { api } from "@/lib/api";
+import { cacheTag } from "next/cache";
+import { testimonialService } from "@/lib/services/services/testimonial.service";
 import Link from "next/link";
 import { Plus, Pencil } from "lucide-react";
 import { deleteTestimonial } from "./actions";
-import { ToastOnLoad } from "@/components/admin/ToastOnLoad";
 import { ConfirmDelete } from "@/components/admin/ConfirmDelete";
 
 export default async function TestimonialsPage() {
-  const items = (await api("/api/testimonials").get()) as any[];
+  'use cache'
+  cacheTag("testimonials")
+  const items = await testimonialService.getAll() as any[];
 
   return (
     <div>
-      <ToastOnLoad />
       <div className="flex items-center justify-between mb-5">
         <h1 className="text-xl font-display font-bold text-brand-secondary tracking-tight">Testimonials</h1>
         <Link href="/admin/testimonials/new" className="inline-flex items-center gap-1.5 h-8 px-3 text-xs font-semibold border border-brand-primary bg-brand-primary text-white rounded hover:opacity-85 transition">
@@ -36,7 +37,7 @@ export default async function TestimonialsPage() {
                     <Link href={`/admin/testimonials/${item.id}`} className="p-1.5 text-mid-gray hover:text-brand-primary" aria-label="Edit">
                       <Pencil className="size-3.5" />
                     </Link>
-                    <ConfirmDelete id={item.id} label={item.author} action={deleteTestimonial} tag="testimonials" />
+                    <ConfirmDelete id={item.id} label={item.author} action={deleteTestimonial} />
                   </div>
                 </td>
               </tr>

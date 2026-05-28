@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Plus, Upload, Eye, X, Loader2 } from "lucide-react";
 import Image from "next/image";
+import { uploadFileAction } from "@/lib/services/actions/upload.actions";
 
 interface ImageEntry {
   _key: number;
@@ -37,9 +38,7 @@ export default function BannerImagesEditor({ initialImages = [] }: { initialImag
           const fd = new FormData();
           fd.append("file", file);
           fd.append("subdir", "banners");
-          const res = await fetch("/api/upload", { method: "POST", body: fd });
-          if (!res.ok) throw new Error("Upload failed");
-          const { url } = await res.json();
+          const { url } = await uploadFileAction(fd);
           setImages((prev) => prev.map((img) => img._key === idx ? { ...img, image: url } : img));
         } catch {}
         setUploadingIdx(null);

@@ -1,10 +1,19 @@
 import { Suspense } from "react";
 import { cookies } from "next/headers";
+import { cacheLife, cacheTag } from "next/cache";
+import { CACHE_TAGS, CACHE_TTL } from "@/lib/cache-config";
 import { getText } from "@/lib/lang";
-import { api } from "@/lib/api";
+import { projectService } from "@/lib/services/services/project.service";
 import Link from "next/link";
 import Image from "next/image";
 import { SectionLabel } from "@/components/ui/SectionLabel";
+
+async function getAllProjects() {
+  "use cache";
+  cacheLife(CACHE_TTL[CACHE_TAGS.PROJECTS]);
+  cacheTag(CACHE_TAGS.PROJECTS);
+  return projectService.getAll().catch(() => []);
+}
 
 export async function generateMetadata() {
   const t = getText((await cookies()).get("lang")?.value);
@@ -40,13 +49,7 @@ async function ProjectList({
   const limit = 12;
   const t = getText((await cookies()).get("lang")?.value);
 
-  const apiData = (await api("/api/projects")
-    .tag("projects")
-    .revalidate(60)
-    .get()
-    .catch(() => [])) as any[];
-
-  const all = apiData.length > 0 ? apiData : t.listing.projects.items;
+  const all = (await getAllProjects()) as any[];
   const categories = ["All", ...new Set(all.map((p: any) => p.category?.name).filter(Boolean))];
   const filtered = activeCat === "All" ? all : all.filter((p: any) => p.category?.name === activeCat);
   const total = filtered.length;

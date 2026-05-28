@@ -1,5 +1,3 @@
-const BASE = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
-
 export interface SectionContentItem {
   id: string;
   section: string;
@@ -12,23 +10,6 @@ export interface SectionContentItem {
 }
 
 export type SectionContentMap = Record<string, Pick<SectionContentItem, "valueEn" | "valueNp" | "mediaUrl" | "mediaType">>;
-
-export async function getSectionContent(section: string, lang?: string): Promise<SectionContentMap> {
-  const url = `${BASE}/api/section-contents?section=${encodeURIComponent(section)}`;
-  const res = await fetch(url, { cache: "no-store" });
-  if (!res.ok) return {};
-  const items: SectionContentItem[] = await res.json();
-  const map: SectionContentMap = {};
-  for (const item of items) {
-    map[item.key] = {
-      valueEn: item.valueEn,
-      valueNp: item.valueNp,
-      mediaUrl: item.mediaUrl,
-      mediaType: item.mediaType,
-    };
-  }
-  return map;
-}
 
 export function getVal(map: SectionContentMap | undefined, key: string, fallback: string, lang: "en" | "np" = "en"): string {
   if (!map?.[key]) return fallback;

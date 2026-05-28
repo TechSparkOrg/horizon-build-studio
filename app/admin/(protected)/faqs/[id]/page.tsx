@@ -1,4 +1,7 @@
-import { api } from "@/lib/api";
+import { cacheTag } from "next/cache";
+import { faqService } from "@/lib/services/services/faq.service";
+import { faqTypeService } from "@/lib/services/services/faq-type.service";
+import { categoryService } from "@/lib/services/services/category.service";
 import { notFound } from "next/navigation";
 import { saveFaq } from "../actions";
 import { ArrowLeft } from "lucide-react";
@@ -9,10 +12,17 @@ const select = "w-full h-10 px-3 rounded-lg border border-light-gray text-sm foc
 
 export default async function EditFaqPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  return <CachedPage id={id} />;
+}
+
+async function CachedPage({ id }: { id: string }) {
+  'use cache'
+  cacheTag("faq-types")
+  cacheTag("categories")
   const [item, faqTypes, categories] = (await Promise.all([
-    api(`/api/faqs/${id}`).get(),
-    api("/api/faq-types").get(),
-    api("/api/categories").get(),
+    faqService.getById(id),
+    faqTypeService.getAll(),
+    categoryService.getAll(),
   ])) as [any, any[], any[]];
   if (!item || typeof item !== "object" || "error" in (item as any)) notFound();
 

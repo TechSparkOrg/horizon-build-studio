@@ -1,17 +1,17 @@
-import { api } from "@/lib/api";
+import { cacheTag } from "next/cache";
+import { bannerService } from "@/lib/services/services/banner.service";
 import Link from "next/link";
 import { Plus, Pencil } from "lucide-react";
 import { ConfirmDelete } from "@/components/admin/ConfirmDelete";
-import { ToastOnLoad } from "@/components/admin/ToastOnLoad";
 import { deleteBanner } from "./actions";
-import type { PageBannerGroup } from "@/lib/page-banner";
 
 export default async function BannersPage() {
-  const banners = await api("/api/page-banners").get<PageBannerGroup[]>();
+  'use cache'
+  cacheTag("banners")
+  const banners = await bannerService.getAll();
 
   return (
     <div>
-      <ToastOnLoad />
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-xl font-bold">Page Banners</h1>
         <Link href="/admin/banners/new" className="cursor-pointer bg-black text-white text-sm px-4 py-2 rounded hover:opacity-85 flex items-center gap-2">
@@ -41,7 +41,7 @@ export default async function BannersPage() {
                     <Link href={`/admin/banners/${g.slug}`} className="p-2 text-mid-gray hover:text-black" aria-label="Edit">
                       <Pencil className="size-4" />
                     </Link>
-                    <ConfirmDelete id={g.id} label={g.title || g.slug} action={deleteBanner} tag="banners" />
+                    <ConfirmDelete id={g.id} label={g.title || g.slug} action={deleteBanner} />
                   </td>
                 </tr>
               ))}

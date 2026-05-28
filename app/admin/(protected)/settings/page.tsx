@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { updateSetting } from "./actions";
-import { ToastOnLoad } from "@/components/admin/ToastOnLoad";
 import { ImageField } from "@/components/admin/ImageField";
+import { getSettings } from "@/lib/services/actions/reference.actions";
 import { Globe, Image, Phone, Share2, Search } from "lucide-react";
 
 const input = "w-full h-10 px-3 rounded-lg border border-light-gray text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary";
@@ -61,15 +61,11 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/settings")
-      .then((r) => r.json())
-      .then(setMap)
-      .finally(() => setLoading(false));
+    getSettings().then(setMap).finally(() => setLoading(false));
   }, []);
 
   return (
     <div>
-      <ToastOnLoad />
       <h1 className="text-2xl font-display font-bold text-brand-secondary mb-6">Site Settings</h1>
 
       <div className="flex gap-2 mb-6 flex-wrap">

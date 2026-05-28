@@ -1,16 +1,17 @@
-import { api } from "@/lib/api";
+import { modelService } from "@/lib/services/services/model.service";
 import { notFound } from "next/navigation";
+import dynamic from "next/dynamic";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { saveModel } from "../actions";
-import type { PageModelGroup } from "@/lib/page-model";
-import ModelFilesEditor from "@/components/admin/ModelFilesEditor";
+
+const ModelFilesEditor = dynamic(() => import("@/components/admin/ModelFilesEditor"));
 
 const input = "w-full h-10 px-3 rounded border border-gray-300 text-sm";
 
 export default async function EditModelPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const item = await api(`/api/page-models?slug=${id}`).get<PageModelGroup | null>();
+  const item = await modelService.getBySlug(id);
   if (!item) notFound();
 
   return (

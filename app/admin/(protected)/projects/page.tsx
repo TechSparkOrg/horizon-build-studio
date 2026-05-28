@@ -1,4 +1,5 @@
-import { api } from "@/lib/api";
+import { cacheTag } from "next/cache";
+import { projectService } from "@/lib/services/services/project.service";
 import { ProjectsClient } from "./client";
 
 export default async function ProjectsPage({
@@ -7,18 +8,26 @@ export default async function ProjectsPage({
   searchParams: Promise<{ q?: string; status?: string; category?: string; page?: string }>;
 }) {
   const sp = await searchParams;
-  const q = sp.q ?? "";
-  const page = Math.max(1, Number(sp.page ?? 1));
+  return <CachedPage q={sp.q ?? ""} status={sp.status ?? ""} category={sp.category ?? ""} page={String(sp.page ?? "1")} />;
+}
+
+async function CachedPage({ q, status, category, page: pageStr }: {
+  q: string;
+  status: string;
+  category: string;
+  page: string;
+}) {
+  'use cache'
+  cacheTag("projects")
+  const page = Math.max(1, Number(pageStr ?? 1));
   const limit = 12;
 
-  const params = new URLSearchParams();
-  if (q) params.set("q", q);
-  if (sp.status) params.set("status", sp.status);
-  if (sp.category) params.set("category", sp.category);
-  params.set("page", String(page));
-  params.set("limit", String(limit));
+  const filters: Record<string, string | number> = { page, limit };
+  if (q) filters.q = q;
+  if (status) filters.status = status;
+  if (category) filters.category = category;
 
-  const raw = await api(`/api/projects?${params.toString()}`).get() as any;
+  const raw = await projectService.search(filters) as any;
   const { items: projects, total, categories } = raw;
 
   return (

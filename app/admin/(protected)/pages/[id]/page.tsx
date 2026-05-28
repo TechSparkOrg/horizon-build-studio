@@ -1,9 +1,8 @@
-import { api } from "@/lib/api";
+import { pageService } from "@/lib/services/services/page.service";
 import { notFound } from "next/navigation";
 import { savePage } from "../actions";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import type { StaticPage } from "@/lib/static-page";
 import ContentEditor from "@/components/ContentEditor";
 
 const input = "w-full h-10 px-3 rounded border border-gray-300 text-sm";
@@ -11,7 +10,7 @@ const textarea = "w-full px-3 py-2 rounded border border-gray-300 text-sm resize
 
 export default async function EditPagePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const item = await api(`/api/static-pages?slug=${id}`).get<StaticPage | null>();
+  const item = await pageService.getBySlug(id);
   if (!item) notFound();
 
   return (

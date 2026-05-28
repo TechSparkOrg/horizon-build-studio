@@ -1,12 +1,19 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { ChevronDown, ChevronRight, Plus, Save, Upload, Trash2, ExternalLink, Loader2 } from "lucide-react";
 import { SECTIONS } from "@/lib/section-field-defs";
-import type { FieldDef, CodeSectionDef } from "@/lib/section-field-defs";
-import type { SectionContentItem } from "@/lib/section-content";
-import type { SectionDef as SectionDefType } from "@/lib/section-def";
-import { Toast, useToast } from "@/components/admin/Toast";
+import type { FieldDef } from "@/lib/section-field-defs";
+import type { SectionDef } from "@/lib/section-def";
+import { toast } from "sonner";
+import {
+  getAllSectionDefs,
+  createSectionDef,
+  deleteSectionDef,
+  getAllSectionContents,
+  upsertSectionContents,
+  uploadSectionFile,
+} from "@/lib/services/actions/section.actions";
 
 type Lang = "en" | "np";
 
@@ -25,12 +32,7 @@ function AddSectionModal({ onClose, onCreated }: { onClose: () => void; onCreate
     setCreating(true);
     setError("");
     try {
-      const res = await fetch("/api/section-defs", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ slug: slug.trim(), label: label.trim() }),
-      });
-      if (!res.ok) { const err = await res.json(); throw new Error(err.error || "Failed to create"); }
+      await createSectionDef(slug.trim(), label.trim());
       onCreated();
       onClose();
     } catch (e: any) { setError(e.message); }
@@ -181,20 +183,19 @@ function RepeaterEditor({ field, items, onChange }: {
 }
 
 export default function SectionsPage() {
-  const [sectionDefs, setSectionDefs] = useState<SectionDefType[]>([]);
+  const [sectionDefs, setSectionDefs] = useState<SectionDef[]>([]);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [data, setData] = useState<Record<string, Record<string, { en: string; np: string; mediaUrl?: string; mediaType?: string }>>>({});
   const [saving, setSaving] = useState<string | null>(null);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [showAdd, setShowAdd] = useState(false);
   const [loading, setLoading] = useState(true);
-  const { toast, show } = useToast();
-
-  function loadAll() {
-    Promise.all([
-      fetch("/api/section-defs").then((r) => r.json()),
-      fetch("/api/section-contents").then((r) => r.json()),
-    ]).then(([sections, items]: [SectionDefType[], SectionContentItem[]]) => {
+  async function loadAll() {
+    try {
+      const [sections, items] = await Promise.all([
+        getAllSectionDefs(),
+        getAllSectionContents(),
+      ]);
       setSectionDefs(sections);
       const grouped: Record<string, any> = {};
       for (const item of items) {
@@ -207,8 +208,11 @@ export default function SectionsPage() {
         };
       }
       setData(grouped);
-    }).catch(() => show("Failed to load", "err"))
-    .finally(() => setLoading(false));
+    } catch {
+      toast.error("Failed to load");
+    } finally {
+      setLoading(false);
+    }
   }
 
   useEffect(() => { loadAll(); }, []);
@@ -268,20 +272,21 @@ export default function SectionsPage() {
       if (!file) return;
       const fd = new FormData();
       fd.append("file", file);
-      fd.append("subdir", "sections");
-      const res = await fetch("/api/upload", { method: "POST", body: fd });
-      if (!res.ok) { show("Upload failed", "err"); return; }
-      const { url } = await res.json();
-      const mediaType = file.name.endsWith(".glb") || file.name.endsWith(".gltf") ? "model3d" : "image";
-      setMedia(section, key, url, mediaType);
-      show("File uploaded");
+      try {
+        const { url } = await uploadSectionFile(fd);
+        const mediaType = file.name.endsWith(".glb") || file.name.endsWith(".gltf") ? "model3d" : "image";
+        setMedia(section, key, url, mediaType);
+        toast.success("File uploaded");
+      } catch {
+        toast.error("Upload failed");
+      }
     };
     el.click();
   }
 
   async function saveSection(section: string) {
     const codeDef = SECTIONS[section as keyof typeof SECTIONS];
-    if (!codeDef) { show("No field definition for this section", "err"); return; }
+    if (!codeDef) { toast.error("No field definition for this section"); return; }
     setSaving(section);
     const items: Array<{ key: string; valueEn: string; valueNp: string; mediaUrl: string | null; mediaType: string | null; order: number }> = [];
     for (const f of codeDef.fields) {
@@ -292,25 +297,23 @@ export default function SectionsPage() {
         items.push({ key: f.key, valueEn: getVal(section, f.key, "en"), valueNp: getVal(section, f.key, "np"), mediaUrl: null, mediaType: null, order: 0 });
       }
     }
-    const res = await fetch("/api/section-contents", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ section, items }),
-    });
+    try {
+      await upsertSectionContents(section, items);
+      toast.success(`${codeDef.label} saved`);
+    } catch {
+      toast.error("Failed to save");
+    }
     setSaving(null);
-    if (res.ok) show(`${codeDef.label} saved`);
-    else show("Failed to save", "err");
   }
 
   async function deleteSection(id: string, slug: string) {
     if (!confirm(`Delete section "${slug}"? This does NOT delete content data.`)) return;
     setDeleting(id);
     try {
-      const res = await fetch(`/api/section-defs?id=${id}`, { method: "DELETE" });
-      if (!res.ok) throw new Error("Failed to delete");
+      await deleteSectionDef(id);
       setSectionDefs((prev) => prev.filter((s) => s.id !== id));
-      show("Section removed");
-    } catch { show("Failed to delete", "err"); }
+      toast.success("Section removed");
+    } catch { toast.error("Failed to delete"); }
     setDeleting(null);
   }
 
@@ -325,7 +328,6 @@ export default function SectionsPage() {
 
   return (
     <div>
-      {toast && <Toast msg={toast.msg} type={toast.type} />}
       {showAdd && <AddSectionModal onClose={() => setShowAdd(false)} onCreated={loadAll} />}
 
       <div className="flex items-center justify-between mb-6">

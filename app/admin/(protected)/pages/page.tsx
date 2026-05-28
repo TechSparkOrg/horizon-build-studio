@@ -1,17 +1,17 @@
-import { api } from "@/lib/api";
+import { cacheTag } from "next/cache";
+import { pageService } from "@/lib/services/services/page.service";
 import Link from "next/link";
 import { Plus, Pencil } from "lucide-react";
 import { ConfirmDelete } from "@/components/admin/ConfirmDelete";
-import { ToastOnLoad } from "@/components/admin/ToastOnLoad";
 import { deletePage } from "./actions";
-import type { StaticPage } from "@/lib/static-page";
 
 export default async function StaticPagesPage() {
-  const pages = await api("/api/static-pages").get<StaticPage[]>();
+  'use cache'
+  cacheTag("pages")
+  const pages = await pageService.getAll();
 
   return (
     <div>
-      <ToastOnLoad />
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-xl font-bold">Static Pages</h1>
         <Link href="/admin/pages/new" className="cursor-pointer bg-black text-white text-sm px-4 py-2 rounded hover:opacity-85 flex items-center gap-2">
@@ -42,7 +42,7 @@ export default async function StaticPagesPage() {
                     <Link href={`/admin/pages/${p.slug}`} className="p-2 text-mid-gray hover:text-black" aria-label="Edit">
                       <Pencil className="size-4" />
                     </Link>
-                    <ConfirmDelete id={p.id} label={p.title || p.slug} action={deletePage} tag="pages" />
+                    <ConfirmDelete id={p.id} label={p.title || p.slug} action={deletePage} />
                   </td>
                 </tr>
               ))}

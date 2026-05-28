@@ -1,19 +1,20 @@
-import { api } from "@/lib/api";
+import { cacheTag } from "next/cache";
+import { teamService } from "@/lib/services/services/team.service";
 import { TeamMemberSchema } from "@/lib/schemas";
 import Link from "next/link";
 import { Plus, Pencil } from "lucide-react";
 import { deleteTeamMember } from "./actions";
-import { ToastOnLoad } from "@/components/admin/ToastOnLoad";
 import { ConfirmDelete } from "@/components/admin/ConfirmDelete";
 import { z } from "zod";
 
 export default async function TeamPage() {
-  const raw = await api("/api/team").get();
+  'use cache'
+  cacheTag("team")
+  const raw = await teamService.getAll();
   const members = z.array(TeamMemberSchema).parse(raw);
 
   return (
     <div>
-      <ToastOnLoad />
       <div className="flex items-center justify-between mb-5">
         <h1 className="text-xl font-display font-bold text-brand-secondary tracking-tight">Team</h1>
         <Link
@@ -43,7 +44,7 @@ export default async function TeamPage() {
                     <Link href={`/admin/team/${m.id}`} className="p-1.5 text-mid-gray hover:text-brand-primary" aria-label="Edit">
                       <Pencil className="size-3.5" />
                     </Link>
-                    <ConfirmDelete id={m.id} label={m.name} action={deleteTeamMember} tag="team" />
+                    <ConfirmDelete id={m.id} label={m.name} action={deleteTeamMember} />
                   </div>
                 </td>
               </tr>

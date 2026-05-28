@@ -1,16 +1,15 @@
-import { api } from "@/lib/api";
+import { bannerService } from "@/lib/services/services/banner.service";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { saveBanner } from "../actions";
-import type { PageBannerGroup } from "@/lib/page-banner";
 import BannerImagesEditor from "@/components/admin/BannerImagesEditor";
 
 const input = "w-full h-10 px-3 rounded border border-gray-300 text-sm";
 
 export default async function EditBannerPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const item = await api(`/api/page-banners?slug=${id}`).get<PageBannerGroup | null>();
+  const item = await bannerService.getBySlug(id);
   if (!item) notFound();
 
   return (

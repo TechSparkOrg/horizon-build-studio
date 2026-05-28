@@ -65,7 +65,6 @@ function ModelViewer3DImpl({
             src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"
             strategy="afterInteractive"
           />
-          {/* @ts-ignore */}
           <model-viewer
             ref={modelRef}
             src={src}
@@ -90,7 +89,6 @@ function ModelViewer3DImpl({
                 Drag to rotate
               </div>
             )}
-            {/* @ts-ignore */}
           </model-viewer>
         </>
       )}

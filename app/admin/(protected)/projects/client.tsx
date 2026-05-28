@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { toast } from "sonner";
-import { Plus, Search, Pencil, Trash2, ChevronLeft, ChevronRight, Briefcase, MapPin, RefreshCw } from "lucide-react";
+import { Plus, Search, Pencil, Trash2, ChevronLeft, ChevronRight, Briefcase, MapPin } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,8 +16,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { STATUS_COLORS } from "./field-config";
-import { useCache, useGlobalControl } from "@/app/admin/cache-context";
-import { api } from "@/lib/api";
+import { deleteProject } from "@/lib/services/actions/project.actions";
 
 const STATUS_MAP = Object.fromEntries(
   Object.entries(STATUS_COLORS).map(([value, color]) => [value, { color }]),
@@ -85,30 +84,10 @@ export function ProjectsClient({ projects: initialProjects, total: initialTotal,
   const [category, setCategory] = useState(sp.get("category") ?? "");
   const [confirmDelete, setConfirmDelete] = useState<{ id: string; title: string } | null>(null);
 
-  const { cacheUpdate, optimisticUpdate } = useGlobalControl();
   const [, startTransition] = useTransition();
 
-  // Create a cache key specific to current queries
-  const cacheKey = `projects-list-${sp.toString()}`;
-
-  // Fetcher for useCache client-side sync
-  const fetcher = async () => {
-    const raw = await api(`/api/projects?${sp.toString()}`).get() as any;
-    return {
-      items: raw.items as Project[],
-      total: raw.total as number,
-    };
-  };
-
-  // Connect Projects listing to useCache hook
-  const { data, loading } = useCache(cacheKey, fetcher, {
-    tags: ["projects"],
-    ttl: 15000, // 15s cache
-  });
-
-  // Use cached data, with fallback to initial server-rendered data
-  const projectsList = data?.items ?? initialProjects;
-  const currentTotal = data?.total ?? initialTotal;
+  const projectsList = initialProjects;
+  const currentTotal = initialTotal;
   const totalPages = Math.ceil(currentTotal / limit);
 
   const updateParams = (updates: Record<string, string>) => {
@@ -126,24 +105,9 @@ export function ProjectsClient({ projects: initialProjects, total: initialTotal,
     const targetTitle = confirmDelete.title;
 
     try {
-      // 1. Perform client-side OPTIMISTIC update so that it feels "smooth supper speed"!
-      optimisticUpdate("projects", (oldData) => {
-        if (!oldData) return oldData;
-        return {
-          ...oldData,
-          items: oldData.items.filter((p: Project) => p.id !== targetId),
-          total: Math.max(0, oldData.total - 1),
-        };
-      });
-
-      // 2. Perform backend deletion
-      const res = await fetch(`/api/projects/${targetId}`, { method: "DELETE" });
-      if (!res.ok) throw new Error("Failed to delete");
-      
+      await deleteProject(targetId);
       toast.success(`"${targetTitle}" deleted`);
-      
-      // 3. Coordinate background revalidations across the admin panel
-      await cacheUpdate(["projects", "stats"]);
+      router.refresh();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Delete failed");
     } finally {
@@ -162,12 +126,6 @@ export function ProjectsClient({ projects: initialProjects, total: initialTotal,
         </div>
         
         <div className="flex items-center gap-3">
-          {loading && (
-            <div className="flex items-center gap-1.5 text-xs text-brand-primary bg-brand-primary/5 px-2.5 py-1.5 rounded-lg border border-brand-primary/10 font-medium">
-              <RefreshCw className="size-3 animate-spin" /> Synchronizing...
-            </div>
-          )}
-
           <Link href="/admin/projects/new" className="bg-brand-primary text-white text-xs px-4 py-2.5 rounded-lg hover:opacity-90 flex items-center gap-2 font-bold font-label tracking-wide uppercase transition shadow-sm">
             <Plus className="size-3.5" /> New Project
           </Link>

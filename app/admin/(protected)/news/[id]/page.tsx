@@ -1,4 +1,6 @@
-import { api } from "@/lib/api";
+import { cacheTag } from "next/cache";
+import { newsService } from "@/lib/services/services/news.service";
+import { projectService } from "@/lib/services/services/project.service";
 import { notFound } from "next/navigation";
 import { saveNews } from "../actions";
 import { ImageField } from "@/components/admin/ImageField";
@@ -11,9 +13,15 @@ const select = "w-full h-10 px-3 rounded-lg border border-light-gray text-sm foc
 
 export default async function EditNewsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  return <CachedPage id={id} />;
+}
+
+async function CachedPage({ id }: { id: string }) {
+  'use cache'
+  cacheTag("projects")
   const [item, projectsRaw] = (await Promise.all([
-    api(`/api/news/${id}`).get(),
-    api("/api/projects?limit=100").get(),
+    newsService.getById(id),
+    projectService.search({ limit: 100 }),
   ])) as [any, any];
   if (!item || typeof item !== "object" || "error" in (item as any)) notFound();
   const projects = (projectsRaw as any).items || [];

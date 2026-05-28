@@ -1,69 +1,41 @@
-import { api } from "@/lib/api";
-import type { HomeProject, FAQSectionItem } from "@/lib/schemas";
-import type { SectionContentItem, SectionContentMap } from "@/lib/section-content";
+import { Suspense } from "react";
+import { cookies } from "next/headers";
+import { getHomeSections } from "@/lib/cache-home";
 import { HeroSection } from "@/components/sections/HeroSection";
 import { ServicesSection } from "@/components/sections/ServicesSection";
-import { PortfolioSection } from "@/components/sections/PortfolioSection";
-import { QuoteBanner } from "@/components/sections/QuoteBanner";
-import { NewsSection } from "@/components/sections/NewsSection";
-import { ProcessSection } from "@/components/sections/ProcessSection";
-import { TestimonialsSection } from "@/components/sections/TestimonialsSection";
-import { FAQSection } from "@/components/sections/FAQSection";
-import { cookies } from "next/headers";
-import { getText } from "@/lib/lang";
+import { BelowFoldContent } from "@/components/sections/home/BelowFoldContent";
 
-export default async function HomePage() {
-  const cookie = (await cookies()).get("lang")?.value;
-  const t = getText(cookie);
+function BelowFallback() {
+  return (
+    <div className="h-screen bg-off-white animate-pulse rounded-3xl mx-4 sm:mx-6 lg:mx-8" />
+  );
+}
 
-  const [rawProjects, rawNews, rawFaqs, rawSections] = await Promise.all([
-    api("/api/projects").tag("projects").revalidate(60).get<{ published: boolean; title: string; slug: string; location: string; img: string; alt: string; status: string; completion: number; budget: number | null; shortDescription: string | null; category?: { name: string } | null }[]>(),
-    api("/api/news").tag("news").revalidate(60).get<{ title: string; excerpt: string | null; category: string; publishedAt: string; image: string | null; slug: string }[]>(),
-    api("/api/faqs").tag("faqs").revalidate(60).get<{ question: string; answer: string; faqType?: { name: string } | null; category?: { name: string } | null }[]>(),
-    api("/api/section-contents").noCache().get<SectionContentItem[]>(),
-  ]);
+function AboveFoldFallback() {
+  return (
+    <div className="min-h-screen animate-pulse bg-off-white" />
+  );
+}
 
-  const sections: Record<string, SectionContentMap> = {};
-  for (const item of rawSections) {
-    if (!sections[item.section]) sections[item.section] = {};
-    sections[item.section][item.key] = {
-      valueEn: item.valueEn,
-      valueNp: item.valueNp,
-      mediaUrl: item.mediaUrl,
-      mediaType: item.mediaType,
-    };
-  }
-
-  const published = rawProjects.filter((p) => p.published);
-  const projects: HomeProject[] = published.map((p) => ({
-    title: p.title, slug: p.slug, location: p.location, img: p.img, alt: p.alt,
-    status: p.status, completion: p.completion, budget: p.budget,
-    shortDescription: p.shortDescription ?? "",
-    category: p.category?.name ?? "Uncategorized",
-  }));
-  const filters = ["All", ...new Set(projects.map((p) => p.category).filter((c): c is string => !!c))];
-
-  const news = rawNews.slice(0, 5).map((n) => ({
-    title: n.title, excerpt: n.excerpt ?? "", cat: n.category,
-    date: new Date(n.publishedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
-    img: n.image ?? "", slug: n.slug,
-  }));
-
-  const faqs: FAQSectionItem[] = rawFaqs.map((f) => ({
-    q: f.question, a: f.answer, type: f.faqType?.name, category: f.category?.name,
-    faqTypeName: f.faqType?.name, categoryName: f.category?.name,
-  }));
+async function HomeContent() {
+  const lang = (await cookies()).get("lang")?.value;
+  const { sections } = await getHomeSections(lang);
 
   return (
     <>
       <HeroSection content={sections.hero} />
       <ServicesSection content={sections.services} />
-      <ProcessSection content={sections.process} />
-      <PortfolioSection projects={projects} filters={filters} activeCategory="All" t={t} content={sections.portfolio} />
-      <NewsSection news={news} content={sections.news} />
-      <QuoteBanner content={sections.quotes} />
-      <TestimonialsSection content={sections.testimonials} />
-      <FAQSection faqs={faqs} content={sections.faq} />
+      <Suspense fallback={<BelowFallback />}>
+        <BelowFoldContent lang={lang} sections={sections} />
+      </Suspense>
     </>
+  );
+}
+
+export default function HomePage() {
+  return (
+    <Suspense fallback={<AboveFoldFallback />}>
+      <HomeContent />
+    </Suspense>
   );
 }

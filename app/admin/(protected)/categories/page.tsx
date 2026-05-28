@@ -1,8 +1,8 @@
-import { api } from "@/lib/api";
+import { cacheTag } from "next/cache";
+import { categoryService } from "@/lib/services/services/category.service";
 import Link from "next/link";
 import { Plus, ChevronRight, Tag } from "lucide-react";
 import { DeleteCategoryButton } from "./delete-button";
-
 
 function flatten(categories: any[], depth = 0): { id: string; name: string; slug: string; depth: number; parentId: string | null }[] {
   const result: { id: string; name: string; slug: string; depth: number; parentId: string | null }[] = [];
@@ -20,7 +20,9 @@ function flatten(categories: any[], depth = 0): { id: string; name: string; slug
 }
 
 export default async function CategoriesPage() {
-  const all = await api("/api/categories").get() as { id: string; name: string; slug: string; parentId: string | null; order: number }[];
+  'use cache'
+  cacheTag("categories")
+  const all = await categoryService.getAll() as { id: string; name: string; slug: string; parentId: string | null; order: number }[];
   type CatNode = { id: string; name: string; slug: string; parentId: string | null; order: number; children: CatNode[] };
   const map = new Map<string, CatNode>();
   const roots: CatNode[] = [];

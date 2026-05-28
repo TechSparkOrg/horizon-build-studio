@@ -4,6 +4,7 @@ import { useCallback, useState } from "react";
 import { uid } from "@/lib/id";
 import { toast } from "sonner";
 import { Upload, X, Star, GripVertical } from "lucide-react";
+import { uploadFileAction } from "@/lib/services/actions/upload.actions";
 
 interface MediaItem {
   id: string;
@@ -44,23 +45,21 @@ export function MediaUploader({ items, onChange }: Props) {
     setUploading(true);
     const newItems: MediaItem[] = [];
     for (const file of files) {
-      const fd = new FormData();
-      fd.set("file", file);
-      fd.set("subdir", "images");
-      const res = await fetch("/api/upload", { method: "POST", body: fd });
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({ error: res.statusText }));
-        toast.error(err.error || "Upload failed");
-        continue;
+      try {
+        const fd = new FormData();
+        fd.set("file", file);
+        fd.set("subdir", "images");
+        const { url } = await uploadFileAction(fd);
+        newItems.push({
+          id: uid(),
+          url,
+          alt: "",
+          isHero: items.length === 0 && newItems.length === 0,
+          order: items.length + newItems.length,
+        });
+      } catch {
+        toast.error("Upload failed");
       }
-      const { url } = await res.json();
-      newItems.push({
-        id: uid(),
-        url,
-        alt: "",
-        isHero: items.length === 0 && newItems.length === 0,
-        order: items.length + newItems.length,
-      });
     }
     onChange([...items, ...newItems]);
     setUploading(false);

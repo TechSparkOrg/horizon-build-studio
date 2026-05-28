@@ -1,5 +1,3 @@
-export type Lang = "en" | "np";
-
 export interface FieldDef {
   key: string;
   label: string;

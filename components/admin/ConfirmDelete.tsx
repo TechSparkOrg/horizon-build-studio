@@ -15,36 +15,22 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { useGlobalControl } from "@/app/admin/cache-context";
-
 export function ConfirmDelete({
   id,
   label,
   action,
-  tag,
-  tags,
 }: {
   id: string;
   label: string;
   action: (id: string) => Promise<void>;
-  tag?: string;
-  tags?: string[];
 }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
-  const cacheControl = useGlobalControl();
 
   async function handleDelete() {
     try {
       await action(id);
       toast.success(`"${label}" deleted`);
-      
-      // Update cache tags for real-time reactivity in the client cache context
-      const tagsToUpdate = [...(tags || [])];
-      if (tag) tagsToUpdate.push(tag);
-      tagsToUpdate.push("stats"); // Always update stats since counts changed
-      
-      await cacheControl.cacheUpdate(tagsToUpdate);
       router.refresh();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Delete failed");

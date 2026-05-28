@@ -1,8 +1,17 @@
 import { Suspense } from "react";
 import { cookies } from "next/headers";
+import { cacheLife, cacheTag } from "next/cache";
+import { CACHE_TAGS, CACHE_TTL } from "@/lib/cache-config";
 import { getText } from "@/lib/lang";
-import { api } from "@/lib/api";
+import { faqService } from "@/lib/services/services/faq.service";
 import type { FAQSectionItem } from "@/lib/schemas";
+
+async function getAllFAQs() {
+  "use cache";
+  cacheLife(CACHE_TTL[CACHE_TAGS.FAQS]);
+  cacheTag(CACHE_TAGS.FAQS);
+  return faqService.getAll();
+}
 import { HowWeWorkHero } from "@/components/sections/HowWeWorkHero";
 import { WelcomeText } from "@/components/sections/WelcomeText";
 import { HowWeWorkProcess } from "@/components/sections/HowWeWorkProcess";
@@ -35,7 +44,7 @@ export async function generateMetadata() {
 }
 
 async function FAQWrapper() {
-  const db = await api("/api/faqs").get<{ question: string; answer: string; faqType?: { name: string } | null; category?: { name: string } | null }[]>();
+  const db = await getAllFAQs() as { question: string; answer: string; faqType?: { name: string } | null; category?: { name: string } | null }[];
   const faqs: FAQSectionItem[] = db.map((f) => ({
     q: f.question,
     a: f.answer,

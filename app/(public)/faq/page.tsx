@@ -1,5 +1,7 @@
 import { cookies } from "next/headers";
 import { getText } from "@/lib/lang";
+import { faqService } from "@/lib/services/services/faq.service";
+import { faqTypeService } from "@/lib/services/services/faq-type.service";
 import { FAQAccordion } from "@/components/sections/FAQAccordion";
 import { QuoteBanner } from "@/components/sections/QuoteBanner";
 import Image from "next/image";
@@ -43,7 +45,19 @@ function buildFaqSchema(faqs: { question: string; answer: string }[]) {
 
 export default async function FAQListingPage() {
   const t = getText((await cookies()).get("lang")?.value);
-  const { types: faqTypes, items: faqs } = t.listing.faq;
+  const [rawFaqs, rawFaqTypes] = await Promise.all([
+    faqService.getAll().catch(() => []),
+    faqTypeService.getAll().catch(() => []),
+  ]);
+  const faqs = rawFaqs
+    .filter((f) => f.faqType !== null)
+    .map((f) => ({
+      id: f.id,
+      question: f.question,
+      answer: f.answer,
+      faqType: { id: f.faqType!.id, name: f.faqType!.name, slug: f.faqType!.slug } as const,
+    }));
+  const faqTypes = rawFaqTypes.map((t) => ({ id: t.id, name: t.name, slug: t.slug }));
 
   return (
     <>

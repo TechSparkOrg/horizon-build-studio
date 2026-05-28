@@ -1,23 +1,26 @@
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
+import dynamic from "next/dynamic";
 import { cacheLife, cacheTag } from "next/cache";
-import { api } from "@/lib/api";
+import { CACHE_TAGS, CACHE_TTL } from "@/lib/cache-config";
+import { newsService } from "@/lib/services/services/news.service";
 import { NewsArticleSchema, type NewsDisplay } from "@/lib/schemas";
-import { NewsDetail } from "@/components/sections/NewsDetail";
+
+const NewsDetail = dynamic(() => import("@/components/sections/NewsDetail").then(m => m.NewsDetail));
 
 export async function generateStaticParams() {
   try {
-    const all = await api("/api/news").get<any[]>();
+    const all = await newsService.getAll() as any[];
     if (all.length > 0) return all.map((n: any) => ({ slug: n.slug }));
-  } catch {}
-  const { getText } = await import("@/lib/lang");
-  const t = getText("en");
-  return (t.listing.news.items as any[]).map((n: any) => ({ slug: n.slug }));
+  } catch {
+    /* empty */
+  }
+  return [{ slug: "__placeholder__" }];
 }
 
 async function fetchArticle(slug: string): Promise<NewsDisplay | null> {
   try {
-    const raw = await api(`/api/news?slug=${slug}`).get();
+    const raw = await newsService.getBySlug(slug);
     const parsed = NewsArticleSchema.safeParse(raw);
     if (!parsed.success) return null;
     const a = parsed.data;
@@ -33,28 +36,14 @@ async function fetchArticle(slug: string): Promise<NewsDisplay | null> {
       project: a.project ? { ...a.project, location: a.project.location ?? "" } : null,
     };
   } catch {
-    const { getText } = await import("@/lib/lang");
-    const t = getText("en");
-    const item = (t.listing.news.items as any[]).find((n: any) => n.slug === slug);
-    if (!item) return null;
-    return {
-      title: item.title,
-      slug: item.slug,
-      excerpt: item.excerpt ?? "",
-      image: item.image ?? "",
-      alt: item.title,
-      category: item.category,
-      publishedAt: new Date(item.publishedAt),
-      readingTimeMinutes: null,
-      project: null,
-    };
+    return null;
   }
 }
 
 async function getArticle(slug: string): Promise<NewsDisplay | null> {
   "use cache";
-  cacheLife("days");
-  cacheTag("news");
+  cacheLife(CACHE_TTL[CACHE_TAGS.NEWS]);
+  cacheTag(CACHE_TAGS.NEWS);
   return fetchArticle(slug);
 }
 

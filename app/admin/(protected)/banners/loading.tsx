@@ -1,5 +1,6 @@
 import { TableSkeleton } from "@/components/admin/AdminSkeleton";
 
-export default function BannersLoading() {
+export default async function BannersLoading() {
+  'use cache';
   return <TableSkeleton />;
 }

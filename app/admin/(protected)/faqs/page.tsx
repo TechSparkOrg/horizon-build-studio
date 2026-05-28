@@ -1,16 +1,17 @@
-import { api } from "@/lib/api";
+import { cacheTag } from "next/cache";
+import { faqService } from "@/lib/services/services/faq.service";
 import Link from "next/link";
 import { Plus, Pencil } from "lucide-react";
 import { deleteFaq } from "./actions";
-import { ToastOnLoad } from "@/components/admin/ToastOnLoad";
 import { ConfirmDelete } from "@/components/admin/ConfirmDelete";
 
 export default async function FAQsPage() {
-  const items = await api("/api/faqs").get() as any[];
+  'use cache'
+  cacheTag("faqs")
+  const items = await faqService.getAll() as any[];
 
   return (
     <div>
-      <ToastOnLoad />
       <div className="flex items-center justify-between mb-5">
         <h1 className="text-xl font-display font-bold text-brand-secondary tracking-tight">FAQs</h1>
         <Link href="/admin/faqs/new" className="inline-flex items-center gap-1.5 h-8 px-3 text-xs font-semibold border border-brand-primary bg-brand-primary text-white rounded hover:opacity-85 transition">
@@ -38,7 +39,7 @@ export default async function FAQsPage() {
                     <Link href={`/admin/faqs/${item.id}`} className="p-1.5 text-mid-gray hover:text-brand-primary" aria-label="Edit">
                       <Pencil className="size-3.5" />
                     </Link>
-                    <ConfirmDelete id={item.id} label={item.question} action={deleteFaq} tag="faqs" />
+                    <ConfirmDelete id={item.id} label={item.question} action={deleteFaq} />
                   </div>
                 </td>
               </tr>

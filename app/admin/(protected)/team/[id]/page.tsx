@@ -1,4 +1,4 @@
-import { api } from "@/lib/api";
+import { teamService } from "@/lib/services/services/team.service";
 import { notFound } from "next/navigation";
 import { saveTeamMember } from "../actions";
 import { ArrowLeft } from "lucide-react";
@@ -13,7 +13,7 @@ export default async function EditTeamPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const member = await api(`/api/team/${id}`).get() as any;
+  const member = await teamService.getById(id) as any;
   if (!member || typeof member !== "object" || "error" in (member as any)) notFound();
 
   return (

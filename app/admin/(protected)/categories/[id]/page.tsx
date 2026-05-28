@@ -1,7 +1,7 @@
-import { api } from "@/lib/api";
+import { cacheTag } from "next/cache";
+import { categoryService } from "@/lib/services/services/category.service";
 import { notFound } from "next/navigation";
 import { CategoryForm } from "../form";
-
 
 export default async function EditCategoryPage({
   params,
@@ -9,9 +9,15 @@ export default async function EditCategoryPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  return <CachedPage id={id} />;
+}
+
+async function CachedPage({ id }: { id: string }) {
+  'use cache'
+  cacheTag("categories")
   const [category, parents] = await Promise.all([
-    api(`/api/categories/${id}`).get(),
-    api("/api/categories").get(),
+    categoryService.getById(id),
+    categoryService.getAll(),
   ]);
 
   if (!category || typeof category !== "object" || "error" in (category as any)) notFound();

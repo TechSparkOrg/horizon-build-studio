@@ -3,16 +3,20 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { toast } from "sonner";
 import { ArrowLeft, Save, Image, Youtube, Box, Clock, Info, ListChecks, HelpCircle, Search } from "lucide-react";
 import { BasicInfoSection } from "./sections/BasicInfoSection";
 import { MediaSection } from "./sections/MediaSection";
 import { VideosSection } from "./sections/VideosSection";
 import { ModelsSection } from "./sections/ModelsSection";
-import { TimelineSection } from "./sections/TimelineSection";
 import { AttributesSection } from "./sections/AttributesSection";
+
+const TimelineSection = dynamic(() => import("./sections/TimelineSection").then(m => m.TimelineSection), { ssr: false });
 import { FaqSection } from "./sections/FaqSection";
 import { SeoSection } from "./sections/SeoSection";
+import { getCategories, getFaqs } from "@/lib/services/actions/reference.actions";
+import { createProject, updateProject } from "@/lib/services/actions/project.actions";
 import type { FormFields, MediaItem, VideoItem, ModelItem, PhaseItem, AttrItem, ProjectData, ProjectFaqItem } from "./types";
 
 interface FlatCat { id: string; name: string; parentId: string | null; }
@@ -122,10 +126,7 @@ export function ProjectForm({ initialData }: { initialData?: ProjectData }) {
   const [allCategories, setAllCategories] = useState<FlatCat[]>([]);
 
   useEffect(() => {
-    Promise.all([
-      fetch("/api/categories").then((r) => r.json()),
-      fetch("/api/faqs").then((r) => r.json()),
-    ])
+    Promise.all([getCategories(), getFaqs()])
       .then(([cats, faqs]) => {
         setAllCategories(cats);
         setAllFaqs(faqs);
@@ -144,23 +145,12 @@ export function ProjectForm({ initialData }: { initialData?: ProjectData }) {
     try {
       const payload = preparePayload(form, media, videos, models3d, phases, projectFaqs, attributes);
       const isCreate = !projectId;
-      const url = projectId ? `/api/projects/${projectId}` : "/api/projects";
 
-      const res = await fetch(url, {
-        method: projectId ? "PUT" : "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        throw new Error(body.error || `Failed to save`);
-      }
+      const result = isCreate ? await createProject(payload) : await updateProject(projectId!, payload);
 
       if (isCreate) {
-        const created = await res.json();
-        setSavedId(created.id);
-        router.replace(`/admin/projects/${created.id}`);
+        setSavedId(result.id);
+        router.replace(`/admin/projects/${result.id}`);
       }
 
       toast.success(isCreate ? "Draft saved" : "Saved");

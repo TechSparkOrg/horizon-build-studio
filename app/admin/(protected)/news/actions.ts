@@ -1,20 +1,15 @@
 "use server";
 
-import { api } from "@/lib/api";
-import { auth } from "@/lib/auth";
-import { revalidatePath } from "next/cache";
+import { revalidateTag } from "next/cache";
+import { newsService } from "@/lib/services/services/news.service";
 import { redirect } from "next/navigation";
 
 export async function deleteNews(id: string) {
-  const session = await auth();
-  if (!session?.user) throw new Error("Unauthorized");
-  await fetch(`/api/news/${id}`, { method: "DELETE" });
-  revalidatePath("/admin/news");
+  await newsService.delete(id);
+  revalidateTag("news", "max");
 }
 
 export async function saveNews(formData: FormData) {
-  const session = await auth();
-  if (!session?.user) throw new Error("Unauthorized");
   const title = formData.get("title") as string;
   const slug =
     (formData.get("slug") as string) ||
@@ -39,11 +34,11 @@ export async function saveNews(formData: FormData) {
   const id = formData.get("id") as string;
 
   if (id) {
-    await fetch(`/api/news/${id}`, { method: "PUT", body: JSON.stringify(data), headers: { "Content-Type": "application/json" } });
+    await newsService.update(id, data);
   } else {
-    await api("/api/news").post(data);
+    await newsService.create(data);
   }
 
-  revalidatePath("/admin/news");
+  revalidateTag("news", "max");
   redirect("/admin/news?success=Article+saved");
 }

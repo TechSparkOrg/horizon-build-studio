@@ -1,15 +1,10 @@
 "use server";
 
-import { auth } from "@/lib/auth";
-import { revalidatePath } from "next/cache";
+import { revalidateTag } from "next/cache";
+import { seoService } from "@/lib/services/services/seo.service";
 import { redirect } from "next/navigation";
 
-const BASE = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
-
 export async function saveSeo(formData: FormData) {
-  const session = await auth();
-  if (!session?.user) throw new Error("Unauthorized");
-
   const id = formData.get("id") as string;
   const slug = (formData.get("slug") as string)?.trim();
   if (!slug) throw new Error("Slug is required");
@@ -29,23 +24,12 @@ export async function saveSeo(formData: FormData) {
   };
   if (id) payload.id = id;
 
-  const res = await fetch(`${BASE}/api/page-seo`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
-  if (!res.ok) throw new Error("Failed to save SEO entry");
-
-  revalidatePath("/admin/seo");
+  await seoService.upsert(payload);
+  revalidateTag("seo", "max");
   redirect("/admin/seo?success=SEO+entry+saved");
 }
 
 export async function deleteSeo(id: string) {
-  const session = await auth();
-  if (!session?.user) throw new Error("Unauthorized");
-
-  const res = await fetch(`${BASE}/api/page-seo?id=${id}`, { method: "DELETE" });
-  if (!res.ok) throw new Error("Failed to delete SEO entry");
-
-  revalidatePath("/admin/seo");
+  await seoService.delete(id);
+  revalidateTag("seo", "max");
 }

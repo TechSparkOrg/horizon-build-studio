@@ -4,6 +4,7 @@ import { Box } from "lucide-react";
 import { toast } from "sonner";
 import type { ModelItem } from "../types";
 import { uid } from "@/lib/id";
+import { uploadFileAction } from "@/lib/services/actions/upload.actions";
 
 export function ModelsSection({
   items,
@@ -30,22 +31,20 @@ export function ModelsSection({
             const files = Array.from(e.target.files ?? []);
             const added: ModelItem[] = [];
             for (const file of files) {
-              const fd = new FormData();
-              fd.set("file", file);
-              fd.set("subdir", "models");
-              const res = await fetch("/api/upload", { method: "POST", body: fd });
-              if (!res.ok) {
-                const err = await res.json().catch(() => ({ error: res.statusText }));
-                toast.error(err.error || "Upload failed");
-                continue;
+              try {
+                const fd = new FormData();
+                fd.set("file", file);
+                fd.set("subdir", "models");
+                const { url } = await uploadFileAction(fd);
+                added.push({
+                  id: uid(),
+                  filename: file.name,
+                  url,
+                  type: file.name.endsWith(".gltf") ? "gltf" : "glb",
+                });
+              } catch {
+                toast.error("Upload failed");
               }
-              const { url } = await res.json();
-              added.push({
-                id: uid(),
-                filename: file.name,
-                url,
-                type: file.name.endsWith(".gltf") ? "gltf" : "glb",
-              });
             }
             onChange([...items, ...added]);
           }}

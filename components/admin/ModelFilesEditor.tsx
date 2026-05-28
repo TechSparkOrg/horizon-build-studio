@@ -3,6 +3,7 @@
 import { useState } from "react";
 import dynamic from "next/dynamic";
 import { Plus, Upload, FileIcon, Eye, Loader2 } from "lucide-react";
+import { uploadFileAction } from "@/lib/services/actions/upload.actions";
 
 const ModelPreview = dynamic(() => import("@/components/model-preview"), { ssr: false });
 
@@ -41,9 +42,7 @@ export default function ModelFilesEditor({ initialModels = [] }: { initialModels
           const fd = new FormData();
           fd.append("file", file);
           fd.append("subdir", "models");
-          const res = await fetch("/api/upload", { method: "POST", body: fd });
-          if (!res.ok) throw new Error("Upload failed");
-          const { url } = await res.json();
+          const { url } = await uploadFileAction(fd);
           const ext = file.name.split(".").pop()?.toLowerCase() ?? "glb";
           setModels3d((prev) => prev.map((m) => m._key === idx ? { ...m, url, filename: file.name, type: ext } : m));
         } catch {}

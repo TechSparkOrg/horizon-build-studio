@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { uid } from "@/lib/id";
+import { uid } from "@/lib/shared/id";
 import {
   Youtube,
   X,

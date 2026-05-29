@@ -4,7 +4,7 @@ import { MapPin, Phone, Mail, Clock, ArrowRight } from "lucide-react";
 import Image from "next/image";
 import { AnimateOnView } from "@/components/AnimateOnView";
 import { SectionLabel } from "@/components/ui/SectionLabel";
-import { useText } from "@/lib/lang-client";
+import { useText } from "@/lib/i18n/lang-client";
 
 const gallery = [
   { src: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80", alt: "Modern house exterior" },
@@ -15,8 +15,16 @@ const gallery = [
   { src: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=800&q=80", alt: "Residential complex" },
 ];
 
-export function ContactLocationSection() {
+export function ContactLocationSection({ settings }: { settings?: Record<string, string> }) {
   const t = useText();
+
+  const phone = settings?.contact_phone ?? "+977 1 441 1222";
+  const email = settings?.contact_email ?? "hello@horizonnepal.com.np";
+  const address = settings?.contact_address ?? "Tinkune, Kathmandu";
+  const hours = settings?.contact_hours ?? "Mon–Sat · 9 AM – 6 PM";
+  const mapsUrl = settings?.contact_maps_url ?? "https://www.google.com/maps?q=Tinkune,Kathmandu,Nepal";
+  const siteName = settings?.site_name ?? "Horizon Nepal";
+
   return (
     <section className="bg-white py-16 sm:py-28">
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
@@ -26,7 +34,7 @@ export function ContactLocationSection() {
             Visit Our Office
           </h2>
           <p className="mt-4 text-mid-gray text-lg max-w-2xl mx-auto">
-            Stop by our Kathmandu headquarters or give us a call. We are here Monday through Saturday.
+            Stop by our {address} headquarters or give us a call. We are here Monday through Saturday.
           </p>
         </AnimateOnView>
 
@@ -37,13 +45,13 @@ export function ContactLocationSection() {
                 <MapPin className="size-6 text-brand-primary" />
               </div>
               <h3 className="font-display font-bold text-2xl text-brand-secondary">
-                Horizon Nepal HQ
+                {siteName} HQ
               </h3>
-              <p className="text-mid-gray mt-2">Tinkune, Kathmandu 44600, Nepal</p>
+              <p className="text-mid-gray mt-2">{address}</p>
 
               <div className="mt-8 space-y-4">
                 <a
-                  href="tel:+97714411222"
+                  href={`tel:${phone.replace(/\s/g, "")}`}
                   className="flex items-center gap-4 p-4 bg-white rounded-xl border border-light-gray/40 hover:border-brand-primary/30 hover:shadow-sm transition-all group"
                 >
                   <div className="size-10 rounded-lg bg-brand-primary/10 grid place-items-center group-hover:bg-brand-primary transition-colors">
@@ -51,12 +59,12 @@ export function ContactLocationSection() {
                   </div>
                   <div>
                     <p className="text-xs text-mid-gray font-medium">Phone</p>
-                    <p className="text-sm font-semibold text-brand-secondary">+977 1 441 1222</p>
+                    <p className="text-sm font-semibold text-brand-secondary">{phone}</p>
                   </div>
                 </a>
 
                 <a
-                  href="mailto:hello@horizonnepal.com.np"
+                  href={`mailto:${email}`}
                   className="flex items-center gap-4 p-4 bg-white rounded-xl border border-light-gray/40 hover:border-brand-primary/30 hover:shadow-sm transition-all group"
                 >
                   <div className="size-10 rounded-lg bg-brand-primary/10 grid place-items-center group-hover:bg-brand-primary transition-colors">
@@ -64,7 +72,7 @@ export function ContactLocationSection() {
                   </div>
                   <div>
                     <p className="text-xs text-mid-gray font-medium">Email</p>
-                    <p className="text-sm font-semibold text-brand-secondary">hello@horizonnepal.com.np</p>
+                    <p className="text-sm font-semibold text-brand-secondary">{email}</p>
                   </div>
                 </a>
 
@@ -74,13 +82,13 @@ export function ContactLocationSection() {
                   </div>
                   <div>
                     <p className="text-xs text-mid-gray font-medium">Office Hours</p>
-                    <p className="text-sm font-semibold text-brand-secondary">Mon–Sat · 9 AM – 6 PM</p>
+                    <p className="text-sm font-semibold text-brand-secondary">{hours}</p>
                   </div>
                 </div>
               </div>
 
               <a
-                href="https://www.google.com/maps?q=Tinkune,Kathmandu,Nepal"
+                href={mapsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="mt-6 inline-flex items-center gap-1.5 text-brand-primary text-sm font-semibold hover:underline"
@@ -93,8 +101,8 @@ export function ContactLocationSection() {
           <AnimateOnView animation="slide-in-right">
             <div className="relative rounded-2xl overflow-hidden border border-light-gray/40 shadow-[0_8px_30px_rgba(0,0,0,0.04)] h-full min-h-[400px]">
               <iframe
-                title="Horizon Nepal office location in Kathmandu"
-                src="https://www.google.com/maps?q=Tinkune,Kathmandu,Nepal&z=15&output=embed"
+                title={`${siteName} office location in Kathmandu`}
+                src={`${mapsUrl}&z=15&output=embed`}
                 className="absolute inset-0 w-full h-full border-0"
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"

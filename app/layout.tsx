@@ -1,5 +1,4 @@
 import { Playfair_Display, Barlow, Barlow_Condensed } from "next/font/google";
-import RootHead from "@/components/RootHead";
 import "./globals.css";
 
 const playfair = Playfair_Display({
@@ -35,10 +34,14 @@ export default function RootLayout({
       suppressHydrationWarning
       data-scroll-behavior="smooth"
     >
-      <RootHead />
-      <body className="font-body antialiased">
-        {children}
-      </body>
+      <head>
+        <link rel="preconnect" href="https://pub-a19a6c84befd4048bbb715b4a6d4f307.r2.dev" />
+        <link rel="preconnect" href="https://images.unsplash.com" />
+        <link rel="preconnect" href="https://ajax.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+      </head>
+      <body className="font-body antialiased">{children}</body>
     </html>
   );
 }

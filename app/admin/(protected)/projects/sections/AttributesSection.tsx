@@ -1,7 +1,7 @@
 import { Plus, Trash2, GripVertical } from "lucide-react";
 import { ATTR_TYPE_OPTIONS } from "../field-config";
 import type { AttrItem } from "../types";
-import { uid } from "@/lib/id";
+import { uid } from "@/lib/shared/id";
 
 export function AttributesSection({
   items,

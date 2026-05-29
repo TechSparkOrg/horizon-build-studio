@@ -4,7 +4,7 @@ import { Linkedin, Mail } from "lucide-react";
 import Image from "next/image";
 import { AnimateOnView } from "@/components/AnimateOnView";
 import { SectionLabel } from "@/components/ui/SectionLabel";
-import { useText } from "@/lib/lang-client";
+import { useText } from "@/lib/i18n/lang-client";
 
 const team = [
   { name: "Arun Thapa", role: "Lead Architect", img: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80" },

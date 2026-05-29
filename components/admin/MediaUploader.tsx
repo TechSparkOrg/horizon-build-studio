@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { uid } from "@/lib/id";
+import { uid } from "@/lib/shared/id";
 import { toast } from "sonner";
 import { Upload, X, Star, GripVertical } from "lucide-react";
 import { uploadFileAction } from "@/lib/services/actions/upload.actions";

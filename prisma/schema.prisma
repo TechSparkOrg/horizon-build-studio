@@ -22,19 +22,18 @@ model User {
   role           Role      @default(editor)
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
-  refreshTokens  RefreshToken[]
+  sessions       Session[]
 }
 
-model RefreshToken {
+model Session {
   id        String   @id @default(cuid())
-  tokenHash String   @unique
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   expiresAt DateTime
   createdAt DateTime @default(now())
-  revokedAt DateTime?
 
   @@index([userId])
+  @@index([expiresAt])
 }
 
 model Category {
@@ -67,6 +66,8 @@ model Project {
   id               String             @id @default(cuid())
   @@index([categoryId])
   @@index([slug])
+  @@index([order])
+  @@index([published])
   title            String
   slug             String             @unique
   description      String             @default("")
@@ -389,4 +390,16 @@ model SectionDef {
   label     String
   order     Int      @default(0)
   createdAt DateTime @default(now())
+}
+
+model TextContent {
+  id           String   @id @default(cuid())
+  slug         String   @unique
+  label        String
+  headingEn    String   @default("")
+  headingNp    String   @default("")
+  subheadingEn String   @default("")
+  subheadingNp String   @default("")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }

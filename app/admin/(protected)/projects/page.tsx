@@ -1,5 +1,4 @@
-import { cacheTag } from "next/cache";
-import { projectService } from "@/lib/services/services/project.service";
+import { search } from "@/lib/services/services/project.service";
 import { ProjectsClient } from "./client";
 
 export default async function ProjectsPage({
@@ -17,8 +16,6 @@ async function CachedPage({ q, status, category, page: pageStr }: {
   category: string;
   page: string;
 }) {
-  'use cache'
-  cacheTag("projects")
   const page = Math.max(1, Number(pageStr ?? 1));
   const limit = 12;
 
@@ -27,7 +24,7 @@ async function CachedPage({ q, status, category, page: pageStr }: {
   if (status) filters.status = status;
   if (category) filters.category = category;
 
-  const raw = await projectService.search(filters) as any;
+  const raw = await search(filters) as any;
   const { items: projects, total, categories } = raw;
 
   return (

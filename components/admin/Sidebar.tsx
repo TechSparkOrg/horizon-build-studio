@@ -20,8 +20,9 @@ import {
   Box,
   FileText,
   Search,
+  PenLine,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/shared/utils";
 
 const navItems = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
@@ -33,6 +34,7 @@ const navItems = [
   { href: "/admin/news", label: "News", icon: Newspaper },
   { href: "/admin/contacts", label: "Contacts", icon: Mail },
   { href: "/admin/sections", label: "Sections", icon: Layout },
+  { href: "/admin/text-content", label: "Text Content", icon: PenLine },
   { href: "/admin/banners", label: "Banners", icon: Image },
   { href: "/admin/pages", label: "Pages", icon: FileText },
   { href: "/admin/seo", label: "SEO", icon: Search },

@@ -1,6 +1,6 @@
 import type { ComponentType } from "react";
 
-import { STATUS_OPTIONS as STATUS_OPTIONS_SHARED, ADMIN_STATUS_STYLES, statusLabel as sharedStatusLabel } from "@/lib/status";
+import { STATUS_OPTIONS as STATUS_OPTIONS_SHARED, ADMIN_STATUS_STYLES, statusLabel as sharedStatusLabel } from "@/lib/shared/status";
 
 export type FieldType = "text" | "number" | "select" | "textarea" | "date" | "checkbox";
 

@@ -1,6 +1,5 @@
-import { cacheTag } from "next/cache";
-import { faqTypeService } from "@/lib/services/services/faq-type.service";
-import { categoryService } from "@/lib/services/services/category.service";
+import { getAll as getAllFaqTypes } from "@/lib/services/services/faq-type.service";
+import { getAll as getAllCategories } from "@/lib/services/services/category.service";
 import { saveFaq } from "../actions";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
@@ -9,12 +8,9 @@ const input = "w-full h-10 px-3 rounded-lg border border-light-gray text-sm focu
 const select = "w-full h-10 px-3 rounded-lg border border-light-gray text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary bg-white";
 
 export default async function NewFaqPage() {
-  'use cache'
-  cacheTag("faq-types")
-  cacheTag("categories")
   const [faqTypes, categories] = (await Promise.all([
-    faqTypeService.getAll(),
-    categoryService.getAll(),
+    getAllFaqTypes(),
+    getAllCategories(),
   ])) as [any[], any[]];
 
   return (

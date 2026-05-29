@@ -1,13 +1,13 @@
 "use server";
 
 import { revalidateTag } from "next/cache";
-import { bannerService } from "@/lib/services/services/banner.service";
+import { upsert, deleteBanner as serviceDeleteBanner } from "@/lib/services/services/banner.service";
 import { redirect } from "next/navigation";
 
 export async function saveBanner(formData: FormData) {
   const id = formData.get("id") as string;
-  const slug = (formData.get("slug") as string)?.trim();
-  if (!slug) throw new Error("Slug is required");
+  const title = (formData.get("title") as string) ?? "";
+  const slug = (formData.get("slug") as string)?.trim() || title.toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]+/g, "");
 
   const payload: Record<string, unknown> = {
     slug,
@@ -24,12 +24,12 @@ export async function saveBanner(formData: FormData) {
     payload.images = JSON.parse(imagesRaw);
   }
 
-  await bannerService.upsert(payload);
+  await upsert(payload);
   revalidateTag("banners", "max");
   redirect("/admin/banners?success=Banner+saved");
 }
 
 export async function deleteBanner(id: string) {
-  await bannerService.delete(id);
+  await serviceDeleteBanner(id);
   revalidateTag("banners", "max");
 }

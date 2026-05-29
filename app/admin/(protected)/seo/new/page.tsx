@@ -15,12 +15,12 @@ export default function NewSeoPage() {
       <form action={saveSeo} className="bg-white p-6 border border-gray-200 max-w-3xl space-y-5">
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm mb-1">Slug *</label>
-            <input name="slug" className={input} placeholder="e.g. about" required />
-          </div>
-          <div>
             <label className="block text-sm mb-1">Title</label>
             <input name="title" className={input} placeholder="Page heading" />
+          </div>
+          <div>
+            <label className="block text-sm mb-1">Slug</label>
+            <input name="slug" className={input} placeholder="Auto-generated from title" />
           </div>
         </div>
         <div>

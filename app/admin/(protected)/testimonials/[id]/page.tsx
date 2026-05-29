@@ -1,4 +1,4 @@
-import { testimonialService } from "@/lib/services/services/testimonial.service";
+import { getById } from "@/lib/services/services/testimonial.service";
 import { notFound } from "next/navigation";
 import { saveTestimonial } from "../actions";
 import { ArrowLeft } from "lucide-react";
@@ -8,7 +8,7 @@ const input = "w-full h-10 px-3 rounded-lg border border-light-gray text-sm focu
 
 export default async function EditTestimonialPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const item = await testimonialService.getById(id) as any;
+  const item = await getById(id) as any;
   if (!item || typeof item !== "object" || "error" in (item as any)) notFound();
 
   return (

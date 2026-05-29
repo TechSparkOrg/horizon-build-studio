@@ -1,14 +1,11 @@
-import { cacheTag } from "next/cache";
-import { testimonialService } from "@/lib/services/services/testimonial.service";
+import { getAll } from "@/lib/services/services/testimonial.service";
 import Link from "next/link";
 import { Plus, Pencil } from "lucide-react";
 import { deleteTestimonial } from "./actions";
 import { ConfirmDelete } from "@/components/admin/ConfirmDelete";
 
 export default async function TestimonialsPage() {
-  'use cache'
-  cacheTag("testimonials")
-  const items = await testimonialService.getAll() as any[];
+  const items = await getAll() as any[];
 
   return (
     <div>

@@ -1,7 +1,7 @@
 "use client";
 
-import { useText, useLang } from "@/lib/lang-client";
-import type { SectionContentMap } from "@/lib/section-content";
+import { useText, useLang } from "@/lib/i18n/lang-client";
+import type { SectionContentMap } from "@/lib/content/section-content";
 
 export function ProcessSection({ content }: { content?: SectionContentMap }) {
   const t = useText();

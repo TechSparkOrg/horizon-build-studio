@@ -1,7 +1,6 @@
-import { cacheTag } from "next/cache";
-import { faqService } from "@/lib/services/services/faq.service";
-import { faqTypeService } from "@/lib/services/services/faq-type.service";
-import { categoryService } from "@/lib/services/services/category.service";
+import { getById as getFaqById } from "@/lib/services/services/faq.service";
+import { getAll as getAllFaqTypes } from "@/lib/services/services/faq-type.service";
+import { getAll as getAllCategories } from "@/lib/services/services/category.service";
 import { notFound } from "next/navigation";
 import { saveFaq } from "../actions";
 import { ArrowLeft } from "lucide-react";
@@ -16,13 +15,10 @@ export default async function EditFaqPage({ params }: { params: Promise<{ id: st
 }
 
 async function CachedPage({ id }: { id: string }) {
-  'use cache'
-  cacheTag("faq-types")
-  cacheTag("categories")
   const [item, faqTypes, categories] = (await Promise.all([
-    faqService.getById(id),
-    faqTypeService.getAll(),
-    categoryService.getAll(),
+    getFaqById(id),
+    getAllFaqTypes(),
+    getAllCategories(),
   ])) as [any, any[], any[]];
   if (!item || typeof item !== "object" || "error" in (item as any)) notFound();
 

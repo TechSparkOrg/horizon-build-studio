@@ -1,6 +1,5 @@
-import { cacheTag } from "next/cache";
-import { teamService } from "@/lib/services/services/team.service";
-import { TeamMemberSchema } from "@/lib/schemas";
+import { getAll } from "@/lib/services/services/team.service";
+import { TeamMemberSchema } from "@/lib/schemas/misc";
 import Link from "next/link";
 import { Plus, Pencil } from "lucide-react";
 import { deleteTeamMember } from "./actions";
@@ -8,9 +7,7 @@ import { ConfirmDelete } from "@/components/admin/ConfirmDelete";
 import { z } from "zod";
 
 export default async function TeamPage() {
-  'use cache'
-  cacheTag("team")
-  const raw = await teamService.getAll();
+  const raw = await getAll();
   const members = z.array(TeamMemberSchema).parse(raw);
 
   return (

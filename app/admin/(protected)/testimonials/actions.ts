@@ -1,11 +1,11 @@
 "use server";
 
 import { revalidateTag } from "next/cache";
-import { testimonialService } from "@/lib/services/services/testimonial.service";
+import { deleteTestimonial as serviceDeleteTestimonial, updateTestimonial, createTestimonial } from "@/lib/services/services/testimonial.service";
 import { redirect } from "next/navigation";
 
 export async function deleteTestimonial(id: string) {
-  await testimonialService.delete(id);
+  await serviceDeleteTestimonial(id);
   revalidateTag("testimonials", "max");
 }
 
@@ -23,9 +23,9 @@ export async function saveTestimonial(formData: FormData) {
   const id = formData.get("id") as string;
 
   if (id) {
-    await testimonialService.update(id, data);
+    await updateTestimonial(id, data);
   } else {
-    await testimonialService.create(data);
+    await createTestimonial(data);
   }
 
   revalidateTag("testimonials", "max");

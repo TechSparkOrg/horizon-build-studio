@@ -1,18 +1,13 @@
 import { Suspense } from "react";
 import { cookies } from "next/headers";
-import { cacheLife, cacheTag } from "next/cache";
-import { CACHE_TAGS, CACHE_TTL } from "@/lib/cache-config";
-import { getText } from "@/lib/lang";
-import { newsService } from "@/lib/services/services/news.service";
+import { getText } from "@/lib/i18n/lang";
+import { getAll } from "@/lib/services/services/news.service";
 import Link from "next/link";
 import Image from "next/image";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 
 async function getAllNews() {
-  "use cache";
-  cacheLife(CACHE_TTL[CACHE_TAGS.NEWS]);
-  cacheTag(CACHE_TAGS.NEWS);
-  return newsService.getAll().catch(() => []);
+  return getAll().catch(() => []);
 }
 
 export async function generateMetadata() {

@@ -1,39 +1,42 @@
+"use client";
+
 import Link from "next/link";
 import { Facebook, Instagram, Linkedin, Youtube } from "lucide-react";
-
-interface FooterText {
-  description: string; quickLinks: string; services: string; contact: string;
-  home: string; about: string; portfolio: string;
-  houseConstruction: string; interiorDesign: string; materialConsultation: string; siteVisit: string;
-  privacy: string; terms: string; copyright: string;
-}
+import { useText } from "@/lib/i18n/lang-client";
 
 export function FooterInner({
-  footer,
-  newsLabel,
-  hours,
+  settings,
 }: {
-  footer: FooterText;
-  newsLabel: string;
-  hours: string;
+  settings?: Record<string, string>;
 }) {
+  const t = useText();
   const year = new Date().getFullYear();
+  const phone = settings?.contact_phone ?? "+977 1 441 1222";
+  const email = settings?.contact_email ?? "hello@horizonnepal.com.np";
+  const address = settings?.contact_address ?? "Tinkune, Kathmandu";
 
   const quickLinks = [
-    { label: footer.home, href: "/#home" },
-    { label: footer.about, href: "/about" },
-    { label: footer.services, href: "/#services" },
-    { label: footer.portfolio, href: "/projects" },
-    { label: newsLabel, href: "/news" },
-    { label: footer.contact, href: "/contact" },
+    { label: t.footer.home, href: "/#home" },
+    { label: t.footer.about, href: "/about" },
+    { label: t.footer.services, href: "/#services" },
+    { label: t.footer.portfolio, href: "/projects" },
+    { label: t.nav.news, href: "/news" },
+    { label: t.footer.contact, href: "/contact" },
   ];
 
   const services = [
-    { label: footer.houseConstruction, href: "/#services" },
-    { label: footer.interiorDesign, href: "/#services" },
-    { label: footer.materialConsultation, href: "/#services" },
-    { label: footer.siteVisit, href: "/#services" },
+    { label: t.footer.houseConstruction, href: "/#services" },
+    { label: t.footer.interiorDesign, href: "/#services" },
+    { label: t.footer.materialConsultation, href: "/#services" },
+    { label: t.footer.siteVisit, href: "/#services" },
   ];
+
+  const socialLinks = [
+    { Icon: Facebook, href: settings?.social_facebook ?? "https://www.facebook.com/horizonnepal", label: "Facebook" },
+    { Icon: Instagram, href: settings?.social_instagram ?? "https://www.instagram.com/horizonnepal", label: "Instagram" },
+    { Icon: Linkedin, href: settings?.social_linkedin ?? "https://www.linkedin.com/company/horizonnepal", label: "LinkedIn" },
+    { Icon: Youtube, href: settings?.social_youtube ?? "https://www.youtube.com/@horizonnepal", label: "YouTube" },
+  ].filter((s) => s.href);
 
   return (
     <footer className="bg-brand-dark text-white/70">
@@ -50,14 +53,9 @@ export function FooterInner({
               <span className="text-white ml-1.5 font-light tracking-wide">Nepal</span>
             </span>
           </div>
-          <p className="text-sm leading-relaxed mb-6">{footer.description}</p>
+          <p className="text-sm leading-relaxed mb-6">{t.footer.description}</p>
           <div className="flex gap-3">
-            {[
-              { Icon: Facebook, href: "https://www.facebook.com/horizonnepal", label: "Facebook" },
-              { Icon: Instagram, href: "https://www.instagram.com/horizonnepal", label: "Instagram" },
-              { Icon: Linkedin, href: "https://www.linkedin.com/company/horizonnepal", label: "LinkedIn" },
-              { Icon: Youtube, href: "https://www.youtube.com/@horizonnepal", label: "YouTube" },
-            ].map(({ Icon, href, label }) => (
+            {socialLinks.map(({ Icon, href, label }) => (
               <a
                 key={label}
                 href={href}
@@ -73,7 +71,7 @@ export function FooterInner({
         </div>
 
         <div>
-          <h3 className="font-body font-semibold text-white text-lg mb-4">{footer.quickLinks}</h3>
+          <h3 className="font-body font-semibold text-white text-lg mb-4">{t.footer.quickLinks}</h3>
           <ul className="space-y-2 text-sm">
             {quickLinks.map((l) => (
               <li key={l.label}>
@@ -84,7 +82,7 @@ export function FooterInner({
         </div>
 
         <div>
-          <h3 className="font-body font-semibold text-white text-lg mb-4">{footer.services}</h3>
+          <h3 className="font-body font-semibold text-white text-lg mb-4">{t.footer.services}</h3>
           <ul className="space-y-2 text-sm">
             {services.map((l) => (
               <li key={l.label}>
@@ -95,28 +93,26 @@ export function FooterInner({
         </div>
 
         <div>
-          <h3 className="font-body font-semibold text-white text-lg mb-4">{footer.contact}</h3>
+          <h3 className="font-body font-semibold text-white text-lg mb-4">{t.footer.contact}</h3>
           <address className="not-italic text-sm space-y-2 leading-relaxed">
+            <p>{address}</p>
             <p>
-              Tinkune, Kathmandu<br />Bagmati, Nepal 44600
+              <a href={`tel:${phone.replace(/\s/g, "")}`} className="hover:text-brand-primary">{phone}</a>
             </p>
             <p>
-              <a href="tel:+97714411222" className="hover:text-brand-primary">+977 1 441 1222</a>
+              <a href={`mailto:${email}`} className="hover:text-brand-primary">{email}</a>
             </p>
-            <p>
-              <a href="mailto:hello@horizonnepal.com.np" className="hover:text-brand-primary">hello@horizonnepal.com.np</a>
-            </p>
-            <p className="text-white/50">{hours}</p>
+            <p className="text-white/50">{t.location.hours}</p>
           </address>
         </div>
       </div>
 
       <div className="border-t border-white/10">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-white/50">
-          <p>&copy; {year} Horizon Nepal. {footer.copyright}</p>
+          <p>&copy; {year} Horizon Nepal. {t.footer.copyright}</p>
           <div className="flex gap-6">
-            <Link href="/privacy" prefetch={false} className="hover:text-brand-primary">{footer.privacy}</Link>
-            <Link href="/terms" prefetch={false} className="hover:text-brand-primary">{footer.terms}</Link>
+            <Link href="/privacy" prefetch={false} className="hover:text-brand-primary">{t.footer.privacy}</Link>
+            <Link href="/terms" prefetch={false} className="hover:text-brand-primary">{t.footer.terms}</Link>
           </div>
         </div>
       </div>

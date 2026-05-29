@@ -1,14 +1,11 @@
-import { cacheTag } from "next/cache";
-import { newsService } from "@/lib/services/services/news.service";
+import { getAll } from "@/lib/services/services/news.service";
 import Link from "next/link";
 import { Plus, Pencil } from "lucide-react";
 import { deleteNews } from "./actions";
 import { ConfirmDelete } from "@/components/admin/ConfirmDelete";
 
 export default async function NewsPage() {
-  'use cache'
-  cacheTag("news")
-  const items = await newsService.getAll() as any[];
+  const items = await getAll() as any[];
 
   return (
     <div>

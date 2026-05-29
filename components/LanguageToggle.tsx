@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useLang, useSetLang } from "@/lib/lang-client";
+import { useLang, useSetLang } from "@/lib/i18n/lang-client";
 
 export function LanguageToggle() {
   const lang = useLang();

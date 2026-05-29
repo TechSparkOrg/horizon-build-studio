@@ -1,16 +1,15 @@
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import dynamic from "next/dynamic";
-import { cacheLife, cacheTag } from "next/cache";
-import { CACHE_TAGS, CACHE_TTL } from "@/lib/cache-config";
-import { newsService } from "@/lib/services/services/news.service";
-import { NewsArticleSchema, type NewsDisplay } from "@/lib/schemas";
+import { getAll, getBySlug } from "@/lib/services/services/news.service";
+import { NewsArticleSchema } from "@/lib/schemas/news";
+import type { NewsDisplay } from "@/lib/services/types/news.types";
 
 const NewsDetail = dynamic(() => import("@/components/sections/NewsDetail").then(m => m.NewsDetail));
 
 export async function generateStaticParams() {
   try {
-    const all = await newsService.getAll() as any[];
+    const all = await getAll() as any[];
     if (all.length > 0) return all.map((n: any) => ({ slug: n.slug }));
   } catch {
     /* empty */
@@ -20,7 +19,7 @@ export async function generateStaticParams() {
 
 async function fetchArticle(slug: string): Promise<NewsDisplay | null> {
   try {
-    const raw = await newsService.getBySlug(slug);
+    const raw = await getBySlug(slug);
     const parsed = NewsArticleSchema.safeParse(raw);
     if (!parsed.success) return null;
     const a = parsed.data;
@@ -41,9 +40,6 @@ async function fetchArticle(slug: string): Promise<NewsDisplay | null> {
 }
 
 async function getArticle(slug: string): Promise<NewsDisplay | null> {
-  "use cache";
-  cacheLife(CACHE_TTL[CACHE_TAGS.NEWS]);
-  cacheTag(CACHE_TAGS.NEWS);
   return fetchArticle(slug);
 }
 

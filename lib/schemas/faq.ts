@@ -16,12 +16,3 @@ export const FAQSchema = z.object({
 
 export type FAQ = z.infer<typeof FAQSchema>;
 export type FAQType = z.infer<typeof FAQTypeSchema>;
-
-export type FAQSectionItem = {
-  q: string;
-  a: string;
-  type?: string;
-  category?: string;
-  faqTypeName?: string;
-  categoryName?: string;
-};

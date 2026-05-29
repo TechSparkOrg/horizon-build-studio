@@ -12,8 +12,6 @@ export const TestimonialSchema = z.object({
   order: z.number(),
 });
 
-export type Testimonial = z.infer<typeof TestimonialSchema>;
-
 export const TeamMemberSchema = z.object({
   id: z.string(),
   name: z.string(),
@@ -24,8 +22,6 @@ export const TeamMemberSchema = z.object({
   email: z.string().nullable(),
   order: z.number(),
 });
-
-export type TeamMember = z.infer<typeof TeamMemberSchema>;
 
 export const ContactSchema = z.object({
   id: z.string(),
@@ -39,15 +35,11 @@ export const ContactSchema = z.object({
   createdAt: z.string(),
 });
 
-export type Contact = z.infer<typeof ContactSchema>;
-
 export const SettingSchema = z.object({
   id: z.string(),
   key: z.string(),
   value: z.string(),
 });
-
-export type Setting = z.infer<typeof SettingSchema>;
 
 export const DashboardCountsSchema = z.object({
   projects: z.number(),
@@ -58,5 +50,3 @@ export const DashboardCountsSchema = z.object({
   contacts: z.number(),
   categories: z.number(),
 });
-
-export type DashboardCounts = z.infer<typeof DashboardCountsSchema>;

@@ -5,11 +5,7 @@ import { Menu, X, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LanguageToggle } from "@/components/LanguageToggle";
-
-interface NavText {
-  home: string; about: string; howWeWork: string; ourWorks: string;
-  news: string; faq: string; contact: string; getQuote: string;
-}
+import { useText } from "@/lib/i18n/lang-client";
 
 const NAV_ITEMS = [
   { href: "/#home", key: "home" },
@@ -21,10 +17,11 @@ const NAV_ITEMS = [
   { href: "/contact", key: "contact" },
 ] as const;
 
-export function NavbarInner({ nav }: { nav: NavText }) {
+export function NavbarInner() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
+  const t = useText();
 
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
@@ -43,8 +40,8 @@ export function NavbarInner({ nav }: { nav: NavText }) {
   }, [pathname]);
 
   const links = useMemo(
-    () => NAV_ITEMS.map((item) => ({ href: item.href, label: nav[item.key] })),
-    [nav],
+    () => NAV_ITEMS.map((item) => ({ href: item.href, label: t.nav[item.key] })),
+    [t],
   );
 
   const isActive = (href: string) => {
@@ -121,7 +118,7 @@ export function NavbarInner({ nav }: { nav: NavText }) {
               prefetch={false}
               className="hidden sm:inline-flex items-center justify-center gap-1.5 px-5 h-9 rounded-full bg-brand-primary text-white text-sm font-bold tracking-wide shadow-md shadow-brand-primary/25 hover:shadow-lg hover:shadow-brand-primary/40 hover:-translate-y-px active:translate-y-0 active:scale-[0.97] transition-all duration-200"
             >
-              {nav.getQuote}
+              {t.nav.getQuote}
               <ChevronRight className="size-3.5 opacity-80" />
             </Link>
             <button
@@ -214,7 +211,7 @@ export function NavbarInner({ nav }: { nav: NavText }) {
             prefetch={false}
             className="flex items-center justify-center gap-2 w-full h-12 rounded-full bg-brand-primary text-white text-base font-bold tracking-wide shadow-lg shadow-brand-primary/25 hover:shadow-brand-primary/40 active:scale-[0.98] transition-all duration-200"
           >
-            {nav.getQuote}
+            {t.nav.getQuote}
             <ChevronRight className="size-4 opacity-80" />
           </Link>
         </div>

@@ -5,7 +5,7 @@ import { ArrowRight, Shield, Award, Building2, Users } from "lucide-react";
 import Image from "next/image";
 import { AnimateOnView } from "@/components/AnimateOnView";
 import { SectionLabel } from "@/components/ui/SectionLabel";
-import { useText } from "@/lib/lang-client";
+import { useText } from "@/lib/i18n/lang-client";
 
 export function AboutHero() {
   const t = useText();

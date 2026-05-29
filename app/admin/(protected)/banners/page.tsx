@@ -1,14 +1,11 @@
-import { cacheTag } from "next/cache";
-import { bannerService } from "@/lib/services/services/banner.service";
+import { getAll } from "@/lib/services/services/banner.service";
 import Link from "next/link";
 import { Plus, Pencil } from "lucide-react";
 import { ConfirmDelete } from "@/components/admin/ConfirmDelete";
 import { deleteBanner } from "./actions";
 
 export default async function BannersPage() {
-  'use cache'
-  cacheTag("banners")
-  const banners = await bannerService.getAll();
+  const banners = await getAll();
 
   return (
     <div>

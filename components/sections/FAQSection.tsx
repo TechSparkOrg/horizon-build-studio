@@ -6,11 +6,18 @@ import Link from "next/link";
 import { AnimateOnView } from "@/components/AnimateOnView";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { ModelViewer3D } from "@/components/ui/DynamicModelViewer3D";
-import { useText, useLang } from "@/lib/lang-client";
-import type { SectionContentMap } from "@/lib/section-content";
-import type { FAQSectionItem } from "@/lib/schemas";
+import { useText, useLang } from "@/lib/i18n/lang-client";
+import type { SectionContentMap } from "@/lib/content/section-content";
+import type { FAQSectionItem } from "@/lib/services/types/faq.types";
 
-export function FAQSection({ faqs = [], content }: { faqs: FAQSectionItem[]; content?: SectionContentMap }) {
+interface ModelEntry {
+  url: string;
+  filename: string;
+  type: string;
+  label: string;
+}
+
+export function FAQSection({ faqs = [], content, models3d = [] }: { faqs: FAQSectionItem[]; content?: SectionContentMap; models3d?: ModelEntry[] }) {
   const [open, setOpen] = useState<number | null>(0);
   const t = useText();
   const lang = useLang();
@@ -50,14 +57,19 @@ export function FAQSection({ faqs = [], content }: { faqs: FAQSectionItem[]; con
               {val("viewAll", t.faq.viewAll)} <ArrowRight className="size-3" />
             </Link>
           </div>
-          <div className="mt-4 rounded-lg overflow-hidden h-40">
-            <ModelViewer3D
-              src={media("stopModelPath", "/glb/stop.glb")}
-              className="w-full h-full bg-transparent"
-              hideBadge
-              disableControls
-            />
-          </div>
+          {(() => {
+            const modelUrl = media("stopModelPath", "") || models3d[3]?.url || models3d[0]?.url;
+            return modelUrl ? (
+              <div className="mt-4 rounded-lg overflow-hidden h-40">
+                <ModelViewer3D
+                  src={modelUrl}
+                  className="w-full h-full bg-transparent"
+                  hideBadge
+                  disableControls
+                />
+              </div>
+            ) : null;
+          })()}
         </AnimateOnView>
 
         <div className="space-y-3 animate-stagger">

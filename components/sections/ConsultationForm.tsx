@@ -7,7 +7,7 @@ import { z } from "zod";
 import { toast } from "sonner";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { ModelViewer3D } from "@/components/ui/DynamicModelViewer3D";
-import { useText } from "@/lib/lang-client";
+import { useText } from "@/lib/i18n/lang-client";
 import { submitContact } from "@/lib/services/actions/contact.actions";
 
 const formSchema = z.object({
@@ -25,7 +25,7 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-export function ConsultationForm() {
+export function ConsultationForm({ settings }: { settings?: Record<string, string> }) {
   const {
     register,
     handleSubmit,
@@ -44,6 +44,9 @@ export function ConsultationForm() {
   });
 
   const t = useText();
+  const phone = settings?.contact_phone ?? "+977 1 441 1222";
+  const email = settings?.contact_email ?? "hello@horizonnepal.com.np";
+  const address = settings?.contact_address ?? "Tinkune, Kathmandu";
 
   const errMap: Record<string, string> = {
     name: t.consultation.errors.name,
@@ -107,24 +110,24 @@ export function ConsultationForm() {
             <li className="flex items-center gap-3">
               <Phone className="size-5 text-brand-primary" />
               <a
-                href="tel:+97714411222"
+                href={`tel:${phone.replace(/\s/g, "")}`}
                 className="hover:text-brand-primary"
               >
-                +977 1 441 1222
+                {phone}
               </a>
             </li>
             <li className="flex items-center gap-3">
               <Mail className="size-5 text-brand-primary" />
               <a
-                href="mailto:hello@horizonnepal.com.np"
+                href={`mailto:${email}`}
                 className="hover:text-brand-primary"
               >
-                hello@horizonnepal.com.np
+                {email}
               </a>
             </li>
             <li className="flex items-center gap-3">
               <MapPin className="size-5 text-brand-primary" />
-              <span>Tinkune, Kathmandu</span>
+              <span>{address}</span>
             </li>
           </ul>
         </div>

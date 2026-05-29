@@ -1,7 +1,7 @@
 "use client";
 
 import { ArrowRight } from "lucide-react";
-import { useText } from "@/lib/lang-client";
+import { useText } from "@/lib/i18n/lang-client";
 
 export function LocationSection() {
   const t = useText();

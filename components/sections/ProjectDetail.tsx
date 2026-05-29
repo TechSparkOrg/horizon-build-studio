@@ -8,13 +8,13 @@ import Link from "next/link";
 import { ModelViewer3D } from "@/components/ui/DynamicModelViewer3D";
 import { VideoEmbed } from "@/components/ui/VideoEmbed";
 import { MediaCarousel } from "@/components/ui/MediaCarousel";
-import { DETAIL_STATUS_STYLES, STATUS_LABELS } from "@/lib/status";
-import { useText } from "@/lib/lang-client";
+import { DETAIL_STATUS_STYLES, STATUS_LABELS } from "@/lib/shared/status";
+import { useText } from "@/lib/i18n/lang-client";
 import type {
   ProjectDisplay, ProjectMedia, ProjectVideo, ProjectModel,
   ProjectPhase, ProjectAttribute,
   FAQ, FAQType, RelatedProject, AdjacentProject,
-} from "@/lib/schemas";
+} from "@/lib/services/types/project.types";
 
 // ── URL guard ──
 

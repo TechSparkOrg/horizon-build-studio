@@ -1,13 +1,13 @@
 "use server";
 
 import { revalidateTag } from "next/cache";
-import { modelService } from "@/lib/services/services/model.service";
+import { upsert, deleteModel as serviceDeleteModel } from "@/lib/services/services/model.service";
 import { redirect } from "next/navigation";
 
 export async function saveModel(formData: FormData) {
   const id = formData.get("id") as string;
-  const slug = (formData.get("slug") as string)?.trim();
-  if (!slug) throw new Error("Slug is required");
+  const title = (formData.get("title") as string) ?? "";
+  const slug = (formData.get("slug") as string)?.trim() || title.toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]+/g, "");
 
   const payload: Record<string, unknown> = {
     slug,
@@ -24,12 +24,12 @@ export async function saveModel(formData: FormData) {
     payload.models3d = JSON.parse(modelsRaw);
   }
 
-  await modelService.upsert(payload);
+  await upsert(payload);
   revalidateTag("models", "max");
   redirect("/admin/models?success=Model+group+saved");
 }
 
 export async function deleteModel(id: string) {
-  await modelService.delete(id);
+  await serviceDeleteModel(id);
   revalidateTag("models", "max");
 }

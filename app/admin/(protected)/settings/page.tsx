@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { updateSetting } from "./actions";
 import { ImageField } from "@/components/admin/ImageField";
 import { getSettings } from "@/lib/services/actions/reference.actions";
-import { Globe, Image, Phone, Share2, Search } from "lucide-react";
+import { Globe, Image, Phone, Share2, Search, Code } from "lucide-react";
 
 const input = "w-full h-10 px-3 rounded-lg border border-light-gray text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary";
 const textarea = "w-full px-3 py-2 rounded-lg border border-light-gray text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary resize-y";
@@ -18,6 +18,7 @@ const TABS = [
   { id: "contact", label: "Contact", icon: Phone },
   { id: "social", label: "Social", icon: Share2 },
   { id: "seo", label: "SEO", icon: Search },
+  { id: "scripts", label: "Scripts", icon: Code },
 ] as const;
 
 function CharCount({ current, max }: { current: number; max: number }) {
@@ -134,6 +135,14 @@ export default function SettingsPage() {
                 </Field>
                 <Field label="YouTube URL" description="Full URL to your YouTube channel">
                   <input name="social_youtube" defaultValue={map["social_youtube"] ?? "https://www.youtube.com/@horizonnepal"} className={input} />
+                </Field>
+              </div>
+            )}
+
+            {tab === "scripts" && (
+              <div className="space-y-4">
+                <Field label="Custom Head Scripts" description="Google Analytics, Facebook Pixel, or any custom &lt;script&gt; / &lt;meta&gt; tags injected into the &lt;head&gt; of every page.">
+                  <textarea name="custom_head_scripts" defaultValue={map["custom_head_scripts"] ?? ""} rows={8} className={textarea} placeholder={`<!-- Google tag (gtag.js) -->\n<script async src="..."></script>`} />
                 </Field>
               </div>
             )}

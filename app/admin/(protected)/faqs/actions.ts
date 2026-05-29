@@ -1,11 +1,11 @@
 "use server";
 
 import { revalidateTag } from "next/cache";
-import { faqService } from "@/lib/services/services/faq.service";
+import { deleteFaq as serviceDeleteFaq, updateFaq, createFaq } from "@/lib/services/services/faq.service";
 import { redirect } from "next/navigation";
 
 export async function deleteFaq(id: string) {
-  await faqService.delete(id);
+  await serviceDeleteFaq(id);
   revalidateTag("faqs", "max");
 }
 
@@ -20,9 +20,9 @@ export async function saveFaq(formData: FormData) {
   const id = formData.get("id") as string;
 
   if (id) {
-    await faqService.update(id, data);
+    await updateFaq(id, data);
   } else {
-    await faqService.create(data);
+    await createFaq(data);
   }
 
   revalidateTag("faqs", "max");

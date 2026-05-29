@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidateTag } from "next/cache";
-import { faqTypeService } from "@/lib/services/services/faq-type.service";
+import { updateFaqType, createFaqType } from "@/lib/services/services/faq-type.service";
 import { redirect } from "next/navigation";
 
 export async function saveFaqType(formData: FormData) {
@@ -10,9 +10,9 @@ export async function saveFaqType(formData: FormData) {
   const id = formData.get("id") as string;
 
   if (id) {
-    await faqTypeService.update(id, { name, order });
+    await updateFaqType(id, { name, order });
   } else {
-    await faqTypeService.create({ name, order });
+    await createFaqType({ name, order });
   }
 
   revalidateTag("faq-types", "max");

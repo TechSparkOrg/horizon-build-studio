@@ -6,11 +6,18 @@ import Link from "next/link";
 import { AnimateOnView } from "@/components/AnimateOnView";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { ModelViewer3D } from "@/components/ui/DynamicModelViewer3D";
-import { useText, useLang } from "@/lib/lang-client";
-import type { SectionContentMap } from "@/lib/section-content";
+import { useText, useLang } from "@/lib/i18n/lang-client";
+import type { SectionContentMap } from "@/lib/content/section-content";
 interface NewsItem { title: string; excerpt: string; cat: string; date: string; img: string; slug: string; }
 
-export function NewsSection({ news = [], content }: { news: NewsItem[]; content?: SectionContentMap }) {
+interface ModelEntry {
+  url: string;
+  filename: string;
+  type: string;
+  label: string;
+}
+
+export function NewsSection({ news = [], content, models3d = [] }: { news: NewsItem[]; content?: SectionContentMap; models3d?: ModelEntry[] }) {
   const t = useText();
   const lang = useLang();
   function val(key: string, fb: string) {
@@ -67,14 +74,19 @@ export function NewsSection({ news = [], content }: { news: NewsItem[]; content?
             </article>
           ))}
 
-          <div className="rounded-lg overflow-hidden bg-transparent min-h-[360px]">
-            <ModelViewer3D
-              src={media("bridgeModelPath", "/glb/brigfe.glb")}
-              className="w-full h-full rounded-lg bg-transparent"
-              hideBadge
-              loading="lazy"
-            />
-          </div>
+          {(() => {
+            const modelUrl = media("bridgeModelPath", "") || models3d[2]?.url || models3d[0]?.url;
+            return modelUrl ? (
+              <div className="rounded-lg overflow-hidden bg-transparent min-h-[360px]">
+                <ModelViewer3D
+                  src={modelUrl}
+                  className="w-full h-full rounded-lg bg-transparent"
+                  hideBadge
+                  loading="lazy"
+                />
+              </div>
+            ) : null;
+          })()}
         </div>
 
         <div className="mt-12 text-center">

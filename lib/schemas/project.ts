@@ -20,8 +20,8 @@ export const ProjectSchema = z.object({
   ownerName: z.string(),
   ownerProfession: z.string(),
   ownerEarning: z.string(),
-  startDate: z.string().nullable(),
-  endDate: z.string().nullable(),
+  startDate: z.date().nullable(),
+  endDate: z.date().nullable(),
   category: z.object({ id: z.string(), name: z.string() }).nullable(),
   categoryId: z.string().nullable(),
   media: z.array(z.object({
@@ -39,7 +39,7 @@ export const ProjectSchema = z.object({
   })),
   phases: z.array(z.object({
     id: z.string(), title: z.string(), description: z.string(),
-    completion: z.number(), date: z.string().nullable(), order: z.number(),
+    completion: z.number(), date: z.date().nullable(), order: z.number(),
     faqId: z.string().nullable(), youtubeUrl: z.string().optional(),
     images: z.array(z.string()).optional(),
     medias: z.array(z.object({
@@ -64,8 +64,6 @@ export type ProjectModel = Project["models3d"][number];
 export type ProjectPhase = Project["phases"][number];
 export type ProjectAttribute = Project["attributes"][number];
 
-export type HomeProject = Pick<Project, "title" | "slug" | "location" | "img" | "alt" | "status" | "completion" | "budget"> & { category: string; shortDescription: string };
-
 export const ProjectPageSchema = z.object({
   project: ProjectSchema,
   faqs: z.array(FAQSchema),
@@ -82,18 +80,4 @@ export const ProjectPageSchema = z.object({
 
 export type ProjectPage = z.infer<typeof ProjectPageSchema>;
 
-type ProjectPhaseDisplay = Omit<ProjectPhase, "date"> & { date: Date | null };
-export type ProjectDisplay = Omit<Project, "id" | "featured" | "published" | "order" | "shortDescription" | "category" | "startDate" | "endDate" | "categoryId" | "phases" | "projectFaqs"> & {
-  shortDescription: string;
-  category: string | null;
-  startDate: Date | null;
-  endDate: Date | null;
-  phases?: ProjectPhaseDisplay[];
-  attributes?: ProjectAttribute[];
-  media?: ProjectMedia[];
-  videos?: ProjectVideo[];
-  models3d?: ProjectModel[];
-};
 
-export type RelatedProject = ProjectPage["related"][number];
-export type AdjacentProject = { title: string; slug: string };

@@ -1,5 +1,9 @@
-import { requireAuthOrRedirect } from "@/lib/auth";
+import { requireAuthOrRedirect } from "@/lib/auth/guards";
 import { Sidebar } from "@/components/admin/Sidebar";
+import { Toaster } from "sonner";
+import { ToastOnLoad } from "@/components/admin/ToastOnLoad";
+
+export const dynamic = "force-dynamic";
 
 export default async function ProtectedLayout({
   children,
@@ -16,6 +20,8 @@ export default async function ProtectedLayout({
           {children}
         </div>
       </main>
+      <Toaster richColors position="top-right" />
+      <ToastOnLoad />
     </div>
   );
 }

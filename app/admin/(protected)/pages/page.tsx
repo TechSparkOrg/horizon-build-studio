@@ -1,14 +1,11 @@
-import { cacheTag } from "next/cache";
-import { pageService } from "@/lib/services/services/page.service";
+import { getAll } from "@/lib/services/services/page.service";
 import Link from "next/link";
 import { Plus, Pencil } from "lucide-react";
 import { ConfirmDelete } from "@/components/admin/ConfirmDelete";
 import { deletePage } from "./actions";
 
 export default async function StaticPagesPage() {
-  'use cache'
-  cacheTag("pages")
-  const pages = await pageService.getAll();
+  const pages = await getAll();
 
   return (
     <div>

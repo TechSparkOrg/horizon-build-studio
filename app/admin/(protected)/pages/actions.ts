@@ -1,13 +1,13 @@
 "use server";
 
 import { revalidateTag } from "next/cache";
-import { pageService } from "@/lib/services/services/page.service";
+import { upsert, deletePage as serviceDeletePage } from "@/lib/services/services/page.service";
 import { redirect } from "next/navigation";
 
 export async function savePage(formData: FormData) {
   const id = formData.get("id") as string;
-  const slug = (formData.get("slug") as string)?.trim();
-  if (!slug) throw new Error("Slug is required");
+  const title = (formData.get("title") as string) ?? "";
+  const slug = (formData.get("slug") as string)?.trim() || title.toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]+/g, "");
 
   const payload: Record<string, string> = {
     slug,
@@ -21,12 +21,12 @@ export async function savePage(formData: FormData) {
   };
   if (id) payload.id = id;
 
-  await pageService.upsert(payload);
+  await upsert(payload);
   revalidateTag("pages", "max");
   redirect("/admin/pages?success=Page+saved");
 }
 
 export async function deletePage(id: string) {
-  await pageService.delete(id);
+  await serviceDeletePage(id);
   revalidateTag("pages", "max");
 }

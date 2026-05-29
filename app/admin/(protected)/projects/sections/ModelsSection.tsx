@@ -3,8 +3,7 @@
 import { Box } from "lucide-react";
 import { toast } from "sonner";
 import type { ModelItem } from "../types";
-import { uid } from "@/lib/id";
-import { uploadFileAction } from "@/lib/services/actions/upload.actions";
+import { uid } from "@/lib/shared/id";
 
 export function ModelsSection({
   items,
@@ -35,7 +34,9 @@ export function ModelsSection({
                 const fd = new FormData();
                 fd.set("file", file);
                 fd.set("subdir", "models");
-                const { url } = await uploadFileAction(fd);
+                const res = await fetch("/api/upload", { method: "POST", body: fd });
+                if (!res.ok) throw new Error("Upload failed");
+                const { url } = await res.json();
                 added.push({
                   id: uid(),
                   filename: file.name,

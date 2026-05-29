@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { ChevronDown, ChevronRight, Plus, Save, Upload, Trash2, ExternalLink, Loader2 } from "lucide-react";
-import { SECTIONS } from "@/lib/section-field-defs";
-import type { FieldDef } from "@/lib/section-field-defs";
-import type { SectionDef } from "@/lib/section-def";
+import { SECTIONS } from "./section-field-defs";
+import type { FieldDef } from "./section-field-defs";
+import type { SectionDef } from "@/lib/services/types/section.types";
 import { toast } from "sonner";
 import {
   getAllSectionDefs,

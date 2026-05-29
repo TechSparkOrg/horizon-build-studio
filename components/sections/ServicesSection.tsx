@@ -5,8 +5,8 @@ import { ArrowRight, Home, Compass, PenTool, Users } from "lucide-react";
 import { AnimateOnView } from "@/components/AnimateOnView";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { ModelViewer3D } from "@/components/ui/DynamicModelViewer3D";
-import { useText, useLang } from "@/lib/lang-client";
-import type { SectionContentMap } from "@/lib/section-content";
+import { useText, useLang } from "@/lib/i18n/lang-client";
+import type { SectionContentMap } from "@/lib/content/section-content";
 
 const ICON_MAP = { Home, Compass, PenTool, Users } as const;
 
@@ -40,7 +40,14 @@ function ServiceCard({
   );
 }
 
-export function ServicesSection({ content }: { content?: SectionContentMap }) {
+interface ModelEntry {
+  url: string;
+  filename: string;
+  type: string;
+  label: string;
+}
+
+export function ServicesSection({ content, models3d = [] }: { content?: SectionContentMap; models3d?: ModelEntry[] }) {
   const t = useText();
   const lang = useLang();
   function val(key: string, fb: string) {
@@ -77,11 +84,20 @@ export function ServicesSection({ content }: { content?: SectionContentMap }) {
 
           <AnimateOnView className="md:col-span-3">
             <div className="relative rounded-2xl overflow-hidden border border-light-gray/50 shadow-[0_2px_16px_rgba(0,0,0,0.04)] bg-white">
-              <ModelViewer3D
-                src={media("sandModelPath", "/glb/sand.glb")}
-                className="w-full h-56 md:h-72 bg-transparent"
-                hideBadge
-              />
+              {(() => {
+                const modelUrl = media("sandModelPath", "") || models3d[1]?.url || models3d[0]?.url;
+                return modelUrl ? (
+                  <ModelViewer3D
+                    src={modelUrl}
+                    className="w-full h-56 md:h-72 bg-transparent"
+                    hideBadge
+                  />
+                ) : (
+                  <div className="w-full h-56 md:h-72 flex items-center justify-center text-mid-gray/40 text-sm">
+                    No model
+                  </div>
+                );
+              })()}
               <div className="absolute bottom-4 left-4 bg-white/85 backdrop-blur-sm border border-light-gray/60 px-3 py-1.5 rounded-full flex items-center gap-2 pointer-events-none">
                 <span className="size-1.5 rounded-full bg-brand-primary animate-pulse" />
                 <span className="text-xs font-semibold text-brand-secondary">3D Site Preview</span>

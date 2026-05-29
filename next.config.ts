@@ -4,7 +4,6 @@ const config: NextConfig = {
   output: "standalone",
 
   reactStrictMode: true,
-  cacheComponents: true,
 
   images: {
     formats: ["image/avif", "image/webp"],
@@ -22,7 +21,10 @@ const config: NextConfig = {
 
 
   experimental: {
-    optimizePackageImports: ["lucide-react"]
+    optimizePackageImports: ["lucide-react"],
+    serverActions: {
+      bodySizeLimit: "2GB",
+    },
   },
   compiler: {
     removeConsole: process.env.NODE_ENV === "production",

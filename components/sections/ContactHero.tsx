@@ -5,17 +5,23 @@ import { ArrowRight, Phone, Mail, MapPin, Clock } from "lucide-react";
 import Image from "next/image";
 import { AnimateOnView } from "@/components/AnimateOnView";
 import { SectionLabel } from "@/components/ui/SectionLabel";
-import { useText } from "@/lib/lang-client";
+import { useText } from "@/lib/i18n/lang-client";
 
-const contactHighlights = [
-  { icon: Phone, label: "Call Us", value: "+977 1 441 1222", href: "tel:+97714411222" },
-  { icon: Mail, label: "Email Us", value: "hello@horizonnepal.com.np", href: "mailto:hello@horizonnepal.com.np" },
-  { icon: MapPin, label: "Visit Us", value: "Tinkune, Kathmandu" },
-  { icon: Clock, label: "Office Hours", value: "Mon–Sat · 9 AM – 6 PM" },
-];
-
-export function ContactHero() {
+export function ContactHero({ settings }: { settings?: Record<string, string> }) {
   const t = useText();
+
+  const phone = settings?.contact_phone ?? "+977 1 441 1222";
+  const email = settings?.contact_email ?? "hello@horizonnepal.com.np";
+  const address = settings?.contact_address ?? "Tinkune, Kathmandu";
+  const hours = settings?.contact_hours ?? "Mon–Sat · 9 AM – 6 PM";
+
+  const contactHighlights = [
+    { icon: Phone, label: "Call Us", value: phone, href: `tel:${phone.replace(/\s/g, "")}` },
+    { icon: Mail, label: "Email Us", value: email, href: `mailto:${email}` },
+    { icon: MapPin, label: "Visit Us", value: address },
+    { icon: Clock, label: "Office Hours", value: hours },
+  ];
+
   return (
     <section className="relative min-h-[80vh] flex items-center overflow-hidden">
       <div className="absolute inset-0">
@@ -93,7 +99,7 @@ export function ContactHero() {
               <Link
                 href="#consultation-form"
                 prefetch={false}
-                className="inline-flex items-center gap-2 h-12 px-7 rounded-full bg-brand-primary text-white font-semibold shadow-lg shadow-brand-primary/30 hover:brightness-110 hover:-translate-y-px transition-all duration-200"
+                className="inline-flex items-center gap-2 h-12 px-7 rounded-full bg-brand-primary text-white font-semibold shadow-lg shadow-brand-primary/30 hover:brightness-110 hover:-translate-y-p1 transition-all duration-200"
               >
                 {t.consultation.submit} <ArrowRight className="size-4" />
               </Link>

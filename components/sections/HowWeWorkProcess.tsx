@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { AnimateOnView } from "@/components/AnimateOnView";
 import { SectionLabel } from "@/components/ui/SectionLabel";
-import { useText } from "@/lib/lang-client";
+import { useText } from "@/lib/i18n/lang-client";
 
 const STEP_ICONS = [
   Handshake,

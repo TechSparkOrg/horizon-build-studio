@@ -1,14 +1,11 @@
-import { cacheTag } from "next/cache";
-import { modelService } from "@/lib/services/services/model.service";
+import { getAll } from "@/lib/services/services/model.service";
 import Link from "next/link";
 import { Plus, Pencil } from "lucide-react";
 import { ConfirmDelete } from "@/components/admin/ConfirmDelete";
 import { deleteModel } from "./actions";
 
 export default async function ModelsPage() {
-  'use cache'
-  cacheTag("models")
-  const models = await modelService.getAll();
+  const models = await getAll();
 
   return (
     <div>

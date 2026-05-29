@@ -1,7 +1,7 @@
 "use client";
 
 import { Check, HelpCircle } from "lucide-react";
-import { uid } from "@/lib/id";
+import { uid } from "@/lib/shared/id";
 import type { ProjectFaqItem } from "../types";
 
 interface FaqOption {

@@ -6,8 +6,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { ModelViewer3D } from "@/components/ui/DynamicModelViewer3D";
 import { VideoEmbed } from "@/components/ui/VideoEmbed";
-import { useText } from "@/lib/lang-client";
-import type { NewsDisplay, ProjectRef, VideoRef } from "@/lib/schemas";
+import { useText } from "@/lib/i18n/lang-client";
+import type { NewsDisplay, ProjectRef, VideoRef } from "@/lib/services/types/news.types";
 
 const STATUS_STYLES: Record<string, string> = {
   planning: "bg-amber-500/10 text-amber-500 border-amber-500/20",

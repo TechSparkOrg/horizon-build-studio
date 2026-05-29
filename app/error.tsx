@@ -1,6 +1,6 @@
 "use client";
 
-import { useText } from "@/lib/lang-client";
+import { useText } from "@/lib/i18n/lang-client";
 
 export default function Error({
   error,

@@ -1,11 +1,11 @@
 "use server";
 
 import { revalidateTag } from "next/cache";
-import { teamService } from "@/lib/services/services/team.service";
+import { deleteTeamMember as serviceDeleteTeamMember, updateTeamMember, createTeamMember } from "@/lib/services/services/team.service";
 import { redirect } from "next/navigation";
 
 export async function deleteTeamMember(id: string) {
-  await teamService.delete(id);
+  await serviceDeleteTeamMember(id);
   revalidateTag("team", "max");
 }
 
@@ -22,9 +22,9 @@ export async function saveTeamMember(formData: FormData) {
   const id = formData.get("id") as string;
 
   if (id) {
-    await teamService.update(id, data);
+    await updateTeamMember(id, data);
   } else {
-    await teamService.create(data);
+    await createTeamMember(data);
   }
 
   revalidateTag("team", "max");

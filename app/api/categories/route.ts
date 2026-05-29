@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
-import { requireAuth } from "@/lib/auth";
+import { prisma } from "@/lib/db/db";
+import { requireAuth } from "@/lib/auth/guards";
 import { revalidateTag } from "next/cache";
 
 function toSlug(text: string): string {

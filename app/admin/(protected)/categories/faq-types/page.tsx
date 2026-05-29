@@ -1,14 +1,11 @@
-import { cacheTag } from "next/cache";
-import { faqTypeService } from "@/lib/services/services/faq-type.service";
-import { FAQTypeSchema } from "@/lib/schemas";
+import { getAll } from "@/lib/services/services/faq-type.service";
+import { FAQTypeSchema } from "@/lib/schemas/faq";
 import Link from "next/link";
 import { z } from "zod";
 import { Plus, Pencil, ArrowLeft } from "lucide-react";
 
 export default async function FaqTypesPage() {
-  'use cache'
-  cacheTag("faq-types")
-  const raw = await faqTypeService.getAll();
+  const raw = await getAll();
   const types = z.array(FAQTypeSchema).parse(raw);
 
   return (

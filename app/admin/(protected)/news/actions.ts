@@ -1,11 +1,11 @@
 "use server";
 
 import { revalidateTag } from "next/cache";
-import { newsService } from "@/lib/services/services/news.service";
+import { deleteNews as serviceDeleteNews, createNews, updateNews } from "@/lib/services/services/news.service";
 import { redirect } from "next/navigation";
 
 export async function deleteNews(id: string) {
-  await newsService.delete(id);
+  await serviceDeleteNews(id);
   revalidateTag("news", "max");
 }
 
@@ -34,9 +34,9 @@ export async function saveNews(formData: FormData) {
   const id = formData.get("id") as string;
 
   if (id) {
-    await newsService.update(id, data);
+    await updateNews(id, data);
   } else {
-    await newsService.create(data);
+    await createNews(data);
   }
 
   revalidateTag("news", "max");

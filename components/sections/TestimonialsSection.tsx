@@ -4,8 +4,8 @@ import { useState } from "react";
 import { ChevronLeft, ChevronRight, Star } from "lucide-react";
 import { AnimateOnView } from "@/components/AnimateOnView";
 import { SectionLabel } from "@/components/ui/SectionLabel";
-import { useText, useLang } from "@/lib/lang-client";
-import type { SectionContentMap } from "@/lib/section-content";
+import { useText, useLang } from "@/lib/i18n/lang-client";
+import type { SectionContentMap } from "@/lib/content/section-content";
 
 const fallbackTestimonials = [
   { name: "Rajesh Maharjan", role: "Homeowner · Lalitpur", quote: "Horizon Nepal delivered our family home on time and 4% under budget. The weekly updates made everything feel under control.", initials: "RM" },

@@ -1,4 +1,4 @@
-import { bannerService } from "@/lib/services/services/banner.service";
+import { getBySlug } from "@/lib/services/services/banner.service";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
@@ -9,7 +9,7 @@ const input = "w-full h-10 px-3 rounded border border-gray-300 text-sm";
 
 export default async function EditBannerPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const item = await bannerService.getBySlug(id);
+  const item = await getBySlug(id);
   if (!item) notFound();
 
   return (
@@ -22,12 +22,12 @@ export default async function EditBannerPage({ params }: { params: Promise<{ id:
         <input type="hidden" name="id" value={item.id} />
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm mb-1">Slug *</label>
-            <input name="slug" defaultValue={item.slug} className={input} required />
-          </div>
-          <div>
             <label className="block text-sm mb-1">Title</label>
             <input name="title" defaultValue={item.title} className={input} placeholder="Label" />
+          </div>
+          <div>
+            <label className="block text-sm mb-1">Slug</label>
+            <input name="slug" defaultValue={item.slug} className={input} />
           </div>
         </div>
         <div>

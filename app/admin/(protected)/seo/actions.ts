@@ -1,13 +1,13 @@
 "use server";
 
 import { revalidateTag } from "next/cache";
-import { seoService } from "@/lib/services/services/seo.service";
+import { upsert, deleteSeo as serviceDeleteSeo } from "@/lib/services/services/seo.service";
 import { redirect } from "next/navigation";
 
 export async function saveSeo(formData: FormData) {
   const id = formData.get("id") as string;
-  const slug = (formData.get("slug") as string)?.trim();
-  if (!slug) throw new Error("Slug is required");
+  const title = (formData.get("title") as string) ?? "";
+  const slug = (formData.get("slug") as string)?.trim() || title.toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]+/g, "");
 
   const payload: Record<string, string> = {
     slug,
@@ -24,12 +24,12 @@ export async function saveSeo(formData: FormData) {
   };
   if (id) payload.id = id;
 
-  await seoService.upsert(payload);
+  await upsert(payload);
   revalidateTag("seo", "max");
   redirect("/admin/seo?success=SEO+entry+saved");
 }
 
 export async function deleteSeo(id: string) {
-  await seoService.delete(id);
+  await serviceDeleteSeo(id);
   revalidateTag("seo", "max");
 }

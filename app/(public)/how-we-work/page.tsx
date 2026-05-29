@@ -1,16 +1,11 @@
 import { Suspense } from "react";
 import { cookies } from "next/headers";
-import { cacheLife, cacheTag } from "next/cache";
-import { CACHE_TAGS, CACHE_TTL } from "@/lib/cache-config";
-import { getText } from "@/lib/lang";
-import { faqService } from "@/lib/services/services/faq.service";
-import type { FAQSectionItem } from "@/lib/schemas";
+import { getText } from "@/lib/i18n/lang";
+import { getAll } from "@/lib/services/services/faq.service";
+import type { FAQSectionItem } from "@/lib/services/types/faq.types";
 
 async function getAllFAQs() {
-  "use cache";
-  cacheLife(CACHE_TTL[CACHE_TAGS.FAQS]);
-  cacheTag(CACHE_TAGS.FAQS);
-  return faqService.getAll();
+  return getAll().catch(() => []);
 }
 import { HowWeWorkHero } from "@/components/sections/HowWeWorkHero";
 import { WelcomeText } from "@/components/sections/WelcomeText";

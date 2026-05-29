@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { getText } from "@/lib/lang";
+import { getText } from "@/lib/i18n/lang";
 
 export async function generateMetadata() {
   const t = getText((await cookies()).get("lang")?.value);

@@ -1,14 +1,11 @@
-import { cacheTag } from "next/cache";
-import { seoService } from "@/lib/services/services/seo.service";
+import { getAll } from "@/lib/services/services/seo.service";
 import Link from "next/link";
 import { Plus, Pencil } from "lucide-react";
 import { ConfirmDelete } from "@/components/admin/ConfirmDelete";
 import { deleteSeo } from "./actions";
 
 export default async function SeoPage() {
-  'use cache'
-  cacheTag("seo")
-  const items = await seoService.getAll();
+  const items = await getAll();
 
   return (
     <div>

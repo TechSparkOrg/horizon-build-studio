@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { uid } from "@/lib/id";
+import { uid } from "@/lib/shared/id";
 import { toast } from "sonner";
 import { Plus, X, BookOpen, Image, Video, Box, Copy } from "lucide-react";
 import { uploadFileAction } from "@/lib/services/actions/upload.actions";
@@ -380,7 +380,7 @@ export function TimelineBuilder({ phases, onChange, models3d = [], media = [], v
                                           if (!file) return;
                                           const formData = new FormData();
                                           formData.append("file", file);
-                                          formData.append("subdir", m.type === "model3d" ? "models" : "images");
+                                          formData.append("subdir", m.type === "model3d" ? "models" : m.type === "video" ? "videos" : "images");
                                           try {
                                             const { url } = await uploadFileAction(formData);
                                             if (url) updateMedia(phase.id, m.id, "url", url);
@@ -423,7 +423,7 @@ export function TimelineBuilder({ phases, onChange, models3d = [], media = [], v
                                         if (!file) return;
                                         const formData = new FormData();
                                         formData.append("file", file);
-                                        formData.append("subdir", m.type === "model3d" ? "models" : "images");
+                                        formData.append("subdir", m.type === "model3d" ? "models" : m.type === "video" ? "videos" : "images");
                                         try {
                                           const { url } = await uploadFileAction(formData);
                                           if (url) updateMedia(phase.id, m.id, "url", url);

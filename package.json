@@ -9,11 +9,12 @@
     "lint": "next lint",
     "format": "prettier --write .",
     "db:push": "prisma db push",
-    "db:seed": "tsx prisma/seed.ts",
+    "db:createsuperuser": "tsx prisma/createsuperuser.ts",
     "postinstall": "prisma generate"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1049.0",
+    "@aws-sdk/lib-storage": "^3.1055.0",
     "@google/model-viewer": "^4.2.0",
     "@hookform/resolvers": "^5.2.2",
     "@prisma/client": "^6.19.3",
@@ -37,7 +38,8 @@
     "tailwind-merge": "^3.5.0",
     "tailwindcss": "^4.2.1",
     "tw-animate-css": "^1.3.4",
-    "zod": "^4.4.3"
+    "zod": "^4.4.3",
+    "zustand": "^5.0.14"
   },
   "devDependencies": {
     "@babel/core": "^7.29.0",
@@ -53,9 +55,5 @@
     "prettier": "^3.7.3",
     "tsx": "^4.22.0",
     "typescript": "^5.8.3"
-  },
-  "prisma": {
-    "schema": "prisma/schema.prisma",
-    "seed": "tsx prisma/seed.ts"
   }
 }

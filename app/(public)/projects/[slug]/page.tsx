@@ -1,10 +1,8 @@
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import dynamic from "next/dynamic";
-import { cacheLife, cacheTag } from "next/cache";
-import { CACHE_TAGS, CACHE_TTL } from "@/lib/cache-config";
-import { projectService } from "@/lib/services/services/project.service";
-import { ProjectPageSchema, type ProjectPage } from "@/lib/schemas";
+import { getAll, getBySlug, getRelated, getAdjacent, getBySlugMeta } from "@/lib/services/services/project.service";
+import { ProjectPageSchema } from "@/lib/schemas/project";
 
 const ProjectDetail = dynamic(() => import("@/components/sections/ProjectDetail").then(m => m.ProjectDetail));
 const ProjectFAQSection = dynamic(() => import("@/components/sections/ProjectDetail").then(m => m.ProjectFAQSection));
@@ -13,87 +11,85 @@ const ProjectAdjacentSection = dynamic(() => import("@/components/sections/Proje
 
 export async function generateStaticParams() {
   try {
-    const all = await projectService.getAll() as any[];
+    const all = await getAll();
     if (all.length > 0) return all.map((p: any) => ({ slug: p.slug }));
-  } catch {
-    /* empty */
-  }
+  } catch { /* empty */ }
   return [{ slug: "__placeholder__" }];
 }
 
+const cache = new Map<string, unknown>();
+
 async function getRawData(slug: string) {
+  if (cache.has(slug)) return cache.get(slug) as ReturnType<typeof fetchData>;
+  const promise = fetchData(slug);
+  cache.set(slug, promise);
+  return promise;
+}
+
+async function fetchData(slug: string) {
   try {
-    const raw = await projectService.getBySlug(slug) as unknown;
-    return ProjectPageSchema.safeParse(raw);
+    const project = await getBySlug(slug);
+    if (!project) return { success: false as const };
+
+    const faqs = (project.projectFaqs ?? []).map((pf: any) => pf.faq).filter(Boolean);
+    const faqTypes = [...new Map(faqs.filter((f: any) => f.faqType).map((f: any) => [f.faqType.id, f.faqType])).values()];
+    const [related, [prev, next]] = await Promise.all([
+      getRelated(project.id, project.categoryId),
+      getAdjacent(project.order),
+    ]);
+
+    return ProjectPageSchema.safeParse({
+      project,
+      faqs,
+      faqTypes,
+      related: related.map((r: any) => ({ ...r, category: r.category?.name ?? null })),
+      adjacent: { prev, next },
+    });
   } catch {
     return { success: false as const };
   }
 }
 
-async function getData(slug: string) {
-  "use cache";
-  cacheLife(CACHE_TTL[CACHE_TAGS.PROJECTS]);
-  cacheTag(CACHE_TAGS.PROJECTS);
-  return getRawData(slug);
+function projectToProps(project: any) {
+  return { ...project, category: project.category?.name ?? null };
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const slug = (await params).slug;
-  const parsed = await getData(slug);
-  if (!parsed.success) return { title: "Project Not Found" };
-  return { title: parsed.data.project.title, description: parsed.data.project.shortDescription };
+  const meta = await getBySlugMeta(slug);
+  if (!meta) return { title: "Project Not Found" };
+  return { title: meta.title, description: meta.shortDescription };
 }
 
 async function ProjectContent({ slug }: { slug: string }) {
-  const parsed = await getData(slug);
+  const parsed = await getRawData(slug);
   if (!parsed.success) notFound();
 
   const { project, faqs, faqTypes, related, adjacent } = parsed.data;
 
   return (
     <ProjectDetail
-      project={{
-        title: project.title,
-        slug: project.slug,
-        description: project.description,
-        shortDescription: project.shortDescription ?? "",
-        category: project.category?.name ?? null,
-        status: project.status,
-        completion: project.completion,
-        location: project.location,
-        budget: project.budget,
-        startDate: project.startDate ? new Date(project.startDate) : null,
-        endDate: project.endDate ? new Date(project.endDate) : null,
-        img: project.img,
-        alt: project.alt,
-        ownerName: project.ownerName,
-        ownerProfession: project.ownerProfession,
-        ownerEarning: project.ownerEarning,
-        phases: project.phases.map(p => ({
-          id: p.id, title: p.title, description: p.description,
-          completion: p.completion, date: p.date ? new Date(p.date) : null,
-          order: p.order, faqId: p.faqId,
-          youtubeUrl: p.youtubeUrl ?? undefined,
-          images: p.images ?? undefined,
-          medias: p.medias,
-        })),
-        attributes: project.attributes,
-        media: project.media,
-        videos: project.videos,
-        models3d: project.models3d,
-      }}
-      faqSlot={<ProjectFAQSection faqs={faqs} faqTypes={faqTypes} />}
-      relatedSlot={related.length > 0 ? <ProjectRelatedSection related={related} /> : null}
-      adjacentSlot={<ProjectAdjacentSection adjacent={adjacent} />}
+      project={projectToProps(project)}
+      faqSlot={
+        <Suspense fallback={null}>
+          <ProjectFAQSection faqs={faqs} faqTypes={faqTypes} />
+        </Suspense>
+      }
+      relatedSlot={related.length > 0 ? (
+        <Suspense fallback={null}>
+          <ProjectRelatedSection related={related} />
+        </Suspense>
+      ) : null}
+      adjacentSlot={
+        <Suspense fallback={null}>
+          <ProjectAdjacentSection adjacent={adjacent} />
+        </Suspense>
+      }
     />
   );
 }
 
 export default async function ProjectPage({ params }: { params: Promise<{ slug: string }> }) {
   const slug = (await params).slug;
-  return (
-    <Suspense fallback={<div className="min-h-screen bg-white" />}>
-      <ProjectContent slug={slug} />
-    </Suspense>
-  );
+  return <ProjectContent slug={slug} />;
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useText } from "@/lib/lang-client";
+import { useText } from "@/lib/i18n/lang-client";
 
 export function HowWeWorkHero() {
   const t = useText();

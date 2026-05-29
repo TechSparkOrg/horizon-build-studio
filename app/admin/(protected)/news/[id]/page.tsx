@@ -1,6 +1,5 @@
-import { cacheTag } from "next/cache";
-import { newsService } from "@/lib/services/services/news.service";
-import { projectService } from "@/lib/services/services/project.service";
+import { getById as getNewsById } from "@/lib/services/services/news.service";
+import { search as searchProjects } from "@/lib/services/services/project.service";
 import { notFound } from "next/navigation";
 import { saveNews } from "../actions";
 import { ImageField } from "@/components/admin/ImageField";
@@ -17,11 +16,9 @@ export default async function EditNewsPage({ params }: { params: Promise<{ id: s
 }
 
 async function CachedPage({ id }: { id: string }) {
-  'use cache'
-  cacheTag("projects")
   const [item, projectsRaw] = (await Promise.all([
-    newsService.getById(id),
-    projectService.search({ limit: 100 }),
+    getNewsById(id),
+    searchProjects({ limit: 100 }),
   ])) as [any, any];
   if (!item || typeof item !== "object" || "error" in (item as any)) notFound();
   const projects = (projectsRaw as any).items || [];

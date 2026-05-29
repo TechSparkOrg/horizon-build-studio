@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
-import { getText } from "@/lib/lang";
-import { faqService } from "@/lib/services/services/faq.service";
-import { faqTypeService } from "@/lib/services/services/faq-type.service";
+import { getText } from "@/lib/i18n/lang";
+import { getAll as getAllFaqs } from "@/lib/services/services/faq.service";
+import { getAll as getAllFaqTypes } from "@/lib/services/services/faq-type.service";
 import { FAQAccordion } from "@/components/sections/FAQAccordion";
 import { QuoteBanner } from "@/components/sections/QuoteBanner";
 import Image from "next/image";
@@ -46,8 +46,8 @@ function buildFaqSchema(faqs: { question: string; answer: string }[]) {
 export default async function FAQListingPage() {
   const t = getText((await cookies()).get("lang")?.value);
   const [rawFaqs, rawFaqTypes] = await Promise.all([
-    faqService.getAll().catch(() => []),
-    faqTypeService.getAll().catch(() => []),
+    getAllFaqs().catch(() => []),
+    getAllFaqTypes().catch(() => []),
   ]);
   const faqs = rawFaqs
     .filter((f) => f.faqType !== null)

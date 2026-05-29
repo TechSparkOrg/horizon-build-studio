@@ -1,17 +1,40 @@
 
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { ArrowRight, CheckCircle2, Play } from "lucide-react";
 import Image from "next/image";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { ModelViewer3D } from "@/components/ui/DynamicModelViewer3D";
-import { useText, useLang } from "@/lib/lang-client";
-import type { SectionContentMap } from "@/lib/section-content";
+import { useText, useLang } from "@/lib/i18n/lang-client";
+import type { SectionContentMap } from "@/lib/content/section-content";
 
-export function HeroSection({ content }: { content?: SectionContentMap }) {
+interface ModelEntry {
+  url: string;
+  filename: string;
+  type: string;
+  label: string;
+}
+
+interface BannerEntry {
+  image: string;
+  alt: string;
+}
+
+export function HeroSection({ content, models3d = [], banners = [] }: { content?: SectionContentMap; models3d?: ModelEntry[]; banners?: BannerEntry[] }) {
   const t = useText();
   const lang = useLang();
+  const [currentBanner, setCurrentBanner] = useState(0);
+
+  useEffect(() => {
+    if (banners.length < 2) return;
+    const timer = setInterval(() => {
+      setCurrentBanner((c) => (c + 1) % banners.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [banners.length]);
+
   function val(key: string, fb: string) {
     const c = content?.[key];
     if (!c) return fb;
@@ -20,21 +43,38 @@ export function HeroSection({ content }: { content?: SectionContentMap }) {
   function media(key: string, fb: string) {
     return content?.[key]?.mediaUrl || fb;
   }
+
+  const bgImages = banners.length > 0
+    ? banners.map((b) => b.image)
+    : [media("bgImage", "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2000&q=80")];
+
+  const bgAlts = banners.length > 0
+    ? banners.map((b) => b.alt)
+    : [""];
+
   return (
     <section
       id="home"
       className="relative min-h-[100vh] flex items-center overflow-hidden"
     >
-      {/* Background image */}
+      {/* Background carousel */}
       <div className="absolute inset-0">
-        <Image
-          src={media("bgImage", "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2000&q=80")}
-          alt=""
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover scale-[1.02]"
-        />
+        {bgImages.map((src, i) => (
+          <div
+            key={i}
+            className="absolute inset-0 transition-opacity duration-1000"
+            style={{ opacity: i === currentBanner ? 1 : 0 }}
+          >
+            <Image
+              src={src}
+              alt={bgAlts[i] ?? ""}
+              fill
+              priority={i === 0}
+              sizes="100vw"
+              className="object-cover scale-[1.02]"
+            />
+          </div>
+        ))}
       </div>
 
       {/* Overlay — slightly deeper on the left for text legibility */}
@@ -53,6 +93,25 @@ export function HeroSection({ content }: { content?: SectionContentMap }) {
         style={{ background: "linear-gradient(to top, oklch(0.19 0.05 260 / 0.5), transparent)" }}
         aria-hidden="true"
       />
+
+      {/* Dot indicators */}
+      {bgImages.length > 1 && (
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-2 z-10">
+          {bgImages.map((_, i) => (
+            <button
+              key={i}
+              type="button"
+              onClick={() => setCurrentBanner(i)}
+              className={`rounded-full transition-all duration-300 ${
+                i === currentBanner
+                  ? "w-6 h-2 bg-brand-primary"
+                  : "w-2 h-2 bg-white/40 hover:bg-white/70"
+              }`}
+              aria-label={`Go to slide ${i + 1}`}
+            />
+          ))}
+        </div>
+      )}
 
       <div className="relative max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 w-full pt-36 pb-24 grid lg:grid-cols-12 gap-12 items-center">
         {/* Left — text */}
@@ -130,12 +189,18 @@ export function HeroSection({ content }: { content?: SectionContentMap }) {
             {/* Card */}
             <div className="rounded-2xl overflow-hidden border border-white/10 bg-white/5 backdrop-blur-sm shadow-2xl shadow-black/40">
               <div className="h-56">
-                <ModelViewer3D
-                  src={media("modelPath", "/glb/house.glb")}
-                  className="w-full h-full bg-transparent"
-                  hideBadge
-                  loading="eager"
-                />
+                {models3d[0] ? (
+                  <ModelViewer3D
+                    src={models3d[0].url}
+                    className="w-full h-full bg-transparent"
+                    hideBadge
+                    loading="eager"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-white/30 text-sm">
+                    No model
+                  </div>
+                )}
               </div>
 
               {/* Card footer */}

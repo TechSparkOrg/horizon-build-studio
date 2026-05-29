@@ -1,12 +1,14 @@
+"use client";
+
 import { ArrowRight, MapPin } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { AnimateOnView } from "@/components/AnimateOnView";
 import { SectionLabel } from "@/components/ui/SectionLabel";
-import { STATUS_STYLES, STATUS_LABELS } from "@/lib/status";
-import type { HomeProject } from "@/lib/schemas";
-import type { TextDict } from "@/lib/lang";
-import type { SectionContentMap } from "@/lib/section-content";
+import { STATUS_STYLES, STATUS_LABELS } from "@/lib/shared/status";
+import type { HomeProject } from "@/lib/services/types/project.types";
+import type { SectionContentMap } from "@/lib/content/section-content";
+import { useText } from "@/lib/i18n/lang-client";
 
 function formatBudget(n: number | null): string {
   if (n == null) return "";
@@ -19,15 +21,14 @@ export function PortfolioSection({
   projects,
   filters,
   activeCategory,
-  t,
   content,
 }: {
   projects: HomeProject[];
   filters: string[];
   activeCategory: string;
-  t: TextDict;
   content?: SectionContentMap;
 }) {
+  const t = useText();
   const filtered =
     activeCategory === "All" ? projects : projects.filter((p) => p.category === activeCategory);
 

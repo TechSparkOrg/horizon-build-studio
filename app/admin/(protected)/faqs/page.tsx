@@ -1,14 +1,11 @@
-import { cacheTag } from "next/cache";
-import { faqService } from "@/lib/services/services/faq.service";
+import { getAll } from "@/lib/services/services/faq.service";
 import Link from "next/link";
 import { Plus, Pencil } from "lucide-react";
 import { deleteFaq } from "./actions";
 import { ConfirmDelete } from "@/components/admin/ConfirmDelete";
 
 export default async function FAQsPage() {
-  'use cache'
-  cacheTag("faqs")
-  const items = await faqService.getAll() as any[];
+  const items = await getAll() as any[];
 
   return (
     <div>

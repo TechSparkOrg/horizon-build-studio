@@ -4,7 +4,7 @@ import { ArrowRight, Building2, Ruler, Users, MapPin } from "lucide-react";
 import { AnimateOnView } from "@/components/AnimateOnView";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { ModelViewer3D } from "@/components/ui/DynamicModelViewer3D";
-import { useText } from "@/lib/lang-client";
+import { useText } from "@/lib/i18n/lang-client";
 
 const statIcons = [Building2, Ruler, Users, MapPin];
 

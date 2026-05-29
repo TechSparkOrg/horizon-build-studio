@@ -3,7 +3,6 @@
 import { useState } from "react";
 import dynamic from "next/dynamic";
 import { Plus, Upload, FileIcon, Eye, Loader2 } from "lucide-react";
-import { uploadFileAction } from "@/lib/services/actions/upload.actions";
 
 const ModelPreview = dynamic(() => import("@/components/model-preview"), { ssr: false });
 
@@ -37,12 +36,13 @@ export default function ModelFilesEditor({ initialModels = [] }: { initialModels
       el.onchange = async () => {
         const file = el.files?.[0];
         if (!file) { setUploadingIdx(null); return; }
-        if (file.size > 50 * 1024 * 1024) { setUploadingIdx(null); return; }
         try {
           const fd = new FormData();
           fd.append("file", file);
           fd.append("subdir", "models");
-          const { url } = await uploadFileAction(fd);
+          const res = await fetch("/api/upload", { method: "POST", body: fd });
+          if (!res.ok) throw new Error("Upload failed");
+          const { url } = await res.json();
           const ext = file.name.split(".").pop()?.toLowerCase() ?? "glb";
           setModels3d((prev) => prev.map((m) => m._key === idx ? { ...m, url, filename: file.name, type: ext } : m));
         } catch {}

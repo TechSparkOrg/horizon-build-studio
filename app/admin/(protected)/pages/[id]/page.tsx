@@ -1,4 +1,4 @@
-import { pageService } from "@/lib/services/services/page.service";
+import { getBySlug } from "@/lib/services/services/page.service";
 import { notFound } from "next/navigation";
 import { savePage } from "../actions";
 import { ArrowLeft } from "lucide-react";
@@ -10,7 +10,7 @@ const textarea = "w-full px-3 py-2 rounded border border-gray-300 text-sm resize
 
 export default async function EditPagePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const item = await pageService.getBySlug(id);
+  const item = await getBySlug(id);
   if (!item) notFound();
 
   return (
@@ -23,12 +23,12 @@ export default async function EditPagePage({ params }: { params: Promise<{ id: s
         <input type="hidden" name="id" value={item.id} />
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm mb-1">Slug *</label>
-            <input name="slug" defaultValue={item.slug} className={input} required />
-          </div>
-          <div>
             <label className="block text-sm mb-1">Title</label>
             <input name="title" defaultValue={item.title} className={input} placeholder="Page heading" />
+          </div>
+          <div>
+            <label className="block text-sm mb-1">Slug</label>
+            <input name="slug" defaultValue={item.slug} className={input} />
           </div>
         </div>
         <div>

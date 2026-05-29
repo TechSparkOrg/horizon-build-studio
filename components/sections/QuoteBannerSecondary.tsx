@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimateOnView } from "@/components/AnimateOnView";
-import { useText } from "@/lib/lang-client";
+import { useText } from "@/lib/i18n/lang-client";
 
 export function QuoteBannerSecondary() {
   const t = useText();

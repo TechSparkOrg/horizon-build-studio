@@ -3,7 +3,7 @@ export async function dbQuery<T>(fn: () => Promise<T>): Promise<T> {
 }
 
 export async function dbMutate<T>(fn: () => Promise<T>): Promise<T> {
-  const { requireAuth } = await import("@/lib/auth");
+  const { requireAuth } = await import("@/lib/auth/guards");
   const user = await requireAuth();
   try {
     const result = await fn();

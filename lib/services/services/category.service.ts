@@ -1,33 +1,30 @@
-import { prisma } from "@/lib/db/db";
-import { dbQuery, dbMutate } from "@/lib/services/ServiceHelper";
 import type { CategoryData } from "@/lib/services/types/category.types";
+import { apiClient } from "../apiClient";
+import { ApiWrapperResponse } from "../types/apiWrapperResponse.types";
 
-function toSlug(text: string): string {
-  return text.toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]+/g, "");
+
+export async function getAll(): Promise<CategoryData[]> {
+  const res = await apiClient.get<ApiWrapperResponse<CategoryData[]>>("/category");
+  return res.data.results;
 }
 
-export function getAll(): Promise<CategoryData[]> {
-  return dbQuery(() => prisma.category.findMany({ orderBy: { order: "asc" } })) as Promise<CategoryData[]>;
+export async function getById(id: string): Promise<CategoryData | null> {
+  const res = await apiClient.get<ApiWrapperResponse<CategoryData | null>>(`/category/${id}`);
+  return res.data.results;
 }
 
-export function getById(id: string) {
-  return dbQuery(() => prisma.category.findUnique({ where: { id } }));
+
+export async function createCategory(data: any) {
+  const res = await apiClient.post<ApiWrapperResponse<CategoryData>>("/category", data);
+  return res.data.results;
 }
 
-export function createCategory(data: Record<string, unknown>) {
-  return dbMutate(() => {
-    const slug = (data.slug as string) || toSlug(data.name as string);
-    return prisma.category.create({ data: { ...data, slug } });
-  });
+export async function updateCategory(id: string, data: any) {
+  const res = await apiClient.put<ApiWrapperResponse<CategoryData>>(`/category/${id}`, data);
+  return res.data.results;
 }
 
-export function updateCategory(id: string, data: Record<string, unknown>) {
-  return dbMutate(() => {
-    const slug = (data.slug as string) || (data.name ? toSlug(data.name as string) : undefined);
-    return prisma.category.update({ where: { id }, data: slug ? { ...data, slug } : data });
-  });
-}
-
-export function deleteCategory(id: string) {
-  return dbMutate(() => prisma.category.delete({ where: { id } }));
+export async function deleteCategory(id: string) {
+  const res = await apiClient.delete<ApiWrapperResponse<void>>(`/category/${id}`);
+  return res.data.results;
 }

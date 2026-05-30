@@ -1,61 +1,24 @@
-import { prisma } from "@/lib/db/db";
-import { dbQuery, dbMutate } from "@/lib/services/ServiceHelper";
 import type { PageModelData } from "@/lib/services/types/model.types";
+import { ApiWrapperResponse } from "../types/apiWrapperResponse.types";
+import { apiClient } from "../apiClient";
 
-export function getAll(): Promise<PageModelData[]> {
-  return dbQuery(() =>
-    prisma.pageModel.findMany({
-      orderBy: { createdAt: "desc" },
-      include: { models3d: { orderBy: { order: "asc" } } },
-    }),
-  ) as Promise<PageModelData[]>;
+export async function getAll(): Promise<PageModelData[]> {
+  const res = await apiClient.get<ApiWrapperResponse<PageModelData[]>>("/");
+  return res.data.results;
 }
 
-export function getBySlug(slug: string): Promise<PageModelData | null> {
-  return dbQuery(() =>
-    prisma.pageModel.findUnique({
-      where: { slug },
-      include: { models3d: { orderBy: { order: "asc" } } },
-    }),
-  ) as Promise<PageModelData | null>;
+export async function getBySlug(slug: string): Promise<PageModelData | null> {
+  const res = await apiClient.get<ApiWrapperResponse<PageModelData | null>>(`/slug/${slug}`);
+  return res.data.results;
 }
 
-export function upsert(body: Record<string, unknown>) {
-  return dbMutate(async () => {
-      const { id, slug, title, metaTitle, metaDescription, metaKeywords, customScript, models3d } = body as Record<string, unknown>;
-      if (!slug || typeof slug !== "string") throw new Error("Slug is required");
-
-    const result = await prisma.$transaction(async (tx) => {
-      const m = id
-        ? await tx.pageModel.update({ where: { id }, data: { slug, title: title ?? "", metaTitle: metaTitle ?? "", metaDescription: metaDescription ?? "", metaKeywords: metaKeywords ?? "", customScript: customScript ?? "" } })
-        : await tx.pageModel.upsert({ where: { slug }, update: { slug, title: title ?? "", metaTitle: metaTitle ?? "", metaDescription: metaDescription ?? "", metaKeywords: metaKeywords ?? "", customScript: customScript ?? "" }, create: { slug, title: title ?? "", metaTitle: metaTitle ?? "", metaDescription: metaDescription ?? "", metaKeywords: metaKeywords ?? "", customScript: customScript ?? "" } });
-
-      if (models3d && Array.isArray(models3d)) {
-        await tx.pageModel3D.deleteMany({ where: { modelId: m.id } });
-        if (models3d.length > 0) {
-          await tx.pageModel3D.createMany({
-            data: models3d.map((item: any, idx: number) => ({
-              modelId: m.id,
-              url: item.url,
-              filename: item.filename ?? "",
-              type: item.type ?? "glb",
-              label: item.label ?? "",
-              order: idx,
-            })),
-          });
-        }
-      }
-
-      return tx.pageModel.findUnique({
-        where: { id: m.id },
-        include: { models3d: { orderBy: { order: "asc" } } },
-      });
-    });
-
-    return result;
-  });
+export async function upsert(body: Record<string, unknown>) {
+  const res = await apiClient.post<ApiWrapperResponse<PageModelData>>("/", body);
+  return res.data.results;
 }
+     
 
-export function deleteModel(id: string) {
-  return dbMutate(() => prisma.pageModel.delete({ where: { id } }));
+export async function deleteModel(id: string) {
+  const res = await apiClient.delete<ApiWrapperResponse<PageModelData>>(`/ ${id}`);
+  return res.data.results;
 }

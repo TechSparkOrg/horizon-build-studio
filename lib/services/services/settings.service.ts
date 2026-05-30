@@ -1,24 +1,12 @@
-import { prisma } from "@/lib/db/db";
-import { dbQuery, dbMutate } from "@/lib/services/ServiceHelper";
 
-export function getAll() {
-  return dbQuery(async () => {
-    const settings = await prisma.siteSetting.findMany();
-    const map: Record<string, string> = {};
-    for (const s of settings) map[s.key] = s.value;
-    return map;
-  });
+import { apiClient } from "../apiClient";
+import { ApiWrapperResponse } from "../types/apiWrapperResponse.types";
+
+export async function getAll() {
+  const res = await apiClient.get<any>("/");
+  return res.data.results;
 }
 
-export function upsertMany(body: Record<string, string>): Promise<void> {
-  return dbMutate(async () => {
-    const upserts = Object.entries(body).map(([key, value]) =>
-      prisma.siteSetting.upsert({
-        where: { key },
-        update: { value: String(value) },
-        create: { key, value: String(value), type: "text", section: "general" },
-      }),
-    );
-    await Promise.all(upserts);
-  });
+export async function upsertMany(body: Record<string, string>): Promise<void> {
+  await apiClient.post<ApiWrapperResponse<void>>("/bulk", body);
 }

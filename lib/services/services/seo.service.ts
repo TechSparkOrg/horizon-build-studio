@@ -1,44 +1,28 @@
-import { prisma } from "@/lib/db/db";
-import { dbQuery, dbMutate } from "@/lib/services/ServiceHelper";
 import type { SeoData } from "@/lib/services/types/seo.types";
+import { apiClient } from "../apiClient";
+import { ApiWrapperResponse } from "../types/apiWrapperResponse.types";
 
-export function getAll(): Promise<SeoData[]> {
-  return dbQuery(() => prisma.pageSEO.findMany({ orderBy: { createdAt: "desc" } })) as Promise<SeoData[]>;
+export async function getAll(): Promise<SeoData[]> {
+  const res = await apiClient.get<ApiWrapperResponse<SeoData[]>>("/seo");
+  return res.data.results;
 }
 
-export function getById(id: string): Promise<SeoData | null> {
-  return dbQuery(() => prisma.pageSEO.findUnique({ where: { id } })) as Promise<SeoData | null>;
+export async function getById(id: string): Promise<SeoData | null> {
+  const res = await apiClient.get<ApiWrapperResponse<SeoData | null>>(`/seo/${id}`);
+  return res.data.results;
 }
 
-export function upsert(body: Record<string, unknown>) {
-  return dbMutate(async () => {
-    const { id, slug, ...fields } = body;
-    if (!slug) throw new Error("Slug is required");
-
-    const data = {
-      slug,
-      title: fields.title ?? "",
-      text1En: fields.text1En ?? "",
-      text1Np: fields.text1Np ?? "",
-      text2En: fields.text2En ?? "",
-      text2Np: fields.text2Np ?? "",
-      metaTitle: fields.metaTitle ?? "",
-      metaDescription: fields.metaDescription ?? "",
-      metaKeywords: fields.metaKeywords ?? "",
-      ogImage: fields.ogImage ?? "",
-      customScript: fields.customScript ?? "",
-    };
-
-    return id
-      ? prisma.pageSEO.update({ where: { id }, data })
-      : prisma.pageSEO.upsert({ where: { slug }, update: data, create: { ...data, slug: slug.trim() } });
-  });
+export async function upsert(data: any) {
+  const res = await apiClient.post<ApiWrapperResponse<SeoData>>("/seo", data);
+  return res.data.results;
 }
 
-export function deleteSeo(id: string) {
-  return dbMutate(() => prisma.pageSEO.delete({ where: { id } }));
+export async function deleteSeo(id: string) {
+  const res = await apiClient.delete<ApiWrapperResponse<void>>(`/seo/${id}`);
+  return res.data.results;
 }
 
-export function getBySlug(slug: string): Promise<SeoData | null> {
-  return dbQuery(() => prisma.pageSEO.findUnique({ where: { slug } })) as Promise<SeoData | null>;
+export async function getBySlug(slug: string): Promise<SeoData | null> {
+  const res = await apiClient.get<ApiWrapperResponse<SeoData | null>>(`/seo/${slug}`);
+  return res.data.results;
 }

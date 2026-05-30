@@ -1,7 +1,7 @@
-import { prisma } from "@/lib/db/db";
-import { dbQuery, dbMutate } from "@/lib/services/ServiceHelper";
 import type { NewsListItem, NewsDetail } from "@/lib/services/types/news.types";
 import type { PaginatedResult } from "@/lib/services/types/shared.types";
+import { apiClient } from "../apiClient";
+import { ApiWrapperResponse } from "../types/apiWrapperResponse.types";
 
 interface NewsFieldData {
   title: string;
@@ -41,59 +41,41 @@ function pickNews(raw: unknown): NewsFieldData {
   return { title, slug, excerpt, contentEn, contentNp, category, image, alt, publishedAt, featured, projectId, metaTitle, metaDescription, metaKeywords, customScript };
 }
 
-export function getAll(page = 1, limit = 100): Promise<PaginatedResult<NewsListItem>> {
-  return dbQuery(async () => {
-    const skip = page > 1 ? (page - 1) * limit : 0;
-    const [items, total] = await Promise.all([
-      prisma.newsArticle.findMany({
-        orderBy: { publishedAt: "desc" },
-        skip,
-        take: limit,
-        include: { project: { select: { id: true, title: true, slug: true } } },
-      }),
-      prisma.newsArticle.count(),
-    ]);
-    return { items: items as unknown as NewsListItem[], total, page, limit };
+export async function getAll(page = 1, limit = 100): Promise<PaginatedResult<NewsListItem>> {
+  const res = await apiClient.get<ApiWrapperResponse<PaginatedResult<NewsListItem>>>("/", {
+    params: { page, limit },
   });
+  return res.data.results;
+
 }
 
-export function getBySlug(slug: string): Promise<NewsDetail | null> {
-  return dbQuery(() =>
-    prisma.newsArticle.findUnique({
-      where: { slug },
-      include: {
-        project: {
-          select: {
-            id: true, title: true, slug: true, status: true, location: true,
-            img: true, alt: true, completion: true,
-            models3d: { select: { id: true, url: true, filename: true } },
-            videos: { select: { id: true, platform: true, embedUrl: true, fileUrl: true, fileType: true, title: true } },
-          },
-        },
-      },
-    }),
-  ) as Promise<NewsDetail | null>;
+export async function getBySlug(slug: string): Promise<NewsDetail | null> {
+  const res = await apiClient.get<ApiWrapperResponse<NewsDetail | null>>(`/slug/${slug}`);
+  return res.data.results;
 }
 
-export function getById(id: string) {
-  return dbQuery(() => prisma.newsArticle.findUnique({ where: { id } }));
+export async function getById(id: string): Promise<NewsDetail | null> {
+  const res = await apiClient.get<ApiWrapperResponse<NewsDetail | null>>(`/ ${id}`);
+  return res.data.results;
 }
 
-export function createNews(raw: unknown) {
-  return dbMutate(() => {
-    const data = pickNews(raw);
-    const slug = data.slug || data.title.toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]+/g, "");
-    return prisma.newsArticle.create({ data: { ...data, slug } });
-  });
+export async function createNews(raw: unknown) {
+  const res = await apiClient.post<ApiWrapperResponse<NewsDetail>>(
+    "/",
+    pickNews(raw)
+  );
+  return res.data.results;
 }
 
-export function updateNews(id: string, raw: unknown) {
-  return dbMutate(() => {
-    const data = pickNews(raw);
-    return prisma.newsArticle.update({ where: { id }, data });
-  });
+export async function updateNews(id: string, raw: unknown) {
+  const res = await apiClient.put<ApiWrapperResponse<NewsDetail>>(
+    `/ ${id}`,
+    pickNews(raw)
+  );
+  return res.data.results;
 }
 
-export function deleteNews(id: string) {
-  return dbMutate(() => prisma.newsArticle.delete({ where: { id } }));
+export async function deleteNews(id: string) {
+  const res = await apiClient.delete<ApiWrapperResponse<void>>(`/ ${id}`);
+  return res.data.results;
 }

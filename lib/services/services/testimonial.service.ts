@@ -1,23 +1,29 @@
-import { prisma } from "@/lib/db/db";
-import { dbQuery, dbMutate } from "@/lib/services/ServiceHelper";
 import type { TestimonialData } from "@/lib/services/types/testimonial.types";
+import { apiClient } from "../apiClient";
+import { ApiWrapperResponse } from "../types/apiWrapperResponse.types";
 
-export function getAll(): Promise<TestimonialData[]> {
-  return dbQuery(() => prisma.testimonial.findMany({ orderBy: { order: "asc" } })) as Promise<TestimonialData[]>;
+export async function getAll(): Promise<TestimonialData[]> {
+ const res = await apiClient.get<ApiWrapperResponse<TestimonialData[]>>("/testimonial");
+ return res.data.results;
 }
 
-export function getById(id: string): Promise<TestimonialData | null> {
-  return dbQuery(() => prisma.testimonial.findUnique({ where: { id } })) as Promise<TestimonialData | null>;
+export async function getById(id: string): Promise<TestimonialData | null> {
+  const res = await apiClient.get<ApiWrapperResponse<TestimonialData | null>>(`/testimonial/${id}`);
+  return res.data.results;
 }
 
-export function createTestimonial(data: Record<string, unknown>) {
-  return dbMutate(() => prisma.testimonial.create({ data }));
+
+export async function createTestimonial(data: any) {
+  const res = await apiClient.post<ApiWrapperResponse<TestimonialData>>("/testimonial", data);
+  return res.data.results;
 }
 
-export function updateTestimonial(id: string, data: Record<string, unknown>) {
-  return dbMutate(() => prisma.testimonial.update({ where: { id }, data }));
+export async function updateTestimonial(id: string, data: any) {
+  const res = await apiClient.put<ApiWrapperResponse<TestimonialData>>(`/testimonial/${id}`, data);
+  return res.data.results;
 }
 
-export function deleteTestimonial(id: string) {
-  return dbMutate(() => prisma.testimonial.delete({ where: { id } }));
+export async function deleteTestimonial(id: string) {
+  const res = await apiClient.delete<ApiWrapperResponse<void>>(`/testimonial/${id}`);
+  return res.data.results;
 }

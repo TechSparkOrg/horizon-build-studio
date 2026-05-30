@@ -1,23 +1,29 @@
-import { prisma } from "@/lib/db/db";
-import { dbQuery, dbMutate } from "@/lib/services/ServiceHelper";
+
 import type { FaqTypeData } from "@/lib/services/types/faq.types";
+import { apiClient } from "../apiClient";
+import { ApiWrapperResponse } from "../types/apiWrapperResponse.types";
 
-export function getAll(): Promise<FaqTypeData[]> {
-  return dbQuery(() => prisma.fAQType.findMany({ orderBy: { order: "asc" } })) as Promise<FaqTypeData[]>;
+export async function getAll(): Promise<FaqTypeData[]> {
+  const res = await apiClient.get<ApiWrapperResponse<FaqTypeData[]>>("/faq-type");
+  return res.data.results;
 }
 
-export function getById(id: string): Promise<FaqTypeData | null> {
-  return dbQuery(() => prisma.fAQType.findUnique({ where: { id } })) as Promise<FaqTypeData | null>;
+export async function getById(id: string): Promise<FaqTypeData | null> {
+  const res = await apiClient.get<ApiWrapperResponse<FaqTypeData | null>>(`/faq-type/${id}`);
+  return res.data.results;
 }
 
-export function createFaqType(data: Record<string, unknown>) {
-  return dbMutate(() => prisma.fAQType.create({ data }));
+export async function createFaqType(data: any) {
+  const res = await apiClient.post<ApiWrapperResponse<FaqTypeData>>("/faq-type", data);
+  return res.data.results;
 }
 
-export function updateFaqType(id: string, data: Record<string, unknown>) {
-  return dbMutate(() => prisma.fAQType.update({ where: { id }, data }));
+export async function updateFaqType(id: string, data: any) {
+  const res = await apiClient.put<ApiWrapperResponse<FaqTypeData>>(`/faq-type/${id}`, data);
+  return res.data.results;
 }
 
-export function deleteFaqType(id: string) {
-  return dbMutate(() => prisma.fAQType.delete({ where: { id } }));
+export async function deleteFaqType(id: string) {
+  const res = await apiClient.delete<ApiWrapperResponse<void>>(`/faq-type/${id}`);
+  return res.data.results;
 }

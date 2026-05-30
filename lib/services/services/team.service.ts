@@ -1,23 +1,28 @@
-import { prisma } from "@/lib/db/db";
-import { dbQuery, dbMutate } from "@/lib/services/ServiceHelper";
 import type { TeamMemberData } from "@/lib/services/types/team.types";
+import { apiClient } from "../apiClient";
+import { ApiWrapperResponse } from "../types/apiWrapperResponse.types";
 
-export function getAll(): Promise<TeamMemberData[]> {
-  return dbQuery(() => prisma.teamMember.findMany({ orderBy: { order: "asc" } })) as Promise<TeamMemberData[]>;
+export async function getAll(): Promise<TeamMemberData[]> {
+  const res = await apiClient.get<ApiWrapperResponse<TeamMemberData[]>>("/team");
+  return res.data.results;
 }
 
-export function getById(id: string): Promise<TeamMemberData | null> {
-  return dbQuery(() => prisma.teamMember.findUnique({ where: { id } })) as Promise<TeamMemberData | null>;
+export async function getById(id: string): Promise<TeamMemberData | null> {
+  const res = await apiClient.get<ApiWrapperResponse<TeamMemberData | null>>(`/team/${id}`);
+  return res.data.results;
 }
 
-export function createTeamMember(data: Record<string, unknown>) {
-  return dbMutate(() => prisma.teamMember.create({ data }));
+export async function createTeamMember(data: any) {
+  const res = await apiClient.post<ApiWrapperResponse<TeamMemberData>>("/team", data);
+  return res.data.results;
 }
 
-export function updateTeamMember(id: string, data: Record<string, unknown>) {
-  return dbMutate(() => prisma.teamMember.update({ where: { id }, data }));
+export async function updateTeamMember(id: string, data: any) {
+  const res = await apiClient.put<ApiWrapperResponse<TeamMemberData>>(`/team/${id}`, data);
+  return res.data.results;
 }
 
-export function deleteTeamMember(id: string) {
-  return dbMutate(() => prisma.teamMember.delete({ where: { id } }));
+export async function deleteTeamMember(id: string) {
+  const res = await apiClient.delete<ApiWrapperResponse<void>>(`/team/${id}`);
+  return res.data.results;
 }

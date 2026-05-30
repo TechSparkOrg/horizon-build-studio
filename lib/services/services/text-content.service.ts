@@ -1,5 +1,5 @@
-import { prisma } from "@/lib/db/db";
-import { dbQuery, dbMutate } from "@/lib/services/ServiceHelper";
+import { apiClient } from "../apiClient";
+import { ApiWrapperResponse } from "../types/apiWrapperResponse.types";
 
 export interface TextContentData {
   id: string;
@@ -11,28 +11,32 @@ export interface TextContentData {
   subheadingNp: string;
 }
 
-export function getAll(): Promise<TextContentData[]> {
-  return dbQuery(() =>
-    prisma.textContent.findMany({ orderBy: { updatedAt: "desc" } }),
-  ) as Promise<TextContentData[]>;
+export async function getAll(): Promise<TextContentData[]> {
+  const res = await apiClient.get<ApiWrapperResponse<TextContentData[]>>("/text-content");
+  return res.data.results;
 }
 
-export function getById(id: string): Promise<TextContentData | null> {
-  return dbQuery(() => prisma.textContent.findUnique({ where: { id } })) as Promise<TextContentData | null>;
+export async function getById(id: string): Promise<TextContentData | null> {
+  const res = await apiClient.get<ApiWrapperResponse<TextContentData | null>>(`/text-content/${id}`);
+  return res.data.results;
 }
 
-export function getBySlug(slug: string): Promise<TextContentData | null> {
-  return dbQuery(() => prisma.textContent.findUnique({ where: { slug } })) as Promise<TextContentData | null>;
+export async function getBySlug(slug: string): Promise<TextContentData | null> {
+  const res = await apiClient.get<ApiWrapperResponse<TextContentData | null>>(`/text-content/slug/${slug}`);
+  return res.data.results;
 }
 
-export function createTextContent(data: Record<string, unknown>) {
-  return dbMutate(() => prisma.textContent.create({ data: data as any }));
+export async function createTextContent(data: any) {
+  const res = await apiClient.post<ApiWrapperResponse<TextContentData>>("/text-content", data);
+  return res.data.results;
 }
 
-export function updateTextContent(id: string, data: Record<string, unknown>) {
-  return dbMutate(() => prisma.textContent.update({ where: { id }, data: data as any }));
+export async function updateTextContent(id: string, data: any) {
+  const res = await apiClient.put<ApiWrapperResponse<TextContentData>>(`/text-content/${id}`, data);
+  return res.data.results;
 }
 
-export function deleteTextContent(id: string) {
-  return dbMutate(() => prisma.textContent.delete({ where: { id } }));
+export async function deleteTextContent(id: string) {
+  const res = await apiClient.delete<ApiWrapperResponse<void>>(`/text-content/${id}`);
+  return res.data.results;
 }

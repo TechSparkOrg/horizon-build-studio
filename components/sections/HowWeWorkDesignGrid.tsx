@@ -2,25 +2,30 @@
 
 import { AnimateOnView } from "@/components/AnimateOnView";
 import { SectionLabel } from "@/components/ui/SectionLabel";
-import { useText } from "@/lib/i18n/lang-client";
+import { useText, useLang } from "@/lib/i18n/lang-client";
+import { getVal, parseJSONLocale, type SectionContentMap } from "@/lib/content/section-content";
 
-export function HowWeWorkDesignGrid() {
+export function HowWeWorkDesignGrid({ content }: { content?: SectionContentMap }) {
   const t = useText();
+  const lang = useLang();
+  const val = (key: string, fb: string) => getVal(content, key, fb, lang);
+  const perspectives = parseJSONLocale<{ num: string; label: string; title: string; body: string }[]>(content, "perspectives", t.howWeWork.designGrid.perspectives, lang);
+
   return (
     <section className="bg-off-white py-16 sm:py-28">
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
         <AnimateOnView className="text-center max-w-2xl mx-auto mb-16">
-          <SectionLabel>{t.howWeWork.designGrid.label}</SectionLabel>
+          <SectionLabel>{val("designGridLabel", t.howWeWork.designGrid.label)}</SectionLabel>
           <h2 className="mt-3 font-display font-bold text-brand-secondary text-3xl sm:text-4xl lg:text-5xl">
-            {t.howWeWork.designGrid.h2}
+            {val("designGridH2", t.howWeWork.designGrid.h2)}
           </h2>
           <p className="mt-4 text-mid-gray text-lg">
-            {t.howWeWork.designGrid.subtitle}
+            {val("designGridSubtitle", t.howWeWork.designGrid.subtitle)}
           </p>
         </AnimateOnView>
 
         <div className="space-y-16 sm:space-y-24">
-          {t.howWeWork.designGrid.perspectives.map((item, i) => {
+          {perspectives.map((item, i) => {
             const isLeft = i % 2 === 0;
             return (
               <AnimateOnView

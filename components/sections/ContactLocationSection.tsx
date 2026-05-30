@@ -4,9 +4,10 @@ import { MapPin, Phone, Mail, Clock, ArrowRight } from "lucide-react";
 import Image from "next/image";
 import { AnimateOnView } from "@/components/AnimateOnView";
 import { SectionLabel } from "@/components/ui/SectionLabel";
-import { useText } from "@/lib/i18n/lang-client";
+import { useText, useLang } from "@/lib/i18n/lang-client";
+import { getVal, getMedia, parseJSONLocale, type SectionContentMap } from "@/lib/content/section-content";
 
-const gallery = [
+const galleryFallback = [
   { src: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80", alt: "Modern house exterior" },
   { src: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=800&q=80", alt: "Luxury living room" },
   { src: "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?auto=format&fit=crop&w=800&q=80", alt: "Construction site" },
@@ -15,8 +16,11 @@ const gallery = [
   { src: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=800&q=80", alt: "Residential complex" },
 ];
 
-export function ContactLocationSection({ settings }: { settings?: Record<string, string> }) {
+export function ContactLocationSection({ settings, content }: { settings?: Record<string, string>; content?: SectionContentMap }) {
   const t = useText();
+  const lang = useLang() as "en" | "np";
+  const val = (key: string, fb: string) => getVal(content, key, fb, lang);
+  const gallery = parseJSONLocale<{ src: string; alt: string }[]>(content, "contactGallery", galleryFallback, lang);
 
   const phone = settings?.contact_phone ?? "+977 1 441 1222";
   const email = settings?.contact_email ?? "hello@horizonnepal.com.np";
@@ -29,12 +33,12 @@ export function ContactLocationSection({ settings }: { settings?: Record<string,
     <section className="bg-white py-16 sm:py-28">
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
         <AnimateOnView className="text-center mb-14">
-          <SectionLabel>{t.location.heading}</SectionLabel>
+          <SectionLabel>{val("locationLabel", t.location.heading)}</SectionLabel>
           <h2 className="mt-3 font-display font-bold text-brand-secondary text-3xl sm:text-4xl lg:text-[2.75rem] leading-tight">
-            Visit Our Office
+            {val("locationHeading", "Visit Our Office")}
           </h2>
           <p className="mt-4 text-mid-gray text-lg max-w-2xl mx-auto">
-            Stop by our {address} headquarters or give us a call. We are here Monday through Saturday.
+            {val("locationSubtitle", `Stop by our ${address} headquarters or give us a call. We are here Monday through Saturday.`)}
           </p>
         </AnimateOnView>
 
@@ -113,9 +117,9 @@ export function ContactLocationSection({ settings }: { settings?: Record<string,
 
         <div>
           <AnimateOnView className="text-center mb-10">
-            <SectionLabel>Gallery</SectionLabel>
+            <SectionLabel>{val("galleryLabel", "Gallery")}</SectionLabel>
             <h3 className="mt-2 font-display font-bold text-brand-secondary text-2xl sm:text-3xl">
-              Our Projects in Focus
+              {val("galleryHeading", "Our Projects in Focus")}
             </h3>
           </AnimateOnView>
 

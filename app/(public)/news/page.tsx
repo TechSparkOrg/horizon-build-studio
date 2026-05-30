@@ -2,6 +2,8 @@ import { Suspense } from "react";
 import { cookies } from "next/headers";
 import { getText } from "@/lib/i18n/lang";
 import { getAll } from "@/lib/services/services/news.service";
+import { cachedSectionContent } from "@/lib/content/cached-content";
+import { buildSectionsMap, getVal } from "@/lib/content/section-content";
 import Link from "next/link";
 import Image from "next/image";
 import { SectionLabel } from "@/components/ui/SectionLabel";
@@ -125,13 +127,16 @@ async function NewsList({
   );
 }
 
-export default async function NewsListingPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ page?: string }>;
-}) {
-  const sp = await searchParams;
-  const t = getText((await cookies()).get("lang")?.value);
+async function NewsContent({ searchParams }: { searchParams: any }) {
+  const lang = (await cookies()).get("lang")?.value || "en";
+  const t = getText(lang);
+  const [sectionsRaw] = await Promise.all([
+    cachedSectionContent("news"),
+  ]);
+
+  const content = buildSectionsMap(sectionsRaw);
+
+  const l = lang as "en" | "np";
 
   return (
     <>
@@ -139,7 +144,7 @@ export default async function NewsListingPage({
       <section className="relative min-h-[80vh] flex items-center overflow-hidden">
         <div className="absolute inset-0">
           <Image
-            src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=2000&q=80"
+            src={content?.bgImage?.mediaUrl || "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=2000&q=80"}
             alt=""
             fill
             priority
@@ -156,12 +161,12 @@ export default async function NewsListingPage({
           }}
         />
         <div className="relative max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
-          <SectionLabel>{t.listing.news.label}</SectionLabel>
+          <SectionLabel>{getVal(content, "label", t.listing.news.label, l)}</SectionLabel>
           <h1 className="mt-3 text-3xl sm:text-4xl lg:text-5xl font-display font-bold text-white">
-            {t.listing.news.heading}
+            {getVal(content, "h1", t.listing.news.heading, l)}
           </h1>
           <p className="mt-4 text-white/75 text-lg max-w-[640px] leading-relaxed">
-            {t.listing.news.subtitle}
+            {getVal(content, "subtitle", t.listing.news.subtitle, l)}
           </p>
         </div>
       </section>
@@ -170,13 +175,28 @@ export default async function NewsListingPage({
       <main className="pb-16 mt-4 bg-off-white min-h-screen">
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
           <Suspense fallback={<NewsSkeleton />}>
-            <NewsList searchParams={sp} />
+            <NewsList searchParams={searchParams} />
           </Suspense>
         </div>
       </main>
     </>
   );
 }
+
+export default async function NewsListingPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
+  const sp = await searchParams;
+
+  return (
+    <Suspense fallback={<div className="min-h-screen animate-pulse bg-off-white" />}>
+      <NewsContent searchParams={sp} />
+    </Suspense>
+  );
+}
+
 
 function NewsSkeleton() {
   return (

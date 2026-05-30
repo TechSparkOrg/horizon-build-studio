@@ -1,11 +1,11 @@
 import { Suspense } from "react";
-import { getAll as getAllSections } from "@/lib/services/services/section.service";
 import { getBySlug as getPageModelBySlug } from "@/lib/services/services/model.service";
 import { getBySlug as getBannerBySlug } from "@/lib/services/services/banner.service";
 import { getAll as getAllProjects } from "@/lib/services/services/project.service";
 import { getAll as getAllNews } from "@/lib/services/services/news.service";
 import { getAll as getAllFaqs } from "@/lib/services/services/faq.service";
-import type { SectionContentMap } from "@/lib/content/section-content";
+import { cachedAllSections } from "@/lib/content/cached-content";
+import { buildAllSectionsMap } from "@/lib/content/section-content";
 import type { HomeProject } from "@/lib/services/types/project.types";
 import { getSettings } from "@/lib/content/settings";
 import { generateSchemaOrg } from "@/lib/content/schema";
@@ -17,20 +17,6 @@ import { NewsSection } from "@/components/sections/NewsSection";
 import { QuoteBanner } from "@/components/sections/QuoteBanner";
 import { TestimonialsSection } from "@/components/sections/TestimonialsSection";
 import { FAQSection } from "@/components/sections/FAQSection";
-
-function buildSections(rawSections: Awaited<ReturnType<typeof getAllSections>>): Record<string, SectionContentMap> {
-  const sections: Record<string, SectionContentMap> = {};
-  for (const item of rawSections) {
-    if (!sections[item.section]) sections[item.section] = {};
-    sections[item.section][item.key] = {
-      valueEn: item.valueEn,
-      valueNp: item.valueNp,
-      mediaUrl: item.mediaUrl,
-      mediaType: item.mediaType,
-    };
-  }
-  return sections;
-}
 
 async function getModels3d() {
   try {
@@ -53,7 +39,7 @@ async function getBanners() {
 async function HomeContent() {
   const [rawSections, models3d, banners, settings, rawProjects, rawNewsResult, rawFaqs] =
     await Promise.all([
-      getAllSections().catch(() => []),
+      cachedAllSections(),
       getModels3d(),
       getBanners(),
       getSettings(),
@@ -62,7 +48,7 @@ async function HomeContent() {
       getAllFaqs().catch(() => []),
     ]);
 
-  const sections = buildSections(rawSections);
+  const sections = buildAllSectionsMap(rawSections);
   const schemaOrg = generateSchemaOrg(settings);
 
   const published = rawProjects.filter((p) => p.published);
@@ -116,7 +102,7 @@ async function HomeContent() {
         content={sections.portfolio}
       />
       <NewsSection news={news} content={sections.news} models3d={models3d} />
-      <QuoteBanner content={sections.quotes} />
+      <QuoteBanner content={sections["quote-banner"]} />
       <TestimonialsSection content={sections.testimonials} />
       <FAQSection faqs={faqs} content={sections.faq} models3d={models3d} />
     </>

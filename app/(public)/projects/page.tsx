@@ -2,6 +2,8 @@ import { Suspense } from "react";
 import { cookies } from "next/headers";
 import { getText } from "@/lib/i18n/lang";
 import { getAll } from "@/lib/services/services/project.service";
+import { cachedSectionContent } from "@/lib/content/cached-content";
+import { buildSectionsMap, getVal } from "@/lib/content/section-content";
 import Link from "next/link";
 import Image from "next/image";
 import { SectionLabel } from "@/components/ui/SectionLabel";
@@ -42,8 +44,8 @@ export async function generateMetadata() {
   };
 }
 
-async function ProjectList({ searchParams }: { searchParams: Promise<{ page?: string; cat?: string }> }) {
-  const sp = await searchParams;
+async function ProjectList({ searchParams }: { searchParams: Awaited<{ page?: string; cat?: string }> }) {
+  const sp = searchParams;
   const page = Math.max(1, Number(sp.page ?? 1));
   const activeCat = sp.cat ?? "All";
   const limit = 12;
@@ -106,19 +108,28 @@ async function ProjectList({ searchParams }: { searchParams: Promise<{ page?: st
   );
 }
 
-export default async function ProjectsListingPage({ searchParams }: { searchParams: Promise<{ page?: string; cat?: string }> }) {
-  const lang = await t();
+async function ProjectsContent({ searchParams }: { searchParams: any }) {
+  const lang = (await cookies()).get("lang")?.value || "en";
+  const langData = getText(lang);
+  const [sectionsRaw] = await Promise.all([
+    cachedSectionContent("portfolio"),
+  ]);
+
+  const content = buildSectionsMap(sectionsRaw);
+
+  const l = lang as "en" | "np";
+
   return (
     <>
       <section className="relative min-h-[80vh] flex items-center overflow-hidden">
         <div className="absolute inset-0">
-          <Image src="https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=2000&q=80" alt="" fill priority sizes="100vw" className="object-cover" />
+          <Image src={content?.bgImage?.mediaUrl || "https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=2000&q=80"} alt="" fill priority sizes="100vw" className="object-cover" />
         </div>
         <div aria-hidden="true" className="absolute inset-0" style={{ background: "linear-gradient(to right, oklch(0.19 0.05 260 / 0.92) 40%, oklch(0.19 0.05 260 / 0.5) 100%)" }} />
         <div className="relative max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
-          <SectionLabel>{lang.listing.projects.label}</SectionLabel>
-          <h1 className="mt-3 text-3xl sm:text-4xl lg:text-5xl font-display font-bold text-white">{lang.listing.projects.heading}</h1>
-          <p className="mt-4 text-white/75 text-lg max-w-[640px] leading-relaxed">{lang.listing.projects.subtitle}</p>
+          <SectionLabel>{getVal(content, "label", langData.listing.projects.label, l)}</SectionLabel>
+          <h1 className="mt-3 text-3xl sm:text-4xl lg:text-5xl font-display font-bold text-white">{getVal(content, "h1", langData.listing.projects.heading, l)}</h1>
+          <p className="mt-4 text-white/75 text-lg max-w-[640px] leading-relaxed">{getVal(content, "subtitle", langData.listing.projects.subtitle, l)}</p>
         </div>
       </section>
       <main className="pb-16 mt-4 bg-off-white min-h-screen">
@@ -129,6 +140,15 @@ export default async function ProjectsListingPage({ searchParams }: { searchPara
         </div>
       </main>
     </>
+  );
+}
+
+export default async function ProjectsListingPage({ searchParams }: { searchParams: Promise<{ page?: string; cat?: string }> }) {
+  const sp = await searchParams;
+  return (
+    <Suspense fallback={<div className="min-h-screen animate-pulse bg-off-white" />}>
+      <ProjectsContent searchParams={sp} />
+    </Suspense>
   );
 }
 

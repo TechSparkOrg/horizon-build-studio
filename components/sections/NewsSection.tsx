@@ -7,7 +7,7 @@ import { AnimateOnView } from "@/components/AnimateOnView";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { ModelViewer3D } from "@/components/ui/DynamicModelViewer3D";
 import { useText, useLang } from "@/lib/i18n/lang-client";
-import type { SectionContentMap } from "@/lib/content/section-content";
+import { getVal, getMedia, type SectionContentMap } from "@/lib/content/section-content";
 interface NewsItem { title: string; excerpt: string; cat: string; date: string; img: string; slug: string; }
 
 interface ModelEntry {
@@ -19,22 +19,14 @@ interface ModelEntry {
 
 export function NewsSection({ news = [], content, models3d = [] }: { news: NewsItem[]; content?: SectionContentMap; models3d?: ModelEntry[] }) {
   const t = useText();
-  const lang = useLang();
-  function val(key: string, fb: string) {
-    const c = content?.[key];
-    if (!c) return fb;
-    return lang === "np" && c.valueNp ? c.valueNp : c.valueEn || fb;
-  }
-  function media(key: string, fb: string) {
-    return content?.[key]?.mediaUrl || fb;
-  }
+  const lang = useLang() as "en" | "np";
   return (
     <section id="news" className="bg-off-white py-16 sm:py-28">
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
         <AnimateOnView className="max-w-2xl">
-          <SectionLabel>{val("label", t.news.label)}</SectionLabel>
+          <SectionLabel>{getVal(content, "label", t.news.label, lang)}</SectionLabel>
           <h2 className="mt-3 font-display font-bold text-brand-secondary text-3xl sm:text-4xl lg:text-5xl">
-            {val("h2", t.news.h2)}
+            {getVal(content, "h2", t.news.h2, lang)}
           </h2>
         </AnimateOnView>
 
@@ -67,7 +59,7 @@ export function NewsSection({ news = [], content, models3d = [] }: { news: NewsI
                   </h3>
                   <p className="mt-2 text-mid-gray line-clamp-2">{n.excerpt}</p>
                   <span className="mt-4 inline-flex items-center gap-1 text-brand-primary font-semibold text-sm group-hover:underline">
-                    {val("readMore", t.news.readMore)} <ArrowRight className="size-3" />
+                    {getVal(content, "readMore", t.news.readMore, lang)} <ArrowRight className="size-3" />
                   </span>
                 </div>
               </Link>
@@ -75,7 +67,7 @@ export function NewsSection({ news = [], content, models3d = [] }: { news: NewsI
           ))}
 
           {(() => {
-            const modelUrl = media("bridgeModelPath", "") || models3d[2]?.url || models3d[0]?.url;
+            const modelUrl = getMedia(content, "bridgeModelPath", "") || models3d[2]?.url || models3d[0]?.url;
             return modelUrl ? (
               <div className="rounded-lg overflow-hidden bg-transparent min-h-[360px]">
                 <ModelViewer3D
@@ -95,7 +87,7 @@ export function NewsSection({ news = [], content, models3d = [] }: { news: NewsI
             prefetch={false}
             className="inline-flex items-center gap-2 h-11 px-6 rounded border-2 border-brand-primary text-brand-primary font-semibold hover:bg-brand-primary hover:text-white transition"
           >
-            {val("viewAll", t.news.viewAll)} <ArrowRight className="size-4" />
+            {getVal(content, "viewAll", t.news.viewAll, lang)} <ArrowRight className="size-4" />
           </Link>
         </div>
       </div>

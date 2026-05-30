@@ -2,8 +2,13 @@
 
 import { ModelViewer3D } from "@/components/ui/DynamicModelViewer3D";
 import { AnimateOnView } from "@/components/AnimateOnView";
+import { getVal, type SectionContentMap } from "@/lib/content/section-content";
+import { useLang } from "@/lib/i18n/lang-client";
 
-export function DesignShowcaseSection() {
+export function DesignShowcaseSection({ content }: { content?: SectionContentMap }) {
+  const lang = useLang();
+  const val = (key: string, fb: string) => getVal(content, key, fb, lang);
+
   return (
     <section className="py-16 sm:py-28">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -12,7 +17,7 @@ export function DesignShowcaseSection() {
 
           <div className="relative w-full h-[70vh]">
             <ModelViewer3D
-              src="/glb/folding.glb"
+              src={content?.showcaseModel?.mediaUrl || "/glb/folding.glb"}
               className="w-full h-full bg-white"
               hideBadge
               loading="lazy"
@@ -20,7 +25,7 @@ export function DesignShowcaseSection() {
           </div>
 
           <p className="absolute bottom-6 left-6 text-white/70 text-xs tracking-[0.2em] uppercase font-light">
-            Featured Design
+            {val("showcaseLabel", "Featured Design")}
           </p>
         </AnimateOnView>
       </div>

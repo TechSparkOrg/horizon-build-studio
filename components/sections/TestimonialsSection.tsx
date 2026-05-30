@@ -5,7 +5,7 @@ import { ChevronLeft, ChevronRight, Star } from "lucide-react";
 import { AnimateOnView } from "@/components/AnimateOnView";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { useText, useLang } from "@/lib/i18n/lang-client";
-import type { SectionContentMap } from "@/lib/content/section-content";
+import { getVal, parseJSONLocale, type SectionContentMap } from "@/lib/content/section-content";
 
 const fallbackTestimonials = [
   { name: "Rajesh Maharjan", role: "Homeowner · Lalitpur", quote: "Horizon Nepal delivered our family home on time and 4% under budget. The weekly updates made everything feel under control.", initials: "RM" },
@@ -18,14 +18,8 @@ export function TestimonialsSection({ content }: { content?: SectionContentMap }
   const [i, setI] = useState(0);
   const t = useText();
   const lang = useLang();
-  function val(key: string, fb: string) {
-    const c = content?.[key];
-    if (!c) return fb;
-    return lang === "np" && c.valueNp ? c.valueNp : c.valueEn || fb;
-  }
-
-  let testimonials: { name: string; role: string; quote: string; initials: string }[] = [];
-  try { testimonials = content?.testimonials ? JSON.parse(content.testimonials.valueEn) : fallbackTestimonials; } catch { testimonials = fallbackTestimonials; }
+  const val = (key: string, fb: string) => getVal(content, key, fb, lang);
+  const testimonials = parseJSONLocale<{ name: string; role: string; quote: string; initials: string }[]>(content, "testimonials", fallbackTestimonials, lang);
 
   const perView = 3;
   const max = Math.max(0, testimonials.length - perView);

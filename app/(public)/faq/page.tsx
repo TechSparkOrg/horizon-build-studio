@@ -1,7 +1,10 @@
+import { Suspense } from "react";
 import { cookies } from "next/headers";
 import { getText } from "@/lib/i18n/lang";
 import { getAll as getAllFaqs } from "@/lib/services/services/faq.service";
 import { getAll as getAllFaqTypes } from "@/lib/services/services/faq-type.service";
+import { cachedSectionContent } from "@/lib/content/cached-content";
+import { buildSectionsMap, getVal } from "@/lib/content/section-content";
 import { FAQAccordion } from "@/components/sections/FAQAccordion";
 import { QuoteBanner } from "@/components/sections/QuoteBanner";
 import Image from "next/image";
@@ -43,12 +46,16 @@ function buildFaqSchema(faqs: { question: string; answer: string }[]) {
   };
 }
 
-export default async function FAQListingPage() {
-  const t = getText((await cookies()).get("lang")?.value);
-  const [rawFaqs, rawFaqTypes] = await Promise.all([
+async function FAQContent() {
+  const lang = (await cookies()).get("lang")?.value || "en";
+  const t = getText(lang);
+  const [rawFaqs, rawFaqTypes, sectionsRaw] = await Promise.all([
     getAllFaqs().catch(() => []),
     getAllFaqTypes().catch(() => []),
+    cachedSectionContent("faq"),
   ]);
+
+  const content = buildSectionsMap(sectionsRaw);
   const faqs = rawFaqs
     .filter((f) => f.faqType !== null)
     .map((f) => ({
@@ -59,9 +66,10 @@ export default async function FAQListingPage() {
     }));
   const faqTypes = rawFaqTypes.map((t) => ({ id: t.id, name: t.name, slug: t.slug }));
 
+  const l = lang as "en" | "np";
+
   return (
     <>
-      {/* Structured data */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(buildFaqSchema(faqs)) }}
@@ -71,7 +79,7 @@ export default async function FAQListingPage() {
       <section className="relative min-h-[80vh] flex items-center overflow-hidden">
         <div className="absolute inset-0">
           <Image
-            src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=2000&q=80"
+            src={content?.bgImage?.mediaUrl || "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=2000&q=80"}
             alt=""
             fill
             priority
@@ -88,12 +96,12 @@ export default async function FAQListingPage() {
           }}
         />
         <div className="relative max-w-[800px] mx-auto px-4 sm:px-6 lg:px-8">
-          <SectionLabel>{t.listing.faq.label}</SectionLabel>
+          <SectionLabel>{getVal(content, "label", t.listing.faq.label, l)}</SectionLabel>
           <h1 className="mt-3 text-3xl sm:text-4xl lg:text-5xl font-display font-bold text-white">
-            {t.listing.faq.heading}
+            {getVal(content, "h1", t.listing.faq.heading, l)}
           </h1>
           <p className="mt-4 text-white/75 text-lg leading-relaxed">
-            {t.listing.faq.subtitle}
+            {getVal(content, "subtitle", t.listing.faq.subtitle, l)}
           </p>
         </div>
       </section>
@@ -106,7 +114,15 @@ export default async function FAQListingPage() {
         empty={t.listing.faq.empty}
       />
 
-      <QuoteBanner />
+      <QuoteBanner content={content} />
     </>
+  );
+}
+
+export default function FAQListingPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen animate-pulse bg-off-white" />}>
+      <FAQContent />
+    </Suspense>
   );
 }

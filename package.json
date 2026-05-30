@@ -9,6 +9,7 @@
     "lint": "next lint",
     "format": "prettier --write .",
     "db:push": "prisma db push",
+    "db:seed": "tsx prisma/seed.ts",
     "db:createsuperuser": "tsx prisma/createsuperuser.ts",
     "postinstall": "prisma generate"
   },

@@ -5,7 +5,7 @@ import { deleteNews } from "./actions";
 import { ConfirmDelete } from "@/components/admin/ConfirmDelete";
 
 export default async function NewsPage() {
-  const items = await getAll() as any[];
+  const { items } = await getAll();
 
   return (
     <div>

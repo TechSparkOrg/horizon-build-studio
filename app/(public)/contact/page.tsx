@@ -1,7 +1,10 @@
+import { Suspense } from "react";
 import { ContactHero } from "@/components/sections/ContactHero";
 import { ConsultationForm } from "@/components/sections/ConsultationForm";
 import { ContactLocationSection } from "@/components/sections/ContactLocationSection";
 import { getSettings } from "@/lib/content/settings";
+import { cachedSectionContent, cachedTextContent } from "@/lib/content/cached-content";
+import { buildSectionsMap } from "@/lib/content/section-content";
 
 export const dynamic = "force-dynamic";
 
@@ -20,14 +23,28 @@ export async function generateMetadata() {
   };
 }
 
-export default async function ContactPage() {
-  const settings = await getSettings();
+async function ContactContent() {
+  const [settings, sectionsRaw, heroText] = await Promise.all([
+    getSettings(),
+    cachedSectionContent("contact"),
+    cachedTextContent("contact-hero"),
+  ]);
+
+  const content = buildSectionsMap(sectionsRaw);
 
   return (
     <>
-      <ContactHero settings={settings} />
-      <ConsultationForm settings={settings} />
-      <ContactLocationSection settings={settings} />
+      <ContactHero settings={settings} content={content} textContent={heroText} />
+      <ConsultationForm settings={settings} content={content} />
+      <ContactLocationSection settings={settings} content={content} />
     </>
+  );
+}
+
+export default function ContactPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen animate-pulse bg-off-white" />}>
+      <ContactContent />
+    </Suspense>
   );
 }

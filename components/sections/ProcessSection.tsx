@@ -1,19 +1,12 @@
 "use client";
 
 import { useText, useLang } from "@/lib/i18n/lang-client";
-import type { SectionContentMap } from "@/lib/content/section-content";
+import { getVal, parseJSONLocale, type SectionContentMap } from "@/lib/content/section-content";
 
 export function ProcessSection({ content }: { content?: SectionContentMap }) {
   const t = useText();
-  const lang = useLang();
-  function val(key: string, fb: string) {
-    const c = content?.[key];
-    if (!c) return fb;
-    return lang === "np" && c.valueNp ? c.valueNp : c.valueEn || fb;
-  }
-
-  let steps: { title: string; body: string }[] = [];
-  try { steps = content?.steps ? JSON.parse(content.steps.valueEn) : t.process.steps; } catch { steps = t.process.steps; }
+  const lang = useLang() as "en" | "np";
+  const steps = parseJSONLocale<{ title: string; body: string }[]>(content, "steps", t.process.steps, lang);
 
   return (
     <section className="relative bg-off-white overflow-hidden">
@@ -41,20 +34,20 @@ export function ProcessSection({ content }: { content?: SectionContentMap }) {
       <div className="relative max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 grid lg:grid-cols-12 gap-12 lg:gap-8 py-20 sm:py-32 items-center">
         <div className="lg:col-span-5 text-white pr-0 lg:pr-10 animate-slide-in-left">
           <span className="inline-block font-label uppercase tracking-[0.15em] text-white text-xs font-semibold bg-white/15 px-3 py-1 rounded-full border border-white/20">
-            {val("label", t.process.label)}
+            {getVal(content, "label", t.process.label, lang)}
           </span>
           <h2 className="mt-5 font-display font-bold text-white text-3xl sm:text-4xl lg:text-[2.75rem] leading-tight">
-            {val("h2", t.process.h2)}
+            {getVal(content, "h2", t.process.h2, lang)}
           </h2>
           <p className="mt-5 text-white/80 text-base sm:text-lg leading-relaxed max-w-sm">
-            {val("subtitle", t.process.subtitle)}
+            {getVal(content, "subtitle", t.process.subtitle, lang)}
           </p>
 
           <div className="mt-8 inline-flex items-center gap-2 bg-white/10 border border-white/15 rounded-full px-4 py-2">
             <span className="text-2xl font-display font-bold text-white leading-none">
               {steps.length}
             </span>
-            <span className="text-white/70 text-sm">{val("simpleSteps", t.process.simpleSteps)}</span>
+            <span className="text-white/70 text-sm">{getVal(content, "simpleSteps", t.process.simpleSteps, lang)}</span>
           </div>
         </div>
 

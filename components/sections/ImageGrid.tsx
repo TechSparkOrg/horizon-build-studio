@@ -2,8 +2,10 @@
 
 import Image from "next/image";
 import { AnimateOnView } from "@/components/AnimateOnView";
+import { useLang } from "@/lib/i18n/lang-client";
+import { parseJSON, getVal, type SectionContentMap } from "@/lib/content/section-content";
 
-const images = [
+const defaultImages = [
   { src: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=80", alt: "Modern house exterior" },
   { src: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=600&q=80", alt: "Luxury home interior" },
   { src: "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?auto=format&fit=crop&w=600&q=80", alt: "Construction site" },
@@ -14,16 +16,18 @@ const images = [
   { src: "https://images.unsplash.com/photo-1600573472591-ee6b68d14c68?auto=format&fit=crop&w=600&q=80", alt: "Team at construction site" },
 ];
 
-export function ImageGrid() {
+export function ImageGrid({ content }: { content?: SectionContentMap }) {
+  const lang = useLang() as "en" | "np";
+  const images = parseJSON<{ src: string; alt: string }[]>(content, "gallery", defaultImages);
   return (
     <section className="bg-white py-16 sm:py-28">
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
         <AnimateOnView className="text-center mb-12">
           <h2 className="font-display font-bold text-brand-secondary text-3xl sm:text-4xl">
-            Our Work in Action
+            {getVal(content, "h2", "Our Work in Action", lang)}
           </h2>
           <p className="mt-3 text-mid-gray text-lg max-w-xl mx-auto">
-            From concept to completion — a glimpse into the projects and people that define Horizon Nepal.
+            {getVal(content, "subtitle", "From concept to completion — a glimpse into the projects and people that define Horizon Nepal.", lang)}
           </p>
         </AnimateOnView>
 

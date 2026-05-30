@@ -4,17 +4,20 @@ import { Linkedin, Mail } from "lucide-react";
 import Image from "next/image";
 import { AnimateOnView } from "@/components/AnimateOnView";
 import { SectionLabel } from "@/components/ui/SectionLabel";
-import { useText } from "@/lib/i18n/lang-client";
+import { useText, useLang } from "@/lib/i18n/lang-client";
+import { parseJSON, getVal, type SectionContentMap } from "@/lib/content/section-content";
 
-const team = [
+const defaultTeam = [
   { name: "Arun Thapa", role: "Lead Architect", img: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80" },
   { name: "Priya Shrestha", role: "Project Manager", img: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80" },
   { name: "Bikash Tamang", role: "Civil Engineer", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80" },
   { name: "Sunita Rai", role: "Interior Designer", img: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80" },
 ];
 
-export function TeamSection() {
+export function TeamSection({ content }: { content?: SectionContentMap }) {
   const t = useText();
+  const lang = useLang() as "en" | "np";
+  const team = parseJSON<{ name: string; role: string; img: string }[]>(content, "team", defaultTeam);
   return (
     <section className="bg-off-white py-16 sm:py-28">
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 text-center">

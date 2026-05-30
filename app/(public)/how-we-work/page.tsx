@@ -1,12 +1,10 @@
 import { Suspense } from "react";
 import { cookies } from "next/headers";
 import { getText } from "@/lib/i18n/lang";
-import { getAll } from "@/lib/services/services/faq.service";
+import { getAll as getAllFaqs } from "@/lib/services/services/faq.service";
+import { cachedSectionContent, cachedTextContent } from "@/lib/content/cached-content";
+import { buildSectionsMap, type SectionContentMap } from "@/lib/content/section-content";
 import type { FAQSectionItem } from "@/lib/services/types/faq.types";
-
-async function getAllFAQs() {
-  return getAll().catch(() => []);
-}
 import { HowWeWorkHero } from "@/components/sections/HowWeWorkHero";
 import { WelcomeText } from "@/components/sections/WelcomeText";
 import { HowWeWorkProcess } from "@/components/sections/HowWeWorkProcess";
@@ -15,6 +13,7 @@ import { DesignShowcaseSection } from "@/components/sections/DesignShowcaseSecti
 import { FAQSection } from "@/components/sections/FAQSection";
 import { ConsultationForm } from "@/components/sections/ConsultationForm";
 import { QuoteBannerSecondary } from "@/components/sections/QuoteBannerSecondary";
+
 export async function generateMetadata() {
   const t = getText((await cookies()).get("lang")?.value);
   return {
@@ -38,8 +37,8 @@ export async function generateMetadata() {
   };
 }
 
-async function FAQWrapper() {
-  const db = await getAllFAQs() as { question: string; answer: string; faqType?: { name: string } | null; category?: { name: string } | null }[];
+async function FAQWrapper({ content }: { content: SectionContentMap }) {
+  const db = await getAllFaqs().catch(() => []) as { question: string; answer: string; faqType?: { name: string } | null; category?: { name: string } | null }[];
   const faqs: FAQSectionItem[] = db.map((f) => ({
     q: f.question,
     a: f.answer,
@@ -48,22 +47,37 @@ async function FAQWrapper() {
     faqTypeName: f.faqType?.name ?? undefined,
     categoryName: f.category?.name ?? undefined,
   }));
-  return <FAQSection faqs={faqs} />;
+  return <FAQSection faqs={faqs} content={content} />;
+}
+
+async function HowWeWorkContent() {
+  const [sectionsRaw, heroText] = await Promise.all([
+    cachedSectionContent("how-we-work"),
+    cachedTextContent("how-we-work-hero"),
+  ]);
+
+  const content = buildSectionsMap(sectionsRaw);
+
+  return (
+    <>
+      <HowWeWorkHero content={content} textContent={heroText} />
+      <WelcomeText content={content} />
+      <HowWeWorkProcess content={content} />
+      <HowWeWorkDesignGrid content={content} />
+      <Suspense fallback={<div className="min-h-[400px]" />}>
+        <FAQWrapper content={content} />
+      </Suspense>
+      <DesignShowcaseSection content={content} />
+      <ConsultationForm />
+      <QuoteBannerSecondary content={content} />
+    </>
+  );
 }
 
 export default function HowWeWorkPage() {
   return (
-    <>
-      <HowWeWorkHero />
-      <WelcomeText />
-      <HowWeWorkProcess />
-      <HowWeWorkDesignGrid />
-      <Suspense fallback={<div className="min-h-[400px]" />}>
-        <FAQWrapper />
-      </Suspense>
-      <DesignShowcaseSection />
-      <ConsultationForm />
-      <QuoteBannerSecondary />
-    </>
+    <Suspense fallback={<div className="min-h-screen animate-pulse bg-off-white" />}>
+      <HowWeWorkContent />
+    </Suspense>
   );
 }

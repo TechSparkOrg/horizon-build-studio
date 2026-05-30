@@ -7,7 +7,8 @@ import { z } from "zod";
 import { toast } from "sonner";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { ModelViewer3D } from "@/components/ui/DynamicModelViewer3D";
-import { useText } from "@/lib/i18n/lang-client";
+import { useText, useLang } from "@/lib/i18n/lang-client";
+import { getVal, getMedia, type SectionContentMap } from "@/lib/content/section-content";
 import { submitContact } from "@/lib/services/actions/contact.actions";
 
 const formSchema = z.object({
@@ -25,7 +26,7 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-export function ConsultationForm({ settings }: { settings?: Record<string, string> }) {
+export function ConsultationForm({ settings, content }: { settings?: Record<string, string>; content?: SectionContentMap }) {
   const {
     register,
     handleSubmit,
@@ -44,6 +45,9 @@ export function ConsultationForm({ settings }: { settings?: Record<string, strin
   });
 
   const t = useText();
+  const lang = useLang();
+  const val = (key: string, fb: string) => getVal(content, key, fb, lang);
+  const media = (key: string, fb: string) => getMedia(content, key, fb);
   const phone = settings?.contact_phone ?? "+977 1 441 1222";
   const email = settings?.contact_email ?? "hello@horizonnepal.com.np";
   const address = settings?.contact_address ?? "Tinkune, Kathmandu";
@@ -91,16 +95,16 @@ export function ConsultationForm({ settings }: { settings?: Record<string, strin
               "repeating-linear-gradient(45deg, oklch(1 0 0 / 0.03) 0 2px, transparent 2px 14px)",
           }}
         >
-          <SectionLabel>{t.consultation.label}</SectionLabel>
+          <SectionLabel>{val("label", t.consultation.label)}</SectionLabel>
           <h2 className="mt-3 font-display font-bold text-white text-3xl sm:text-4xl leading-tight">
-            {t.consultation.h2}
+            {val("h2", t.consultation.h2)}
           </h2>
           <p className="mt-5 text-white/75 leading-relaxed max-w-md">
-            {t.consultation.subtitle}
+            {val("subtitle", t.consultation.subtitle)}
           </p>
           <div className="mt-8 rounded-xl overflow-hidden h-32 sm:h-36">
             <ModelViewer3D
-              src="/glb/mailbox.glb"
+              src={media("formModel", "/glb/mailbox.glb")}
               className="w-full h-full bg-transparent"
               hideBadge
               disableControls

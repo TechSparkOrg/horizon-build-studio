@@ -3,17 +3,12 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useText, useLang } from "@/lib/i18n/lang-client";
-import type { SectionContentMap } from "@/lib/content/section-content";
+import { getMedia, parseJSONLocale, type SectionContentMap } from "@/lib/content/section-content";
 
 export function QuoteBanner({ content }: { content?: SectionContentMap }) {
   const t = useText();
-  const lang = useLang();
-  function media(key: string, fb: string) {
-    return content?.[key]?.mediaUrl || fb;
-  }
-
-  let quotes: { text: string; attr: string }[] = [];
-  try { quotes = content?.quotes ? JSON.parse(content.quotes.valueEn) : t.quotes; } catch { quotes = t.quotes; }
+  const lang = useLang() as "en" | "np";
+  const quotes = parseJSONLocale<{ text: string; attr: string }[]>(content, "quotes", t.quotes, lang);
 
   const [i, setI] = useState(0);
   const ref = useRef<HTMLDivElement>(null);
@@ -28,7 +23,7 @@ export function QuoteBanner({ content }: { content?: SectionContentMap }) {
   return (
     <section ref={ref} className="relative py-16 sm:py-28 overflow-hidden">
       <div className="absolute inset-0">
-        <Image src={media("bgImage", "https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?auto=format&fit=crop&w=2000&q=80")} alt="" fill sizes="100vw" loading="lazy" className="object-cover" />
+        <Image src={getMedia(content, "bgImage", "https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?auto=format&fit=crop&w=2000&q=80")} alt="" fill sizes="100vw" loading="lazy" className="object-cover" />
       </div>
       <div
         className="absolute inset-0 bg-brand-dark/75"

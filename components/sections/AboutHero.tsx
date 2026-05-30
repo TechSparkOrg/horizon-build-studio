@@ -1,19 +1,43 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Shield, Award, Building2, Users } from "lucide-react";
+import { ArrowRight, Shield, Award, Building2, Users, type LucideIcon } from "lucide-react";
 import Image from "next/image";
 import { AnimateOnView } from "@/components/AnimateOnView";
 import { SectionLabel } from "@/components/ui/SectionLabel";
-import { useText } from "@/lib/i18n/lang-client";
+import { useText, useLang } from "@/lib/i18n/lang-client";
+import { getVal, parseJSONLocale, type SectionContentMap } from "@/lib/content/section-content";
 
-export function AboutHero() {
+interface TextContentData {
+  headingEn: string;
+  headingNp: string;
+  subheadingEn: string;
+  subheadingNp: string;
+}
+
+const STAT_ICONS: Record<string, LucideIcon> = { Shield, Award, Building2, Users };
+
+const statsFallback: { icon: string; label: string }[] = [
+  { icon: "Shield", label: "25+ Years Experience" },
+  { icon: "Award", label: "200+ Projects Done" },
+  { icon: "Building2", label: "50+ Team Members" },
+  { icon: "Users", label: "15+ Districts" },
+];
+
+export function AboutHero({ content, textContent }: { content?: SectionContentMap; textContent?: TextContentData | null }) {
   const t = useText();
+  const lang = useLang() as "en" | "np";
+  const val = (key: string, fb: string) => getVal(content, key, fb, lang);
+  const stats = parseJSONLocale<{ icon: string; label: string }[]>(content, "heroStats", statsFallback, lang);
+
+  const heading = lang === "np" && textContent?.headingNp ? textContent.headingNp : textContent?.headingEn || val("h2", t.about.h2);
+  const subheading = lang === "np" && textContent?.subheadingNp ? textContent.subheadingNp : textContent?.subheadingEn || val("description", t.about.description);
+
   return (
     <section className="relative min-h-[85vh] flex items-center overflow-hidden">
       <div className="absolute inset-0">
         <Image
-          src="https://images.unsplash.com/photo-1487958449943-2429e8be8625?auto=format&fit=crop&w=2000&q=80"
+          src={content?.bgImage?.mediaUrl || "https://images.unsplash.com/photo-1487958449943-2429e8be8625?auto=format&fit=crop&w=2000&q=80"}
           alt=""
           fill
           priority
@@ -38,7 +62,7 @@ export function AboutHero() {
       <div className="relative max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 w-full pt-36 pb-24">
         <div className="max-w-[680px]">
           <AnimateOnView animation="fade-in-up">
-            <SectionLabel>{t.about.label}</SectionLabel>
+            <SectionLabel>{val("label", t.about.label)}</SectionLabel>
           </AnimateOnView>
 
           <AnimateOnView animation="fade-in-up">
@@ -46,29 +70,28 @@ export function AboutHero() {
               className="mt-5 font-display font-bold text-white leading-[1.05]"
               style={{ fontSize: "clamp(2.4rem, 5vw, 4rem)" }}
             >
-              {t.about.h2}
+              {heading}
             </h1>
           </AnimateOnView>
 
           <AnimateOnView animation="fade-in-up">
             <p className="mt-5 text-white/75 text-lg max-w-[520px] leading-relaxed">
-              {t.about.description}
+              {subheading}
             </p>
           </AnimateOnView>
 
           <AnimateOnView animation="fade-in-up">
             <div className="mt-8 flex flex-wrap gap-6">
-              {[
-                { icon: Shield, label: "25+ Years Experience" },
-                { icon: Award, label: "200+ Projects Done" },
-                { icon: Building2, label: "50+ Team Members" },
-                { icon: Users, label: "15+ Districts" },
-              ].map((s) => (
-                <div key={s.label} className="flex items-center gap-2 text-white/80">
-                  <s.icon className="size-4 text-brand-primary" />
-                  <span className="text-sm font-medium">{s.label}</span>
-                </div>
-              ))}
+              {stats.map((s) => {
+                const Icon = STAT_ICONS[s.icon];
+                if (!Icon) return null;
+                return (
+                  <div key={s.label} className="flex items-center gap-2 text-white/80">
+                    <Icon className="size-4 text-brand-primary" />
+                    <span className="text-sm font-medium">{s.label}</span>
+                  </div>
+                );
+              })}
             </div>
           </AnimateOnView>
 
@@ -79,14 +102,14 @@ export function AboutHero() {
                 prefetch={false}
                 className="inline-flex items-center gap-2 h-12 px-7 rounded-full bg-brand-primary text-white font-semibold shadow-lg shadow-brand-primary/30 hover:brightness-110 hover:-translate-y-px transition-all duration-200"
               >
-                {t.hero.cta} <ArrowRight className="size-4" />
+                {val("cta", t.hero.cta)} <ArrowRight className="size-4" />
               </Link>
               <Link
                 href="/projects"
                 prefetch={false}
                 className="inline-flex items-center gap-2 h-12 px-7 rounded-full border border-white/40 text-white font-semibold backdrop-blur-sm bg-white/5 hover:bg-white/15 transition-all duration-200"
               >
-                {t.about.cta} <ArrowRight className="size-4" />
+                {val("ctaAbout", t.about.cta)} <ArrowRight className="size-4" />
               </Link>
             </div>
           </AnimateOnView>

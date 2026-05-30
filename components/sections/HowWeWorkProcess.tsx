@@ -11,7 +11,8 @@ import {
 } from "lucide-react";
 import { AnimateOnView } from "@/components/AnimateOnView";
 import { SectionLabel } from "@/components/ui/SectionLabel";
-import { useText } from "@/lib/i18n/lang-client";
+import { useText, useLang } from "@/lib/i18n/lang-client";
+import { getVal, parseJSONLocale, type SectionContentMap } from "@/lib/content/section-content";
 
 const STEP_ICONS = [
   Handshake,
@@ -23,24 +24,28 @@ const STEP_ICONS = [
   Home,
 ];
 
-export function HowWeWorkProcess() {
+export function HowWeWorkProcess({ content }: { content?: SectionContentMap }) {
   const t = useText();
+  const lang = useLang();
+  const val = (key: string, fb: string) => getVal(content, key, fb, lang);
+  const steps = parseJSONLocale<{ title: string; body: string }[]>(content, "steps", t.howWeWork.process.steps, lang);
+
   return (
     <section id="process" className="bg-off-white py-16 sm:py-28">
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8">
         <AnimateOnView className="max-w-2xl">
-          <SectionLabel>{t.howWeWork.process.label}</SectionLabel>
+          <SectionLabel>{val("processLabel", t.howWeWork.process.label)}</SectionLabel>
           <h2 className="mt-3 font-display font-bold text-brand-secondary text-3xl sm:text-4xl lg:text-5xl">
-            {t.howWeWork.process.h2}
+            {val("processH2", t.howWeWork.process.h2)}
           </h2>
           <p className="mt-4 text-mid-gray text-lg">
-            {t.howWeWork.process.subtitle}
+            {val("processSubtitle", t.howWeWork.process.subtitle)}
           </p>
         </AnimateOnView>
 
         <div className="mt-12 relative pl-10 sm:pl-14 before:absolute before:left-[21px] sm:before:left-[25px] before:top-2 before:bottom-2 before:w-[2px] before:bg-light-gray animate-stagger">
-          {t.howWeWork.process.steps.map((s, idx) => {
-            const Icon = STEP_ICONS[idx] ?? STEP_ICONS[0];
+          {steps.map((s, idx) => {
+            const Icon = STEP_ICONS[idx % STEP_ICONS.length];
             return (
               <div
                 key={s.title}

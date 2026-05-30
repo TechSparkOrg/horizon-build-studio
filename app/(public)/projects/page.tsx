@@ -1,26 +1,21 @@
 import { Suspense } from "react";
 import { cookies } from "next/headers";
 import { getText } from "@/lib/i18n/lang";
-import { getAll } from "@/lib/services/services/project.service";
+import { getAllProjects } from "@/lib/services/static-services";
+import type { ProjectListItem } from "@/lib/services/types/project.types";
 import { cachedSectionContent } from "@/lib/content/cached-content";
 import { buildSectionsMap, getVal } from "@/lib/content/section-content";
 import Link from "next/link";
 import Image from "next/image";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 
-type CardItem = {
-  id: string; title: string; slug: string; img: string; alt: string;
-  status: string; completion: number; location: string;
-  shortDescription: string; published: boolean;
-  category: { id: string; name: string } | null;
-};
-
 async function t() { return getText((await cookies()).get("lang")?.value); }
 
-function catUrl(cat: string, pg?: number) {
-  if (cat === "All" && !pg) return "/projects";
+function catUrl(cat: string | undefined, pg?: number) {
+  const category = cat ?? "All";
+  if (category === "All" && !pg) return "/projects";
   const p = new URLSearchParams();
-  if (cat !== "All") p.set("cat", cat);
+  if (category !== "All") p.set("cat", category);
   if (pg && pg > 1) p.set("page", String(pg));
   return `/projects${p.toString() ? `?${p}` : ""}`;
 }
@@ -52,7 +47,7 @@ async function ProjectList({ searchParams }: { searchParams: Awaited<{ page?: st
   const lang = await t();
   const label = statusLabel(lang.statusLabels);
 
-  const all = (await getAll().catch(() => [] as CardItem[])).filter((p) => p.published === true);
+  const all = (await getAllProjects().catch(() => [] as ProjectListItem[])).filter((p) => p.published === true);
   const categories = [...new Set(["All", ...all.map((p) => p.category?.name).filter(Boolean)])];
   const filtered = activeCat === "All" ? all : all.filter((p) => p.category?.name === activeCat);
   const items = filtered.slice((page - 1) * limit, page * limit);
@@ -74,7 +69,7 @@ async function ProjectList({ searchParams }: { searchParams: Awaited<{ page?: st
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {items.map((item) => (
-            <Link key={item.id} href={`/projects/${item.slug}`} prefetch={false}
+            <Link key={item.slug} href={`/projects/${item.slug}`} prefetch={false}
               className="group bg-white rounded-2xl overflow-hidden border border-light-gray hover:shadow-lg transition">
               <div className="relative h-56 bg-gray-100">
                 {item.img && <Image src={item.img} alt={item.title} fill sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw" className="object-cover group-hover:scale-105 transition-transform duration-500" />}

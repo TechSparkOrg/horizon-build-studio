@@ -1,9 +1,5 @@
 import { Suspense } from "react";
-import { getBySlug as getPageModelBySlug } from "@/lib/services/services/model.service";
-import { getBySlug as getBannerBySlug } from "@/lib/services/services/banner.service";
-import { getAll as getAllProjects } from "@/lib/services/services/project.service";
-import { getAll as getAllNews } from "@/lib/services/services/news.service";
-import { getAll as getAllFaqs } from "@/lib/services/services/faq.service";
+import { getBySlugModel, getBySlugBanner, getAllProjects, getAllNews, getAllFaqs } from "@/lib/services/static-services";
 import { cachedAllSections } from "@/lib/content/cached-content";
 import { buildAllSectionsMap } from "@/lib/content/section-content";
 import type { HomeProject } from "@/lib/services/types/project.types";
@@ -20,7 +16,7 @@ import { FAQSection } from "@/components/sections/FAQSection";
 
 async function getModels3d() {
   try {
-    const model = await getPageModelBySlug("home-page-1");
+    const model = await getBySlugModel("home-page-1");
     return model?.models3d ?? [];
   } catch {
     return [];
@@ -29,7 +25,7 @@ async function getModels3d() {
 
 async function getBanners() {
   try {
-    const banner = await getBannerBySlug("home-page-banner");
+    const banner = await getBySlugBanner("home-page-banner");
     return banner?.images.map((img) => ({ image: img.image, alt: img.alt })) ?? [];
   } catch {
     return [];
@@ -44,7 +40,7 @@ async function HomeContent() {
       getBanners(),
       getSettings(),
       getAllProjects().catch(() => []),
-      getAllNews().catch(() => ({ items: [] })),
+      getAllNews().catch(() => []),
       getAllFaqs().catch(() => []),
     ]);
 
@@ -66,7 +62,7 @@ async function HomeContent() {
   }));
   const filters = ["All", ...new Set(projects.map((p) => p.category).filter((c): c is string => !!c))];
 
-  const news = rawNewsResult.items.slice(0, 5).map((n) => ({
+  const news = rawNewsResult.slice(0, 5).map((n) => ({
     title: n.title,
     excerpt: n.excerpt ?? "",
     cat: n.category,

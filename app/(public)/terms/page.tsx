@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { cookies } from "next/headers";
 import { getText } from "@/lib/i18n/lang";
-import { getBySlug } from "@/lib/services/services/page.service";
+import { getBySlugPage } from "@/lib/services/static-services";
 
 export async function generateMetadata() {
   const t = getText((await cookies()).get("lang")?.value);
@@ -22,7 +22,7 @@ export async function generateMetadata() {
 
 async function TermsContent() {
   const lang = (await cookies()).get("lang")?.value || "en";
-  const page = await getBySlug("terms");
+  const page = await getBySlugPage("terms");
 
   if (!page) {
     // Fallback to static content if not in DB

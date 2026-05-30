@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import dynamic from "next/dynamic";
-import { getAll, getBySlug } from "@/lib/services/services/news.service";
+import { getAllNews, getNewsBySlug } from "@/lib/services/static-services";
 import { NewsArticleSchema } from "@/lib/schemas/news";
 import type { NewsDisplay } from "@/lib/services/types/news.types";
 
@@ -9,8 +9,8 @@ const NewsDetail = dynamic(() => import("@/components/sections/NewsDetail").then
 
 export async function generateStaticParams() {
   try {
-    const all = await getAll() as any[];
-    if (all.length > 0) return all.map((n: any) => ({ slug: n.slug }));
+    const all = await getAllNews();
+    if (all.length > 0) return all.map((n) => ({ slug: n.slug }));
   } catch {
     /* empty */
   }
@@ -19,7 +19,7 @@ export async function generateStaticParams() {
 
 async function fetchArticle(slug: string): Promise<NewsDisplay | null> {
   try {
-    const raw = await getBySlug(slug);
+    const raw = await getNewsBySlug(slug);
     const parsed = NewsArticleSchema.safeParse(raw);
     if (!parsed.success) return null;
     const a = parsed.data;

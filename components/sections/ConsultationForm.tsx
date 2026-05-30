@@ -9,7 +9,7 @@ import { SectionLabel } from "@/components/ui/SectionLabel";
 import { ModelViewer3D } from "@/components/ui/DynamicModelViewer3D";
 import { useText, useLang } from "@/lib/i18n/lang-client";
 import { getVal, getMedia, type SectionContentMap } from "@/lib/content/section-content";
-import { submitContact } from "@/lib/services/actions/contact.actions";
+import { submitContact } from "@/lib/services/client/contact";
 
 const formSchema = z.object({
   name: z.string().trim().min(2, "Please enter your name").max(80),

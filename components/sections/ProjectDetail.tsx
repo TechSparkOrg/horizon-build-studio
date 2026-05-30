@@ -259,9 +259,9 @@ export function ProjectDetail({
         <div className="absolute inset-0 bg-gradient-to-t from-gray-900/85 via-gray-900/30 to-transparent" />
         <div className="relative max-w-5xl mx-auto px-6 w-full pb-14 z-10">
           <div className="max-w-2xl space-y-4">
-            {project.category && (
+            {project.category?.name && (
               <span className="inline-block bg-blue-600 text-white text-xs font-semibold tracking-wider uppercase px-3 py-1 rounded-sm">
-                {project.category}
+                {project.category.name}
               </span>
             )}
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight tracking-tight">

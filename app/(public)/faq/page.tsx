@@ -1,8 +1,7 @@
 import { Suspense } from "react";
 import { cookies } from "next/headers";
 import { getText } from "@/lib/i18n/lang";
-import { getAll as getAllFaqs } from "@/lib/services/services/faq.service";
-import { getAll as getAllFaqTypes } from "@/lib/services/services/faq-type.service";
+import { getAllFaqs, getAllFaqTypes } from "@/lib/services/static-services";
 import { cachedSectionContent } from "@/lib/content/cached-content";
 import { buildSectionsMap, getVal } from "@/lib/content/section-content";
 import { FAQAccordion } from "@/components/sections/FAQAccordion";

@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import dynamic from "next/dynamic";
-import { getAll, getBySlug, getRelated, getAdjacent, getBySlugMeta } from "@/lib/services/services/project.service";
+import { getAllProjects, getProjectBySlug, getProjectRelated, getProjectAdjacent, getProjectMetaBySlug } from "@/lib/services/static-services";
 import { ProjectPageSchema } from "@/lib/schemas/project";
 
 const ProjectDetail = dynamic(() => import("@/components/sections/ProjectDetail").then(m => m.ProjectDetail));
@@ -11,7 +11,7 @@ const ProjectAdjacentSection = dynamic(() => import("@/components/sections/Proje
 
 export async function generateStaticParams() {
   try {
-    const all = await getAll();
+    const all = await getAllProjects();
     if (all.length > 0) return all.map((p: any) => ({ slug: p.slug }));
   } catch { /* empty */ }
   return [{ slug: "__placeholder__" }];
@@ -28,14 +28,14 @@ async function getRawData(slug: string) {
 
 async function fetchData(slug: string) {
   try {
-    const project = await getBySlug(slug);
+    const project = await getProjectBySlug(slug);
     if (!project) return { success: false as const };
 
     const faqs = (project.projectFaqs ?? []).map((pf: any) => pf.faq).filter(Boolean);
     const faqTypes = [...new Map(faqs.filter((f: any) => f.faqType).map((f: any) => [f.faqType.id, f.faqType])).values()];
     const [related, [prev, next]] = await Promise.all([
-      getRelated(project.id, project.categoryId),
-      getAdjacent(project.order),
+      getProjectRelated(project.id, project.categoryId),
+      getProjectAdjacent(project.order),
     ]);
 
     return ProjectPageSchema.safeParse({
@@ -56,7 +56,7 @@ function projectToProps(project: any) {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const slug = (await params).slug;
-  const meta = await getBySlugMeta(slug);
+  const meta = await getProjectMetaBySlug(slug);
   if (!meta) return { title: "Project Not Found" };
   return { title: meta.title, description: meta.shortDescription };
 }

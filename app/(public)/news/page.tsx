@@ -1,15 +1,15 @@
 import { Suspense } from "react";
 import { cookies } from "next/headers";
 import { getText } from "@/lib/i18n/lang";
-import { getAll } from "@/lib/services/services/news.service";
+import { getAllNews } from "@/lib/services/static-services";
 import { cachedSectionContent } from "@/lib/content/cached-content";
 import { buildSectionsMap, getVal } from "@/lib/content/section-content";
 import Link from "next/link";
 import Image from "next/image";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 
-async function getAllNews() {
-  return getAll().catch(() => []);
+async function fetchNewsList() {
+  return getAllNews().catch(() => []);
 }
 
 export async function generateMetadata() {
@@ -45,7 +45,7 @@ async function NewsList({
   const limit = 12;
   const t = getText((await cookies()).get("lang")?.value);
 
-  const all = (await getAllNews()) as any[];
+  const all = (await fetchNewsList()) as any[];
   const total = all.length;
   const totalPages = Math.ceil(total / limit);
   const items = all.slice((page - 1) * limit, page * limit);

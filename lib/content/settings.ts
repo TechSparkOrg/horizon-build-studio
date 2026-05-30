@@ -1,5 +1,5 @@
 import { cache } from "react";
-import { getAll as getAllSettings } from "@/lib/services/services/settings.service";
+import { getAllSettings } from "@/lib/services/static-services";
 
 export const getSettings = cache(async (): Promise<Record<string, string>> => {
   try {

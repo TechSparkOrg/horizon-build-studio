@@ -1,5 +1,4 @@
-import { getBySection as fetchSectionContent, getAll as fetchAllSections } from "@/lib/services/services/section.service";
-import { getBySlug as fetchTextContent } from "@/lib/services/services/text-content.service";
+import { getBySection as fetchSectionContent, getAllSections as fetchAllSections, getBySlugText as fetchTextContent } from "@/lib/services/static-services";
 import { memo } from "@/lib/cache/memo";
 
 const TTL = Number(process.env.CONTENT_CACHE_TTL) || 5 * 60 * 1000;
